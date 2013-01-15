@@ -8,9 +8,12 @@ package org.fcrepo.ffmodeshapeprototype;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Workspace;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +27,11 @@ import org.modeshape.jcr.RepositoryConfiguration;
 
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import org.modeshape.jcr.JcrSession;
 
 /**
  *
@@ -42,7 +47,7 @@ public class Server {
     public Server() throws Exception, ConfigurationException, RepositoryException {
                 RepositoryConfiguration repository_config = null;
         try {
-            repository_config = RepositoryConfiguration.read("{ \"name\": \"My Prototype Repository\" }");
+            repository_config = RepositoryConfiguration.read("my_repository.json");
             Problems problems = repository_config.validate();
             
             if (problems.hasErrors()) {
@@ -66,6 +71,9 @@ public class Server {
         
         engine.start();
         this.repository = engine.deploy(repository_config);
+        
+        Workspace ws = this.repository.login().getWorkspace();
+        ws.createWorkspace("fedora");
     }
     
     @GET
@@ -74,5 +82,33 @@ public class Server {
         return Response.status(200).entity(this.repository.getName()).build();
     } 
     
+    @POST
+    @Path("/objects/{pid}")
+    public Response ingest(@PathParam("pid") String pid) throws RepositoryException {
+        JcrSession session = this.repository.login("fedora");
+      
+        Node root = session.getRootNode();
+        if(session.hasPermission("/" + pid, "add_node")) {
+            Node obj = root.addNode(pid);
+            obj.setProperty("ownerId", "Fedo Radmin");
+            session.save();
+            return Response.status(200).entity(obj.toString()).build();
+        } else {
+            return Response.status(401).entity("NO!").build();
+        }
+    }
     
+    @GET
+    @Path("/objects/{pid}")
+    public Response getObject(@PathParam("pid") String pid) throws RepositoryException { 
+        JcrSession session = this.repository.login("fedora");
+        Node root = session.getRootNode();
+        
+        if(root.hasNode(pid)) {
+            return Response.status(200).entity(pid).build(); 
+       } else {
+            return Response.status(404).entity("404").build();
+        }
+        
+    }
 }
