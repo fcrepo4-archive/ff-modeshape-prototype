@@ -20,14 +20,14 @@ import org.modeshape.jcr.ConfigurationException;
  */
 
 @Path("/")
-public class Server extends AbstractResource {
+public class FedoraRepository extends AbstractResource {
 	
-	public Server() throws Exception, ConfigurationException,
+	public FedoraRepository() throws Exception, ConfigurationException,
 			RepositoryException {
 		super();
 	}
 
-	private final Logger logger = Logger.getLogger(Server.class);
+	private final Logger logger = Logger.getLogger(FedoraRepository.class);
 
 	@GET
 	@Path("/describe")

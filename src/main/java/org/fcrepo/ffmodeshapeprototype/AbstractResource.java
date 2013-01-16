@@ -6,6 +6,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Workspace;
 
 import org.infinispan.schematic.document.ParsingException;
+import org.modeshape.common.SystemFailureException;
 import org.modeshape.common.collection.Problems;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.jcr.ConfigurationException;
@@ -18,7 +19,7 @@ public abstract class AbstractResource {
 
 	static protected Workspace ws = null;
 
-	public AbstractResource() throws Exception, ConfigurationException,
+	public AbstractResource() throws ConfigurationException,
 			RepositoryException {
 		if (ws == null) {
 			RepositoryConfiguration repository_config = null;
@@ -28,9 +29,8 @@ public abstract class AbstractResource {
 				Problems problems = repository_config.validate();
 
 				if (problems.hasErrors()) {
-					System.err.println("Problems starting the engine.");
-					System.err.println(problems);
-					throw new Exception("Problems starting the engine.");
+					throw new ConfigurationException(problems,
+							"Problems starting the engine.");
 				}
 
 			} catch (ParsingException ex) {
@@ -42,7 +42,7 @@ public abstract class AbstractResource {
 			ModeShapeEngine engine = new ModeShapeEngine();
 
 			if (engine == null || repository_config == null) {
-				throw new Exception("Missing engine");
+				throw new SystemFailureException("Missing engine");
 			}
 			logger.debug("Started ModeShape engine.\n");
 			engine.start();
