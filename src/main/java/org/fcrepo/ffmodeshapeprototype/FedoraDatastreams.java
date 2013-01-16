@@ -36,7 +36,7 @@ public class FedoraDatastreams extends AbstractResource {
 			session.save();
 			return Response.status(200).entity(ds.toString()).build();
 		} else {
-			return Response.status(401).entity("NO!").build();
+			return four01;
 		}
 	}
 
@@ -52,7 +52,7 @@ public class FedoraDatastreams extends AbstractResource {
 			return Response.status(200).header("FedoraDatastreamId", dsid)
 					.entity(ds.getProperty("content").getBinary().getStream()).build();
 		} else {
-			return Response.status(404).entity("404").build();
+			return four01;
 		}
 
 	}

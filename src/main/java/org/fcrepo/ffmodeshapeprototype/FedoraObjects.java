@@ -32,7 +32,7 @@ public class FedoraObjects extends AbstractResource {
 			session.save();
 			return Response.status(200).entity(obj.toString()).build();
 		} else {
-			return Response.status(401).entity("NO!").build();
+			return four01;
 		}
 	}
 
@@ -46,7 +46,7 @@ public class FedoraObjects extends AbstractResource {
 		if (root.hasNode(pid)) {
 			return Response.status(200).entity(pid).build();
 		} else {
-			return Response.status(404).entity("404").build();
+			return four01;
 		}
 
 	}

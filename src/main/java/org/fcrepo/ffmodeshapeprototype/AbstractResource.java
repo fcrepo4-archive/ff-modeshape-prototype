@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Workspace;
+import javax.ws.rs.core.Response;
 
 import org.infinispan.schematic.document.ParsingException;
 import org.modeshape.common.SystemFailureException;
@@ -15,6 +16,9 @@ import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
 
 public abstract class AbstractResource {
+
+	static final Response four01 = Response.status(404).entity("404").build();
+	
 	private final Logger logger = Logger.getLogger(AbstractResource.class);
 
 	static protected Workspace ws = null;
