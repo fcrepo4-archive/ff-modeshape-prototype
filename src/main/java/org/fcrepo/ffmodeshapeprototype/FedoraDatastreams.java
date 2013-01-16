@@ -66,7 +66,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response getDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		return getResourceMetadata("/" + pid + "/" + dsid);
+		return getResourceMetadata(pid + "/" + dsid);
 	}
 
 	@GET
