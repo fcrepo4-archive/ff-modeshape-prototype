@@ -32,7 +32,7 @@ public class FedoraDatastreams extends AbstractResource {
 		StringBuffer nodes = new StringBuffer();
 
 		if (root.hasNode(pid)) {
-			for (NodeIterator i = root.getNode("pid").getNodes(); i.hasNext();) {
+			for (NodeIterator i = root.getNode(pid).getNodes(); i.hasNext();) {
 				Node ds = i.nextNode();
 				nodes.append("Name: " + ds.getName() + ", Path:" + ds.getPath()
 						+ "\n");
