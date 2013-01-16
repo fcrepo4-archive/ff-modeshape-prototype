@@ -66,15 +66,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response getDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
-
-		if (root.hasNode(pid + "/" + dsid)) {
-			Node ds = root.getNode(pid + "/" + dsid);
-			return Response.status(200).entity(ds.toString()).build();
-		} else {
-			return four04;
-		}
+		return getResourceMetadata("/" + pid + "/" + dsid);
 	}
 
 	@GET
@@ -97,20 +89,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@DELETE
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
-			@PathParam("dsid") String dsid)
-			throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
-		if (root.hasNode(pid + "/" + dsid)) {
-			if (session.hasPermission("/" + pid + "/" + dsid, "remove")) {
-				root.getNode(pid + "/" + dsid).remove();
-				session.save();
-				return Response.status(204).build();
-			} else {
-				return four01;
-			}
-		} else {
-			return four04;
-		}
+			@PathParam("dsid") String dsid) throws RepositoryException {
+		return deleteResource("/" + pid + "/" + dsid);
 	}
 }

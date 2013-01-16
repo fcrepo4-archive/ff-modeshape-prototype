@@ -1,7 +1,5 @@
 package org.fcrepo.ffmodeshapeprototype;
 
-import java.io.InputStream;
-
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -43,33 +41,13 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	public Response getObject(@PathParam("pid") String pid)
 			throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
-
-		if (root.hasNode(pid)) {
-			return Response.status(200).entity(root.getNode(pid).toString())
-					.build();
-		} else {
-			return four04;
-		}
+		return getResourceMetadata("/"+ pid);
 	}
-	
+
 	@DELETE
 	@Path("/{pid}")
-	public Response deleteDatastream(@PathParam("pid") String pid)
+	public Response deleteObject(@PathParam("pid") String pid)
 			throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
-		if (root.hasNode(pid)) {
-			if (session.hasPermission("/" + pid, "remove")) {
-				root.getNode(pid).remove();
-				session.save();
-				return Response.status(204).build();
-			} else {
-				return four01;
-			}
-		} else {
-			return four04;
-		}
+		return deleteResource("/" + pid);
 	}
 }

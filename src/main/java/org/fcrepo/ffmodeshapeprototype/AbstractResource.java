@@ -2,8 +2,13 @@ package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.FileNotFoundException;
 
+import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.Workspace;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.infinispan.schematic.document.ParsingException;
@@ -19,8 +24,7 @@ public abstract class AbstractResource {
 
 	static final Response four01 = Response.status(404).entity("401").build();
 	static final Response four04 = Response.status(404).entity("404").build();
-	
-	
+
 	private final Logger logger = Logger.getLogger(AbstractResource.class);
 
 	static protected Workspace ws = null;
@@ -57,6 +61,35 @@ public abstract class AbstractResource {
 			ws = repository.login().getWorkspace();
 			ws.createWorkspace("fedora");
 			logger.debug("Created 'fedora' workspace.\n");
+		}
+	}
+	
+	protected Response getResourceMetadata(String path)
+			throws RepositoryException {
+		Session session = ws.getSession();
+		Node root = session.getRootNode();
+
+		if (root.hasNode(path)) {
+			return Response.status(200).entity(root.getNode(path).toString())
+					.build();
+		} else {
+			return four04;
+		}
+	}
+
+	protected Response deleteResource(String path) throws RepositoryException {
+		Session session = ws.getSession();
+		Node root = session.getRootNode();
+		if (root.hasNode(path)) {
+			if (session.hasPermission(path, "remove")) {
+				root.getNode(path).remove();
+				session.save();
+				return Response.status(204).build();
+			} else {
+				return four01;
+			}
+		} else {
+			return four04;
 		}
 	}
 }
