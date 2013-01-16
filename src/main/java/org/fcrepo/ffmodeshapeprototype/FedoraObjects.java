@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 
 import org.modeshape.jcr.ConfigurationException;
 
-@Path("/")
+@Path("/objects")
 public class FedoraObjects extends AbstractResource {
 
 	public FedoraObjects() throws Exception, ConfigurationException,
@@ -20,7 +20,7 @@ public class FedoraObjects extends AbstractResource {
 	}
 
 	@POST
-	@Path("/objects/{pid}")
+	@Path("/{pid}")
 	public Response ingest(@PathParam("pid") String pid)
 			throws RepositoryException {
 		Session session = ws.getSession();
@@ -37,7 +37,7 @@ public class FedoraObjects extends AbstractResource {
 	}
 
 	@GET
-	@Path("/objects/{pid}")
+	@Path("/{pid}")
 	public Response getObject(@PathParam("pid") String pid)
 			throws RepositoryException {
 		Session session = ws.getSession();
