@@ -81,7 +81,7 @@ public abstract class AbstractResource {
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
 		if (root.hasNode(path)) {
-			if (session.hasPermission(path, "remove")) {
+			if (session.hasPermission("/" + path, "remove")) {
 				root.getNode(path).remove();
 				session.save();
 				return Response.status(204).build();

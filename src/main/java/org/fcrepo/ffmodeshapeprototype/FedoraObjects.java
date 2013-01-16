@@ -41,13 +41,13 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	public Response getObject(@PathParam("pid") String pid)
 			throws RepositoryException {
-		return getResourceMetadata("/"+ pid);
+		return getResourceMetadata(pid);
 	}
 
 	@DELETE
 	@Path("/{pid}")
 	public Response deleteObject(@PathParam("pid") String pid)
 			throws RepositoryException {
-		return deleteResource("/" + pid);
+		return deleteResource(pid);
 	}
 }
