@@ -2,15 +2,9 @@ package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.InputStream;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.jcr.*;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.modeshape.jcr.ConfigurationException;
@@ -46,13 +40,14 @@ public class FedoraDatastreams extends AbstractResource {
 	@POST
 	@Path("/{dsid}")
 	public Response addOrMutateDatastream(@PathParam("pid") String pid,
-			@PathParam("dsid") String dsid, InputStream requestBodyStream)
+			@PathParam("dsid") String dsid, @HeaderParam("Content-Type") MediaType contentType,  InputStream requestBodyStream)
 			throws RepositoryException {
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
 		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
 			Node ds = root.addNode(pid + "/" + dsid);
 			ds.setProperty("ownerId", "Fedo Radmin");
+            ds.setProperty("contentType", contentType.toString());
 			ds.setProperty("content",
 					session.getValueFactory().createBinary(requestBodyStream));
 			session.save();
@@ -78,9 +73,18 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (root.hasNode(pid + "/" + dsid)) {
 			Node ds = root.getNode(pid + "/" + dsid);
-			return Response.status(200).header("FedoraDatastreamId", dsid)
-					.entity(ds.getProperty("content").getBinary().getStream())
-					.build();
+            Property p = ds.getProperty("contentType");
+
+            String mimeType;
+
+            if(ds.hasProperty("contentType")) {
+                 mimeType = ds.getProperty("contentType").getValue().getString();
+            } else {
+                mimeType = "application/octet-stream";
+            }
+            Response.ResponseBuilder responseBuilder = Response.ok(ds.getProperty("content").getBinary().getStream(), mimeType);
+			responseBuilder.header("FedoraDatastreamId", dsid);
+			return responseBuilder.build();
 		} else {
 			return four04;
 		}
