@@ -56,7 +56,7 @@ public class FedoraObjects extends AbstractResource {
 			return Response
 					.ok()
 					.entity(renderTemplate("objectProfile.ftl",
-							ImmutableMap.of("obj", (Object) root.getNode(pid))))
+							ImmutableMap.of("obj", (Object) root.getNode(pid), "ownerId", root.getNode(pid).getProperty("ownerId").getString())))
 					.build();
 		} else {
 			return four04;
