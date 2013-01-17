@@ -3,6 +3,7 @@ package org.fcrepo.ffmodeshapeprototype;
 import java.io.IOException;
 import java.util.Map;
 
+import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
@@ -39,19 +40,26 @@ public class FedoraRepository extends AbstractResource {
 	@GET
 	@Path("/describe")
 	public Response describe() throws JsonGenerationException,
-			JsonMappingException, IOException {
+			JsonMappingException, IOException, RepositoryException {
 		Repository repo = ws.getSession().getRepository();
 		logger.debug("Repository name: "
 				+ repo.getDescriptor(Repository.REP_NAME_DESC));
-		Builder<String, String> b = ImmutableMap.builder();
+		Builder<String, Object> repoproperties = ImmutableMap.builder();
 		for (String key : repo.getDescriptorKeys()) {
 			if (repo.getDescriptor(key) != null)
-				b.put(key, repo.getDescriptor(key));
+				repoproperties.put(key, repo.getDescriptor(key));
 		}
+		NamespaceRegistry reg = ws.getNamespaceRegistry();
+		Builder<String, String> namespaces = ImmutableMap.builder();
+		for (String prefix : reg.getPrefixes()) {
+			namespaces.put(prefix, reg.getURI(prefix));
+		}
+		repoproperties.put("node.namespaces", namespaces.build());
+
 		return Response
 				.ok()
 				.entity(mapper.writerWithType(Map.class).writeValueAsString(
-						b.build())).build();
+						repoproperties.build())).build();
 	}
 
 	@GET
