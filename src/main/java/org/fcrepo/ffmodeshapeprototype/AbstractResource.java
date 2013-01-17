@@ -69,6 +69,7 @@ public abstract class AbstractResource {
 			logger.debug("Deployed repository.");
 			ws = repository.login().getWorkspace();
 			ws.createWorkspace("fedora");
+			ws.getNamespaceRegistry().registerNamespace("test", "test");
 			logger.debug("Created 'fedora' workspace.\n");
 		}
 

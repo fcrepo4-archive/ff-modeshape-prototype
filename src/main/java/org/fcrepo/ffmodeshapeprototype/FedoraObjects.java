@@ -16,6 +16,8 @@ import javax.ws.rs.core.Response;
 
 import org.modeshape.jcr.ConfigurationException;
 
+import com.google.common.collect.ImmutableMap;
+
 import freemarker.template.TemplateException;
 
 @Path("/objects")
@@ -30,8 +32,8 @@ public class FedoraObjects extends AbstractResource {
 	public Response ingest(@PathParam("pid") String pid)
 			throws RepositoryException {
 		Session session = ws.getSession();
-
 		Node root = session.getRootNode();
+		
 		if (session.hasPermission("/" + pid, "add_node")) {
 			Node obj = root.addNode(pid);
 			obj.setProperty("ownerId", "Fedo Radmin");
@@ -47,16 +49,14 @@ public class FedoraObjects extends AbstractResource {
 	@Produces("text/xml")
 	public Response getObjectInXML(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
-		Session session = ws.getSession();
-		final Node root = session.getRootNode();
+		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid)) {
-			return Response.ok()
-					.entity(renderTemplate("objectProfile.ftl", new HashMap<String,Object>() {
-						{
-							put("obj", root.getNode(pid));
-						}
-					})).build();
+			return Response
+					.ok()
+					.entity(renderTemplate("objectProfile.ftl",
+							ImmutableMap.of("obj", (Object) root.getNode(pid))))
+					.build();
 		} else {
 			return four04;
 		}

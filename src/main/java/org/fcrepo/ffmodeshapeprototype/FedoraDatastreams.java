@@ -2,7 +2,6 @@ package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.jcr.Node;
@@ -20,6 +19,7 @@ import javax.ws.rs.core.Response;
 
 import org.modeshape.jcr.ConfigurationException;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
@@ -37,14 +37,14 @@ public class FedoraDatastreams extends AbstractResource {
 	@Produces("text/xml")
 	public Response getDatastreams(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
-		Session session = ws.getSession();
-		final Node root = session.getRootNode();
+
+		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid)) {
-			Builder<Node> datastreams = new Builder<Node>();
-			datastreams.addAll(root.getNode(pid).getNodes());
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("datastreams", datastreams.build());
+			Builder<Node> datastreams = new Builder<Node>().addAll(root
+					.getNode(pid).getNodes());
+			Map<String, Object> map = ImmutableMap.of("datastreams",
+					(Object) datastreams.build());
 			return Response.ok()
 					.entity(renderTemplate("listDatastreams.ftl", map)).build();
 		} else {
@@ -54,12 +54,14 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@POST
 	@Path("/{dsid}")
-	public Response addOrMutateDatastream(@PathParam("pid") String pid,
-			@PathParam("dsid") String dsid,
-			@HeaderParam("Content-Type") MediaType contentType,
+	public Response addOrMutateDatastream(@PathParam("pid") final String pid,
+			@PathParam("dsid") final String dsid,
+			@HeaderParam("Content-Type") final MediaType contentType,
 			InputStream requestBodyStream) throws RepositoryException {
+
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
+
 		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
 			Node ds = root.addNode(pid + "/" + dsid);
 			ds.setProperty("ownerId", "Fedo Radmin");
@@ -77,16 +79,18 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	@Produces("text/xml")
 	public Response getDatastream(@PathParam("pid") final String pid,
-			@PathParam("dsid") final String dsid) throws RepositoryException, IOException, TemplateException {
-		Session session = ws.getSession();
-		final Node root = session.getRootNode();
+			@PathParam("dsid") final String dsid) throws RepositoryException,
+			IOException, TemplateException {
+
+		final Node root = ws.getSession().getRootNode();
+
 		if (root.hasNode(pid + "/" + dsid)) {
-			return Response.ok()
-					.entity(renderTemplate("datastreamProfile.ftl",  new HashMap<String,Object>() {
-						{
-							put("ds", root.getNode(pid+ "/" + dsid));
-						}
-					}))
+			return Response
+					.ok()
+					.entity(renderTemplate(
+							"datastreamProfile.ftl",
+							ImmutableMap.of("ds",
+									(Object) root.getNode(pid + "/" + dsid))))
 					.build();
 		} else {
 			return four04;
@@ -95,24 +99,18 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@GET
 	@Path("/{dsid}/content")
-	public Response getDatastreamContent(@PathParam("pid") String pid,
-			@PathParam("dsid") String dsid) throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
+	public Response getDatastreamContent(@PathParam("pid") final String pid,
+			@PathParam("dsid") final String dsid) throws RepositoryException {
+
+		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid + "/" + dsid)) {
 			Node ds = root.getNode(pid + "/" + dsid);
-			String mimeType;
-
-			if (ds.hasProperty("contentType")) {
-				mimeType = ds.getProperty("contentType").getValue().getString();
-			} else {
-				mimeType = "application/octet-stream";
-			}
-			Response.ResponseBuilder responseBuilder = Response.ok(ds
-					.getProperty("content").getBinary().getStream(), mimeType);
-			responseBuilder.header("FedoraDatastreamId", dsid);
-			return responseBuilder.build();
+			String mimeType = ds.hasProperty("contentType") ? ds.getProperty(
+					"contentType").getString() : "application/octet-stream";
+			return Response
+					.ok(ds.getProperty("content").getBinary().getStream(),
+							mimeType).build();
 		} else {
 			return four04;
 		}
