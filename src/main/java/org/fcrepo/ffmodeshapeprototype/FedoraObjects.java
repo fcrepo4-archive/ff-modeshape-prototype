@@ -28,13 +28,13 @@ public class FedoraObjects extends AbstractResource {
 
 	@POST
 	@Path("/{pid}")
-	public Response ingest(@PathParam("pid") String pid)
+	public Response ingest(@PathParam("pid") final String pid)
 			throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
+		final Session session = ws.getSession();
+		final Node root = session.getRootNode();
 
 		if (session.hasPermission("/" + pid, "add_node")) {
-			Node obj = root.addNode(pid);
+			final Node obj = root.addNode(pid);
 			obj.setProperty("ownerId", "Fedo Radmin");
 			session.save();
 			return Response.ok().entity(pid).build();
@@ -65,7 +65,7 @@ public class FedoraObjects extends AbstractResource {
 
 	@DELETE
 	@Path("/{pid}")
-	public Response deleteObject(@PathParam("pid") String pid)
+	public Response deleteObject(@PathParam("pid") final String pid)
 			throws RepositoryException {
 		return deleteResource(pid);
 	}

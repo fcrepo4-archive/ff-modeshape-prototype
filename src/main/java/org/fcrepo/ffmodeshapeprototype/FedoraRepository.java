@@ -41,17 +41,21 @@ public class FedoraRepository extends AbstractResource {
 	@Path("/describe")
 	public Response describe() throws JsonGenerationException,
 			JsonMappingException, IOException, RepositoryException {
-		Repository repo = ws.getSession().getRepository();
+		
+		//start with repo configuration properties
+		final Repository repo = ws.getSession().getRepository();
 		logger.debug("Repository name: "
 				+ repo.getDescriptor(Repository.REP_NAME_DESC));
-		Builder<String, Object> repoproperties = ImmutableMap.builder();
-		for (String key : repo.getDescriptorKeys()) {
+		final Builder<String, Object> repoproperties = ImmutableMap.builder();
+		for (final String key : repo.getDescriptorKeys()) {
 			if (repo.getDescriptor(key) != null)
 				repoproperties.put(key, repo.getDescriptor(key));
 		}
+		
+		// add in node namespaces
 		NamespaceRegistry reg = ws.getNamespaceRegistry();
-		Builder<String, String> namespaces = ImmutableMap.builder();
-		for (String prefix : reg.getPrefixes()) {
+		final Builder<String, String> namespaces = ImmutableMap.builder();
+		for (final String prefix : reg.getPrefixes()) {
 			namespaces.put(prefix, reg.getURI(prefix));
 		}
 		repoproperties.put("node.namespaces", namespaces.build());

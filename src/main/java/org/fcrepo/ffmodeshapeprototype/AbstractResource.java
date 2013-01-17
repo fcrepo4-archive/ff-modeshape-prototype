@@ -61,13 +61,13 @@ public abstract class AbstractResource {
 				logger.error(ex, null, (Object) null);
 			}
 
-			ModeShapeEngine engine = new ModeShapeEngine();
+			final ModeShapeEngine engine = new ModeShapeEngine();
 
 			if (engine == null || repository_config == null) {
 				throw new SystemFailureException("Missing engine");
 			}
 			engine.start();
-			JcrRepository repository = engine.deploy(repository_config);
+			final JcrRepository repository = engine.deploy(repository_config);
 			logger.debug("Deployed repository.");
 			ws = repository.login().getWorkspace();
 			ws.createWorkspace("fedora");
@@ -86,9 +86,9 @@ public abstract class AbstractResource {
 		}
 	}
 
-	protected Response deleteResource(String path) throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
+	protected Response deleteResource(final String path) throws RepositoryException {
+		final Session session = ws.getSession();
+		final Node root = session.getRootNode();
 		if (root.hasNode(path)) {
 			if (session.hasPermission("/" + path, "remove")) {
 				root.getNode(path).remove();

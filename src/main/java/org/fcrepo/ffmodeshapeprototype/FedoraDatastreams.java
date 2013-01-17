@@ -43,9 +43,9 @@ public class FedoraDatastreams extends AbstractResource {
 		if (root.hasNode(pid)) {
 			
 			@SuppressWarnings("unchecked")
-			Builder<Node> datastreams = new Builder<Node>().addAll(root
+			final Builder<Node> datastreams = new Builder<Node>().addAll(root
 					.getNode(pid).getNodes());
-			Map<String, Object> map = ImmutableMap.of("datastreams",
+			final Map<String, Object> map = ImmutableMap.of("datastreams",
 					(Object) datastreams.build());
 			return Response.ok()
 					.entity(renderTemplate("listDatastreams.ftl", map)).build();
@@ -61,14 +61,14 @@ public class FedoraDatastreams extends AbstractResource {
 			@HeaderParam("Content-Type") MediaType contentType,
 			InputStream requestBodyStream) throws RepositoryException {
 
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
+		final Session session = ws.getSession();
+		final Node root = session.getRootNode();
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
 
 		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
-			Node ds = root.addNode(pid + "/" + dsid);
+			final Node ds = root.addNode(pid + "/" + dsid);
 			ds.setProperty("ownerId", "Fedo Radmin");
 			ds.setProperty("contentType", contentType.toString());
 			ds.setProperty("content",
@@ -110,8 +110,8 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid + "/" + dsid)) {
-			Node ds = root.getNode(pid + "/" + dsid);
-			String mimeType = ds.hasProperty("contentType") ? ds.getProperty(
+			final Node ds = root.getNode(pid + "/" + dsid);
+			final String mimeType = ds.hasProperty("contentType") ? ds.getProperty(
 					"contentType").getString() : "application/octet-stream";
 			return Response
 					.ok(ds.getProperty("content").getBinary().getStream(),
