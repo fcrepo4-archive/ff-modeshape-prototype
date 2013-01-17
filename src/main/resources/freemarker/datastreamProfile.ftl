@@ -3,7 +3,7 @@
   pid="${ds.getParent().getName()}" dsID="${ds.getName()}">
     <dsLabel>${ds.getName()}</dsLabel>
     <dsVersionID></dsVersionID>
-    <dsCreateDate></dsCreateDate>
+    <dsCreateDate>${ds.getProperty("jcr:created").getString()}</dsCreateDate>
     <dsState>A</dsState>
     <dsMIME></dsMIME>
     <dsFormatURI></dsFormatURI>

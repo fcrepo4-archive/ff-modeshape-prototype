@@ -19,6 +19,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import freemarker.template.TemplateException;
+
+import java.util.Calendar;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
 
@@ -45,6 +47,8 @@ public class FedoraObjects extends AbstractResource {
 			final Node obj = root.addNode(pid, "fedora:object");
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
+            obj.setProperty("jcr:created", Calendar.getInstance());
+            obj.setProperty("jcr:lastModified", Calendar.getInstance());
 			session.save();
 			return Response.ok().entity(pid).build();
 		} else {

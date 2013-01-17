@@ -4,8 +4,8 @@
     <objOwnerId>${obj.getProperty("fedora:ownerId").getString()}</objOwnerId>
     <objModels>
     </objModels>
-    <#-- <objCreateDate>${obj.getProperty("jcr:created").getString()}</objCreateDate> -->
-    <#-- <objLastModDate>${obj.getProperty("jcr:lastModified").getString()}</objLastModDate> -->
+    <objCreateDate>${obj.getProperty("jcr:created").getString()}</objCreateDate>
+    <objLastModDate>${obj.getProperty("jcr:lastModified").getString()}</objLastModDate>
     <objDissIndexViewURL>http://example.com</objDissIndexViewURL>
     <objItemIndexViewURL>${obj.getPath()}</objItemIndexViewURL>
     <objState>A</objState>
