@@ -34,7 +34,7 @@ public class FedoraObjects extends AbstractResource {
 
 	@POST
 	@Path("/{pid}")
-	public Response ingest(@PathParam("pid") final String pid)
+	public Response ingest(@PathParam("pid") String pid)
 			throws RepositoryException {
 		final Session session = ws.getSession();
 		final Node root = session.getRootNode();
