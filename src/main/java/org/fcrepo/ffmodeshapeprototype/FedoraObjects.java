@@ -32,23 +32,26 @@ public class FedoraObjects extends AbstractResource {
 			IOException {
 		super();
 	}
+    @POST
+    @Path("/new")
+    public Response ingestAndMint()
+            throws RepositoryException {
+        final String pid = mintPid();
+
+        return ingest(pid);
+    }
 
 	@POST
 	@Path("/{pid}")
-	public Response ingest(@PathParam("pid") String pid)
+	public Response ingest(@PathParam("pid") final String pid)
 			throws RepositoryException {
 		final Session session = ws.getSession();
 		final Node root = session.getRootNode();
 
-        if(pid == "new") {
-            pid = mintPid();
-        }
-		
 		if (session.hasPermission("/" + pid, "add_node")) {
 			final Node obj = root.addNode(pid, "fedora:object");
 			obj.addMixin("fedora:owned");
             obj.addMixin("fedora:created");
-
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
             obj.setProperty("jcr:lastModified", Calendar.getInstance());
 			session.save();
