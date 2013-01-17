@@ -9,6 +9,7 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+<<<<<<< HEAD
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
@@ -21,6 +22,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+=======
+import javax.ws.rs.*;
+>>>>>>> datastreams tesst
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -64,43 +68,79 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@POST
 	@Path("/{dsid}")
-	public Response addOrMutateDatastream(@PathParam("pid") final String pid,
-			@PathParam("dsid") final String dsid,
-			@HeaderParam("Content-Type") MediaType contentType,
-			InputStream requestBodyStream) throws RepositoryException {
+    public Response addDatastream(@PathParam("pid") final String pid,
+                                          @PathParam("dsid") final String dsid,
+                                          @HeaderParam("Content-Type") MediaType contentType,
+                                          InputStream requestBodyStream) throws RepositoryException {
+        final Session session = ws.getSession();
+        final Node root = session.getRootNode();
+        final VersionManager v = ws.getVersionManager();
 
-		final Session session = ws.getSession();
-		final Node root = session.getRootNode();
-		final VersionManager v = ws.getVersionManager();
+        contentType = contentType != null ? contentType
+                : MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        String dspath = pid + "/" + dsid;
 
-		contentType = contentType != null ? contentType
-				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
-		String dspath = pid + "/" + dsid;
+        if (session.hasPermission("/" + dspath, "add_node")) {
+            if (!root.hasNode(dspath)) {
+                return Response
+                        .status(Response.Status.CREATED)
+                        .entity(addDatastreamNode(dspath, contentType,
+                                requestBodyStream, session).toString()).build();
+            } else {
+                if (session.hasPermission("/" + dspath, "remove")) {
+                    root.getNode(dspath).remove();
+                    return Response
+                            .ok()
+                            .entity(addDatastreamNode(dspath, contentType,
+                                    requestBodyStream, session).toString())
+                            .build();
 
-		if (session.hasPermission("/" + dspath, "add_node")) {
-			if (!root.hasNode(dspath)) {
-				return Response
-						.ok()
-						.entity(addDatastream(dspath, contentType,
-								requestBodyStream, session).toString()).build();
-			} else {
-				if (session.hasPermission("/" + dspath, "remove")) {
-					root.getNode(dspath).remove();
-					return Response
-							.ok()
-							.entity(addDatastream(dspath, contentType,
-									requestBodyStream, session).toString())
-							.build();
+                } else
+                    return four01;
+            }
+        } else {
+            return four01;
+        }
+    }
 
-				} else
-					return four01;
-			}
-		} else {
-			return four01;
-		}
-	}
+    @PUT
+    @Path("/{dsid}")
+    public Response modifyDatastream(@PathParam("pid") final String pid,
+                                  @PathParam("dsid") final String dsid,
+                                  @HeaderParam("Content-Type") MediaType contentType,
+                                  InputStream requestBodyStream) throws RepositoryException {
+        final Session session = ws.getSession();
+        final Node root = session.getRootNode();
+        final VersionManager v = ws.getVersionManager();
 
-	private Node addDatastream(final String dspath,
+        contentType = contentType != null ? contentType
+                : MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        String dspath = pid + "/" + dsid;
+
+        if (session.hasPermission("/" + dspath, "add_node")) {
+            if (!root.hasNode(dspath)) {
+                return Response
+                        .status(Response.Status.CREATED)
+                        .entity(addDatastreamNode(dspath, contentType,
+                                requestBodyStream, session).toString()).build();
+            } else {
+                if (session.hasPermission("/" + dspath, "remove")) {
+                    root.getNode(dspath).remove();
+                    return Response
+                            .ok()
+                            .entity(addDatastreamNode(dspath, contentType,
+                                    requestBodyStream, session).toString())
+                            .build();
+
+                } else
+                    return four01;
+            }
+        } else {
+            return four01;
+        }
+    }
+
+	private Node addDatastreamNode(final String dspath,
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws ItemExistsException,
 			PathNotFoundException, NoSuchNodeTypeException, LockException,
@@ -112,6 +152,7 @@ public class FedoraDatastreams extends AbstractResource {
 		ds.setProperty("fedora:contentType", contentType.toString());
 		ds.setProperty("fedora:content", session.getValueFactory()
 				.createBinary(requestBodyStream));
+        ds.setProperty("jcr:lastModified", Calendar.getInstance());
 		return ds;
 	}
 
