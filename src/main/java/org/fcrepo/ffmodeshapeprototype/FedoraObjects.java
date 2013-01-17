@@ -62,10 +62,12 @@ public class FedoraObjects extends AbstractResource {
 		final Node root = session.getRootNode();
 
 		if (root.hasNode(pid)) {
-			return Response
-					.status(200)
-					.entity(renderTemplate("objectProfile.ftl",
-							root.getNode(pid))).build();
+			return Response.status(200)
+					.entity(renderTemplate("objectProfile.ftl", new HashMap<String,Object>() {
+						{
+							put("obj", root.getNode(pid));
+						}
+					})).build();
 		} else {
 			return four04;
 		}

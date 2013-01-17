@@ -1,5 +1,7 @@
 package org.fcrepo.ffmodeshapeprototype;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +9,8 @@ import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -111,30 +115,13 @@ public abstract class AbstractResource {
 	}
 
 	protected InputStream renderTemplate(final String templatename,
-			final Node node) throws RepositoryException, IOException {
+			final Map<String,Object> map) throws RepositoryException, IOException, TemplateException {
 
 		final Template template = freemarker.getTemplate(templatename);
-		final PipedInputStream in = new PipedInputStream();
-		final PipedOutputStream out = new PipedOutputStream(in);
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					template.process(new HashMap<String, Node>() {
-						{
-							put("node", node);
-						}
-					}, new OutputStreamWriter(out));
-					out.close();
-				} catch (TemplateException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-			}
-		}).start();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		template.process(map, new OutputStreamWriter(out));		
+		InputStream in = new ByteArrayInputStream(out.toByteArray());
+		out.close();
 		return in;
-
 	}
 }

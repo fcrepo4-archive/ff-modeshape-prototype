@@ -1,6 +1,12 @@
 package org.fcrepo.ffmodeshapeprototype;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.jcr.*;
 import javax.ws.rs.*;
@@ -9,28 +15,36 @@ import javax.ws.rs.core.Response;
 
 import org.modeshape.jcr.ConfigurationException;
 
+import freemarker.template.TemplateException;
+
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
 
-	public FedoraDatastreams() throws ConfigurationException, RepositoryException {
+	public FedoraDatastreams() throws ConfigurationException,
+			RepositoryException {
 		super();
 	}
 
 	@GET
 	@Path("/")
-	public Response getDatastreams(@PathParam("pid") String pid)
-			throws RepositoryException {
+	@Produces("text/xml")
+	public Response getDatastreams(@PathParam("pid") final String pid)
+			throws RepositoryException, IOException, TemplateException {
 		Session session = ws.getSession();
-		Node root = session.getRootNode();
+		final Node root = session.getRootNode();
 		StringBuffer nodes = new StringBuffer();
 
 		if (root.hasNode(pid)) {
-			for (NodeIterator i = root.getNode(pid).getNodes(); i.hasNext();) {
-				Node ds = i.nextNode();
-				nodes.append("Name: " + ds.getName() + ", Path:" + ds.getPath()
-						+ "\n");
+			Set<Node> datastreams = new HashSet<Node>();
+			NodeIterator i = root.getNode(pid).getNodes();
+			while (i.hasNext()) {
+				datastreams.add(i.nextNode());
 			}
-			return Response.status(200).entity(nodes.toString()).build();
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("datastreams", datastreams);
+
+			InputStream in = renderTemplate("listDatastreams.ftl", map);
+			return Response.status(200).entity(in).build();
 		} else {
 			return four04;
 		}
@@ -39,14 +53,15 @@ public class FedoraDatastreams extends AbstractResource {
 	@POST
 	@Path("/{dsid}")
 	public Response addOrMutateDatastream(@PathParam("pid") String pid,
-			@PathParam("dsid") String dsid, @HeaderParam("Content-Type") MediaType contentType,  InputStream requestBodyStream)
-			throws RepositoryException {
+			@PathParam("dsid") String dsid,
+			@HeaderParam("Content-Type") MediaType contentType,
+			InputStream requestBodyStream) throws RepositoryException {
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
-		if (session.hasPermission(pid + "/" + dsid, "add_node")) {
+		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
 			Node ds = root.addNode(pid + "/" + dsid);
 			ds.setProperty("ownerId", "Fedo Radmin");
-            ds.setProperty("contentType", contentType.toString());
+			ds.setProperty("contentType", contentType.toString());
 			ds.setProperty("content",
 					session.getValueFactory().createBinary(requestBodyStream));
 			session.save();
@@ -72,16 +87,17 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (root.hasNode(pid + "/" + dsid)) {
 			Node ds = root.getNode(pid + "/" + dsid);
-            Property p = ds.getProperty("contentType");
+			Property p = ds.getProperty("contentType");
 
-            String mimeType;
+			String mimeType;
 
-            if(ds.hasProperty("contentType")) {
-                 mimeType = ds.getProperty("contentType").getValue().getString();
-            } else {
-                mimeType = "application/octet-stream";
-            }
-            Response.ResponseBuilder responseBuilder = Response.ok(ds.getProperty("content").getBinary().getStream(), mimeType);
+			if (ds.hasProperty("contentType")) {
+				mimeType = ds.getProperty("contentType").getValue().getString();
+			} else {
+				mimeType = "application/octet-stream";
+			}
+			Response.ResponseBuilder responseBuilder = Response.ok(ds
+					.getProperty("content").getBinary().getStream(), mimeType);
 			responseBuilder.header("FedoraDatastreamId", dsid);
 			return responseBuilder.build();
 		} else {
