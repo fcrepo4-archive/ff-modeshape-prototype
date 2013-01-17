@@ -49,6 +49,7 @@ public class FedoraObjects extends AbstractResource {
 	@Produces("text/xml")
 	public Response getObjectInXML(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
+		
 		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid)) {

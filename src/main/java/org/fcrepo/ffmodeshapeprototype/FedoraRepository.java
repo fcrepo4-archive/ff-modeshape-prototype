@@ -1,6 +1,13 @@
 package org.fcrepo.ffmodeshapeprototype;
 
-import javax.jcr.*;
+import java.io.IOException;
+
+import javax.jcr.NamespaceRegistry;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.Workspace;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -14,9 +21,6 @@ import org.modeshape.jcr.ConfigurationException;
 import com.google.common.collect.ImmutableMap;
 
 import freemarker.template.TemplateException;
-
-import java.io.IOException;
-import java.net.URI;
 
 /**
  * 
