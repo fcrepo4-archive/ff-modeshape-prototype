@@ -63,12 +63,13 @@ public abstract class AbstractResource {
 			if (engine == null || repository_config == null) {
 				throw new SystemFailureException("Missing engine");
 			}
-			logger.debug("Started ModeShape engine.\n");
 			engine.start();
 			JcrRepository repository = engine.deploy(repository_config);
 			logger.debug("Deployed repository.");
 			ws = repository.login().getWorkspace();
 			ws.createWorkspace("fedora");
+			// switching to our new Fedora workspace
+			ws = repository.login("fedora").getWorkspace();
 			ws.getNamespaceRegistry().registerNamespace("test", "test");
 			logger.debug("Created 'fedora' workspace.\n");
 		}
@@ -79,20 +80,6 @@ public abstract class AbstractResource {
 			// Specify the data source where the template files come from.
 			freemarker.setClassForTemplateLoading(this.getClass(),
 					"/freemarker");
-		}
-	}
-
-	@Deprecated
-	protected Response getResourceMetadata(String path)
-			throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
-
-		if (root.hasNode(path)) {
-			return Response.status(200).entity(root.getNode(path).toString())
-					.build();
-		} else {
-			return four04;
 		}
 	}
 
