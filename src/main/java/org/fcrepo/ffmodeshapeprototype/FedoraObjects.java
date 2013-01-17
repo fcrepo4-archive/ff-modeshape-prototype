@@ -36,7 +36,7 @@ public class FedoraObjects extends AbstractResource {
 			Node obj = root.addNode(pid);
 			obj.setProperty("ownerId", "Fedo Radmin");
 			session.save();
-			return Response.ok().entity(obj.toString()).build();
+			return Response.ok().entity(pid).build();
 		} else {
 			return four01;
 		}
