@@ -6,10 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.jcr.Node;
@@ -85,6 +81,7 @@ public abstract class AbstractResource {
 		}
 	}
 
+	@Deprecated
 	protected Response getResourceMetadata(String path)
 			throws RepositoryException {
 		Session session = ws.getSession();

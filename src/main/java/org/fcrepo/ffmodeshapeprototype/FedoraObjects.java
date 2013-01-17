@@ -1,9 +1,6 @@
 package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.HashMap;
 
 import javax.jcr.Node;
@@ -19,7 +16,6 @@ import javax.ws.rs.core.Response;
 
 import org.modeshape.jcr.ConfigurationException;
 
-import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 @Path("/objects")
@@ -44,13 +40,6 @@ public class FedoraObjects extends AbstractResource {
 		} else {
 			return four01;
 		}
-	}
-
-	@GET
-	@Path("/{pid}")
-	public Response getObject(@PathParam("pid") String pid)
-			throws RepositoryException {
-		return getResourceMetadata(pid);
 	}
 
 	@GET
