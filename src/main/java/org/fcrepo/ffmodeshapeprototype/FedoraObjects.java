@@ -1,16 +1,10 @@
 package org.fcrepo.ffmodeshapeprototype;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.PipedReader;
-import java.io.PipedWriter;
-import java.io.Writer;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -23,7 +17,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import org.jboss.resteasy.core.ServerResponse;
 import org.modeshape.jcr.ConfigurationException;
 
 import freemarker.template.Template;
