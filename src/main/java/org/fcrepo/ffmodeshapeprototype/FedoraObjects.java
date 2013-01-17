@@ -1,7 +1,6 @@
 package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -33,7 +32,7 @@ public class FedoraObjects extends AbstractResource {
 			throws RepositoryException {
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
-		
+
 		if (session.hasPermission("/" + pid, "add_node")) {
 			Node obj = root.addNode(pid);
 			obj.setProperty("ownerId", "Fedo Radmin");
@@ -49,15 +48,16 @@ public class FedoraObjects extends AbstractResource {
 	@Produces("text/xml")
 	public Response getObjectInXML(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
-		
+
 		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid)) {
 			return Response
 					.ok()
-					.entity(renderTemplate("objectProfile.ftl",
-							ImmutableMap.of("obj", (Object) root.getNode(pid), "ownerId", root.getNode(pid).getProperty("ownerId").getString())))
-					.build();
+					.entity(renderTemplate("objectProfile.ftl", ImmutableMap
+							.of("obj", (Object) root.getNode(pid), "ownerId",
+									root.getNode(pid).getProperty("ownerId")
+											.getString()))).build();
 		} else {
 			return four04;
 		}

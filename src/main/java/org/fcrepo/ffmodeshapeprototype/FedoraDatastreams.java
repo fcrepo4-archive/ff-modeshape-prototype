@@ -56,11 +56,14 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response addOrMutateDatastream(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid,
-			@HeaderParam("Content-Type") final MediaType contentType,
+			@HeaderParam("Content-Type") MediaType contentType,
 			InputStream requestBodyStream) throws RepositoryException {
 
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
+
+		contentType = contentType != null ? contentType
+				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
 
 		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
 			Node ds = root.addNode(pid + "/" + dsid);
