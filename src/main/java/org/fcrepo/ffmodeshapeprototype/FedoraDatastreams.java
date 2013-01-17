@@ -3,17 +3,25 @@ package org.fcrepo.ffmodeshapeprototype;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-import javax.jcr.*;
-import javax.ws.rs.*;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.modeshape.jcr.ConfigurationException;
+
+import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
 
@@ -35,16 +43,12 @@ public class FedoraDatastreams extends AbstractResource {
 		StringBuffer nodes = new StringBuffer();
 
 		if (root.hasNode(pid)) {
-			Set<Node> datastreams = new HashSet<Node>();
-			NodeIterator i = root.getNode(pid).getNodes();
-			while (i.hasNext()) {
-				datastreams.add(i.nextNode());
-			}
+			Builder<Node> datastreams = new Builder<Node>();
+			datastreams.addAll(root.getNode(pid).getNodes());
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("datastreams", datastreams);
-
-			InputStream in = renderTemplate("listDatastreams.ftl", map);
-			return Response.status(200).entity(in).build();
+			map.put("datastreams", datastreams.build());
+			return Response.status(200)
+					.entity(renderTemplate("listDatastreams.ftl", map)).build();
 		} else {
 			return four04;
 		}
