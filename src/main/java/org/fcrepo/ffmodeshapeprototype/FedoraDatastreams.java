@@ -41,6 +41,8 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid)) {
+			
+			@SuppressWarnings("unchecked")
 			Builder<Node> datastreams = new Builder<Node>().addAll(root
 					.getNode(pid).getNodes());
 			Map<String, Object> map = ImmutableMap.of("datastreams",

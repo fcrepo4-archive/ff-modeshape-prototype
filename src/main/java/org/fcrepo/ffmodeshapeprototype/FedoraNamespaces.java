@@ -76,6 +76,8 @@ public class FedoraNamespaces extends AbstractResource {
 
 		NamespaceRegistry r = ws.getSession().getWorkspace()
 				.getNamespaceRegistry();
+		
+		@SuppressWarnings("unchecked")
 		Map<String, String> nses = mapper.readValue(message, Map.class);
 		for (Map.Entry<String, String> entry : nses.entrySet()) {
 			r.registerNamespace(entry.getKey(), entry.getValue());
