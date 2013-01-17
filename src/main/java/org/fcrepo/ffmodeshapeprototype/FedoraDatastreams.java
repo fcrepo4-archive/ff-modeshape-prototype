@@ -40,14 +40,13 @@ public class FedoraDatastreams extends AbstractResource {
 			throws RepositoryException, IOException, TemplateException {
 		Session session = ws.getSession();
 		final Node root = session.getRootNode();
-		StringBuffer nodes = new StringBuffer();
 
 		if (root.hasNode(pid)) {
 			Builder<Node> datastreams = new Builder<Node>();
 			datastreams.addAll(root.getNode(pid).getNodes());
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("datastreams", datastreams.build());
-			return Response.status(200)
+			return Response.ok()
 					.entity(renderTemplate("listDatastreams.ftl", map)).build();
 		} else {
 			return four04;
@@ -69,7 +68,7 @@ public class FedoraDatastreams extends AbstractResource {
 			ds.setProperty("content",
 					session.getValueFactory().createBinary(requestBodyStream));
 			session.save();
-			return Response.status(200).entity(ds.toString()).build();
+			return Response.ok().entity(ds.toString()).build();
 		} else {
 			return four01;
 		}
@@ -77,9 +76,22 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@GET
 	@Path("/{dsid}")
-	public Response getDatastream(@PathParam("pid") String pid,
-			@PathParam("dsid") String dsid) throws RepositoryException {
-		return getResourceMetadata(pid + "/" + dsid);
+	@Produces("text/xml")
+	public Response getDatastream(@PathParam("pid") final String pid,
+			@PathParam("dsid") final String dsid) throws RepositoryException, IOException, TemplateException {
+		Session session = ws.getSession();
+		final Node root = session.getRootNode();
+		if (root.hasNode(pid + "/" + dsid)) {
+			return Response.ok()
+					.entity(renderTemplate("datastreamProfile.ftl",  new HashMap<String,Object>() {
+						{
+							put("ds", root.getNode(pid+ "/" + dsid));
+						}
+					}))
+					.build();
+		} else {
+			return four04;
+		}
 	}
 
 	@GET
@@ -91,8 +103,6 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (root.hasNode(pid + "/" + dsid)) {
 			Node ds = root.getNode(pid + "/" + dsid);
-			Property p = ds.getProperty("contentType");
-
 			String mimeType;
 
 			if (ds.hasProperty("contentType")) {

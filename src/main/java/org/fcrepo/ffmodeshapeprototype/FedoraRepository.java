@@ -30,7 +30,7 @@ public class FedoraRepository extends AbstractResource {
 	@GET
 	@Path("/describe")
 	public Response describe() {
-		return Response.status(200).entity(ws.getName()).build();
+		return Response.ok().entity(ws.getName()).build();
 	}
 
 	@GET
@@ -46,7 +46,7 @@ public class FedoraRepository extends AbstractResource {
 					+ "\n");
 		}
 
-		return Response.status(200).entity(nodes.toString()).build();
+		return Response.ok().entity(nodes.toString()).build();
 
 	}
 }

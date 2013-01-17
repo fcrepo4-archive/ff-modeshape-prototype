@@ -40,7 +40,7 @@ public class FedoraObjects extends AbstractResource {
 			Node obj = root.addNode(pid);
 			obj.setProperty("ownerId", "Fedo Radmin");
 			session.save();
-			return Response.status(200).entity(obj.toString()).build();
+			return Response.ok().entity(obj.toString()).build();
 		} else {
 			return four01;
 		}
@@ -62,7 +62,7 @@ public class FedoraObjects extends AbstractResource {
 		final Node root = session.getRootNode();
 
 		if (root.hasNode(pid)) {
-			return Response.status(200)
+			return Response.ok()
 					.entity(renderTemplate("objectProfile.ftl", new HashMap<String,Object>() {
 						{
 							put("obj", root.getNode(pid));
