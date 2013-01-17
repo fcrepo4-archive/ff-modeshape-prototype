@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.modeshape.jcr.ConfigurationException;
 
 import com.google.common.collect.ImmutableMap;
@@ -30,7 +29,7 @@ import freemarker.template.TemplateException;
 public class FedoraNamespaces extends AbstractResource {
 
 	public FedoraNamespaces() throws ConfigurationException,
-			RepositoryException {
+			RepositoryException, IOException {
 		super();
 	}
 

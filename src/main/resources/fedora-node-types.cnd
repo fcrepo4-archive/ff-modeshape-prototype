@@ -1,0 +1,74 @@
+
+/*
+ * JCR node types for use with Fedora
+ */
+<jcr = 'http://www.jcp.org/jcr/1.0'>
+<nt = 'http://www.jcp.org/jcr/nt/1.0'>
+<mix = 'http://www.jcp.org/jcr/mix/1.0'>
+
+/*
+ * Friend-of-a-Friend
+ */
+<foaf = 'http://xmlns.com/foaf/0.1/'>
+
+/*
+ * Generic Fedora namespace
+ */
+<fedora = 'info:fedora'>
+
+
+/*
+ * Any Fedora resource.
+ */
+[fedora:resource] > nt:hierarchyNode abstract
+
+
+/*
+ * A Fedora object.
+ */
+[fedora:object] > fedora:resource 
+	+ * (fedora:datastream) = fedora:datastream COPY
+
+
+/*
+ * A Fedora datastream.
+ */
+[fedora:datastream] > fedora:resource primaryitem fedora:content
+	
+	/*
+	 * The stuff in a datastream. Is left untyped in order to allow for the use of the JCR value type system.
+	 */
+	- fedora:content (UNDEFINED) mandatory COPY
+	
+	/*
+	 * The MIMEtype of this datastream.
+	 */
+	- fedora:contentType (STRING) COPY
+
+
+/*
+ * Indicates that this resource is owned.
+ */
+[fedora:owned] mixin noquery
+	
+	/*
+	 * The owner of this owned resource.
+	 */
+	- fedora:owner (REFERENCE) COPY
+	
+	/*
+	 * For use for when the owner-entities are not managed in the repository.
+	 */
+	- fedora:ownerId (STRING) COPY
+
+
+/*
+ * Some entity that owns a Fedora resource.
+ */
+[fedora:owner] primaryitem foaf:name
+	
+	/*
+	 * The name of this owner.
+	 */
+	- foaf:name (STRING) multiple COPY
+

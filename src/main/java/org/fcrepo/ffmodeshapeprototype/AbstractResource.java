@@ -23,6 +23,7 @@ import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
+import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -30,7 +31,7 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 public abstract class AbstractResource {
-	
+
 	static final ObjectMapper mapper = new ObjectMapper();
 
 	static final Response four01 = Response.status(404).entity("401").build();
@@ -42,7 +43,7 @@ public abstract class AbstractResource {
 	static protected Workspace ws = null;
 
 	public AbstractResource() throws ConfigurationException,
-			RepositoryException {
+			RepositoryException, IOException {
 		if (ws == null) {
 			RepositoryConfiguration repository_config = null;
 			try {
@@ -74,6 +75,7 @@ public abstract class AbstractResource {
 			// switching to our new Fedora workspace
 			ws = repository.login("fedora").getWorkspace();
 			ws.getNamespaceRegistry().registerNamespace("test", "test");
+			
 			logger.debug("Created 'fedora' workspace.\n");
 		}
 
@@ -86,7 +88,8 @@ public abstract class AbstractResource {
 		}
 	}
 
-	protected Response deleteResource(final String path) throws RepositoryException {
+	protected Response deleteResource(final String path)
+			throws RepositoryException {
 		final Session session = ws.getSession();
 		final Node root = session.getRootNode();
 		if (root.hasNode(path)) {
@@ -103,11 +106,12 @@ public abstract class AbstractResource {
 	}
 
 	protected InputStream renderTemplate(final String templatename,
-			final Map<String,Object> map) throws RepositoryException, IOException, TemplateException {
+			final Map<String, Object> map) throws RepositoryException,
+			IOException, TemplateException {
 
 		final Template template = freemarker.getTemplate(templatename);
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		template.process(map, new OutputStreamWriter(out));		
+		template.process(map, new OutputStreamWriter(out));
 		InputStream in = new ByteArrayInputStream(out.toByteArray());
 		out.close();
 		return in;

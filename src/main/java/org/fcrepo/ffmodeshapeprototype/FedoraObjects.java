@@ -22,7 +22,8 @@ import freemarker.template.TemplateException;
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
 
-	public FedoraObjects() throws ConfigurationException, RepositoryException {
+	public FedoraObjects() throws ConfigurationException, RepositoryException,
+			IOException {
 		super();
 	}
 
@@ -34,8 +35,9 @@ public class FedoraObjects extends AbstractResource {
 		final Node root = session.getRootNode();
 
 		if (session.hasPermission("/" + pid, "add_node")) {
-			final Node obj = root.addNode(pid);
-			obj.setProperty("ownerId", "Fedo Radmin");
+			final Node obj = root.addNode(pid, "fedora:object");
+			obj.addMixin("fedora:owned");
+			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			session.save();
 			return Response.ok().entity(pid).build();
 		} else {
@@ -54,10 +56,9 @@ public class FedoraObjects extends AbstractResource {
 		if (root.hasNode(pid)) {
 			return Response
 					.ok()
-					.entity(renderTemplate("objectProfile.ftl", ImmutableMap
-							.of("obj", (Object) root.getNode(pid), "ownerId",
-									root.getNode(pid).getProperty("ownerId")
-											.getString()))).build();
+					.entity(renderTemplate("objectProfile.ftl",
+							ImmutableMap.of("obj", (Object) root.getNode(pid))))
+					.build();
 		} else {
 			return four04;
 		}

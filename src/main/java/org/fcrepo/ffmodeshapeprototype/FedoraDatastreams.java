@@ -28,7 +28,7 @@ import freemarker.template.TemplateException;
 public class FedoraDatastreams extends AbstractResource {
 
 	public FedoraDatastreams() throws ConfigurationException,
-			RepositoryException {
+			RepositoryException, IOException {
 		super();
 	}
 
@@ -41,7 +41,7 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node root = ws.getSession().getRootNode();
 
 		if (root.hasNode(pid)) {
-			
+
 			@SuppressWarnings("unchecked")
 			final Builder<Node> datastreams = new Builder<Node>().addAll(root
 					.getNode(pid).getNodes());
@@ -68,11 +68,12 @@ public class FedoraDatastreams extends AbstractResource {
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
 
 		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
-			final Node ds = root.addNode(pid + "/" + dsid);
-			ds.setProperty("ownerId", "Fedo Radmin");
-			ds.setProperty("contentType", contentType.toString());
-			ds.setProperty("content",
-					session.getValueFactory().createBinary(requestBodyStream));
+			final Node ds = root.addNode(pid + "/" + dsid, "fedora:datastream");
+			ds.addMixin("fedora:owned");
+			ds.setProperty("fedora:ownerId", "Fedo Radmin");
+			ds.setProperty("fedora:contentType", contentType.toString());
+			ds.setProperty("fedora:content", session.getValueFactory()
+					.createBinary(requestBodyStream));
 			session.save();
 			return Response.ok().entity(ds.toString()).build();
 		} else {
@@ -111,11 +112,12 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (root.hasNode(pid + "/" + dsid)) {
 			final Node ds = root.getNode(pid + "/" + dsid);
-			final String mimeType = ds.hasProperty("contentType") ? ds.getProperty(
-					"contentType").getString() : "application/octet-stream";
-			return Response
-					.ok(ds.getProperty("content").getBinary().getStream(),
-							mimeType).build();
+			final String mimeType = ds.hasProperty("fedora:contentType") ? ds
+					.getProperty("fedora:contentType").getString()
+					: "application/octet-stream";
+			return Response.ok(
+					ds.getProperty("fedora:content").getBinary().getStream(),
+					mimeType).build();
 		} else {
 			return four04;
 		}

@@ -9,6 +9,8 @@ import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
+import javax.jcr.nodetype.NodeTypeIterator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
@@ -17,6 +19,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.jcr.ConfigurationException;
+import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -33,7 +36,7 @@ public class FedoraRepository extends AbstractResource {
 	private final Logger logger = Logger.getLogger(FedoraRepository.class);
 
 	public FedoraRepository() throws ConfigurationException,
-			RepositoryException {
+			RepositoryException, IOException {
 		super();
 	}
 
@@ -41,8 +44,8 @@ public class FedoraRepository extends AbstractResource {
 	@Path("/describe")
 	public Response describe() throws JsonGenerationException,
 			JsonMappingException, IOException, RepositoryException {
-		
-		//start with repo configuration properties
+
+		// start with repo configuration properties
 		final Repository repo = ws.getSession().getRepository();
 		logger.debug("Repository name: "
 				+ repo.getDescriptor(Repository.REP_NAME_DESC));
@@ -51,15 +54,26 @@ public class FedoraRepository extends AbstractResource {
 			if (repo.getDescriptor(key) != null)
 				repoproperties.put(key, repo.getDescriptor(key));
 		}
-		
+
 		// add in node namespaces
-		NamespaceRegistry reg = ws.getNamespaceRegistry();
+		final NamespaceRegistry reg = ws.getNamespaceRegistry();
 		final Builder<String, String> namespaces = ImmutableMap.builder();
 		for (final String prefix : reg.getPrefixes()) {
 			namespaces.put(prefix, reg.getURI(prefix));
 		}
 		repoproperties.put("node.namespaces", namespaces.build());
 
+		// add in node types
+		final NodeTypeManager ntmanager = (NodeTypeManager) ws
+				.getNodeTypeManager();
+		final Builder<String, String> nodetypes = ImmutableMap.builder();
+		NodeTypeIterator i = ntmanager.getAllNodeTypes();
+		while (i.hasNext()) {
+			NodeType nt = i.nextNodeType();
+			nodetypes.put(nt.getName(), nt.toString());
+		}
+		repoproperties.put("node.types", nodetypes.build());
+		
 		return Response
 				.ok()
 				.entity(mapper.writerWithType(Map.class).writeValueAsString(
