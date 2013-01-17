@@ -16,8 +16,11 @@ import javax.ws.rs.core.Response;
 import org.modeshape.jcr.ConfigurationException;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import freemarker.template.TemplateException;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.QueryParam;
 
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
@@ -34,6 +37,10 @@ public class FedoraObjects extends AbstractResource {
 		final Session session = ws.getSession();
 		final Node root = session.getRootNode();
 
+        if(pid == "new") {
+            pid = mintPid();
+        }
+		
 		if (session.hasPermission("/" + pid, "add_node")) {
 			final Node obj = root.addNode(pid, "fedora:object");
 			obj.addMixin("fedora:owned");
@@ -70,4 +77,23 @@ public class FedoraObjects extends AbstractResource {
 			throws RepositoryException {
 		return deleteResource(pid);
 	}
+        
+        
+    @POST
+    @Path("/nextPID")
+    @Produces("text/xml")
+    public Response getNextPid(@QueryParam("numPids") @DefaultValue("1") String numPids) throws RepositoryException,
+            IOException, TemplateException {
+
+        ImmutableSet.Builder<String> b = new ImmutableSet.Builder<String>();
+        for(int i = 0; i < Integer.parseInt(numPids); i++) {
+            b.add(mintPid());
+        }
+        return Response
+                .ok()
+                .entity(renderTemplate("nextPid.ftl",
+                        ImmutableMap.of("pids", (Object) b.build())))
+                .build();
+    }
+
 }
