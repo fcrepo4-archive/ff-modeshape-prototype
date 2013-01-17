@@ -25,6 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.modeshape.jcr.ConfigurationException;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import freemarker.template.TemplateException;
 
@@ -78,6 +79,24 @@ public class FedoraRepository extends AbstractResource {
 		r.registerNamespace(ns, "info:fedora/" + ns);
 
 		return Response.ok().entity(ns).build();
+	}
+
+	@GET
+	@Path("/namespaces/{ns}")
+	@Produces("application/json")
+	public Response retrieveObjectNamespace(@PathParam("ns") final String prefix)
+			throws RepositoryException {
+
+		NamespaceRegistry r = ws.getSession().getWorkspace()
+				.getNamespaceRegistry();
+
+		if (ImmutableSet.copyOf(r.getPrefixes()).contains(prefix)) {
+			return Response
+					.ok()
+					.entity("{ \"" + prefix + "\":\"" + r.getURI(prefix)
+							+ "\" }").build();
+		} else
+			return four04;
 	}
 
 	@POST
