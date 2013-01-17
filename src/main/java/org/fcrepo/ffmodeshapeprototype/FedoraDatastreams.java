@@ -171,7 +171,7 @@ public class FedoraDatastreams extends AbstractResource {
 					.entity(renderTemplate(
 							"datastreamProfile.ftl",
 							ImmutableMap.of("ds",
-									(Object) root.getNode(pid + "/" + dsid))))
+									(Object) root.getNode(pid + "/" + dsid), "obj", (Object) root.getNode(pid))))
 					.build();
 		} else {
 			return four04;
