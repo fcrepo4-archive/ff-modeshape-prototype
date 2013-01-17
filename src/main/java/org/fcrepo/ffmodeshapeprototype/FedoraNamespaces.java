@@ -29,8 +29,6 @@ import freemarker.template.TemplateException;
 @Path("/namespaces")
 public class FedoraNamespaces extends AbstractResource {
 
-	static final ObjectMapper mapper = new ObjectMapper();
-
 	public FedoraNamespaces() throws ConfigurationException,
 			RepositoryException {
 		super();

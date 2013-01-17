@@ -14,6 +14,7 @@ import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.ws.rs.core.Response;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.infinispan.schematic.document.ParsingException;
 import org.modeshape.common.SystemFailureException;
 import org.modeshape.common.collection.Problems;
@@ -29,6 +30,8 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 public abstract class AbstractResource {
+	
+	static final ObjectMapper mapper = new ObjectMapper();
 
 	static final Response four01 = Response.status(404).entity("401").build();
 	static final Response four04 = Response.status(404).entity("404").build();
