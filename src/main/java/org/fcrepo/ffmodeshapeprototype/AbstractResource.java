@@ -6,9 +6,6 @@ import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import org.infinispan.schematic.document.ParsingException;
@@ -20,6 +17,9 @@ import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
 
+import freemarker.template.Configuration;
+import freemarker.template.DefaultObjectWrapper;
+
 public abstract class AbstractResource {
 
 	static final Response four01 = Response.status(404).entity("401").build();
@@ -27,6 +27,7 @@ public abstract class AbstractResource {
 
 	private final Logger logger = Logger.getLogger(AbstractResource.class);
 
+	static protected Configuration freemarker = null;
 	static protected Workspace ws = null;
 
 	public AbstractResource() throws ConfigurationException,
@@ -62,6 +63,13 @@ public abstract class AbstractResource {
 			ws.createWorkspace("fedora");
 			logger.debug("Created 'fedora' workspace.\n");
 		}
+		
+		if (freemarker == null) {
+			freemarker = new Configuration();
+			freemarker.setObjectWrapper(new DefaultObjectWrapper());
+			// Specify the data source where the template files come from.
+			freemarker.setClassForTemplateLoading(this.getClass(), "/freemarker");		  
+		}
 	}
 	
 	protected Response getResourceMetadata(String path)
@@ -81,7 +89,7 @@ public abstract class AbstractResource {
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
 		if (root.hasNode(path)) {
-			if (session.hasPermission(path, "remove")) {
+			if (session.hasPermission("/" + path, "remove")) {
 				root.getNode(path).remove();
 				session.save();
 				return Response.status(204).build();

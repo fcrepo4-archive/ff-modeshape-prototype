@@ -18,8 +18,7 @@ import org.modeshape.jcr.ConfigurationException;
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
 
-	public FedoraDatastreams() throws Exception, ConfigurationException,
-			RepositoryException {
+	public FedoraDatastreams() throws ConfigurationException, RepositoryException {
 		super();
 	}
 
@@ -50,7 +49,7 @@ public class FedoraDatastreams extends AbstractResource {
 			throws RepositoryException {
 		Session session = ws.getSession();
 		Node root = session.getRootNode();
-		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
+		if (session.hasPermission(pid + "/" + dsid, "add_node")) {
 			Node ds = root.addNode(pid + "/" + dsid);
 			ds.setProperty("ownerId", "Fedo Radmin");
 			ds.setProperty("content",
@@ -66,7 +65,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response getDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		return getResourceMetadata("/" + pid + "/" + dsid);
+		return getResourceMetadata(pid + "/" + dsid);
 	}
 
 	@GET
@@ -90,6 +89,6 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		return deleteResource("/" + pid + "/" + dsid);
+		return deleteResource(pid + "/" + dsid);
 	}
 }

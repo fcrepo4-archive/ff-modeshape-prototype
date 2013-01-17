@@ -20,7 +20,7 @@ import org.modeshape.jcr.ConfigurationException;
 @Path("/")
 public class FedoraRepository extends AbstractResource {
 
-	public FedoraRepository() throws Exception, ConfigurationException,
+	public FedoraRepository() throws ConfigurationException,
 			RepositoryException {
 		super();
 	}
@@ -45,7 +45,7 @@ public class FedoraRepository extends AbstractResource {
 			nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
 					+ "\n");
 		}
-		
+
 		return Response.status(200).entity(nodes.toString()).build();
 
 	}
