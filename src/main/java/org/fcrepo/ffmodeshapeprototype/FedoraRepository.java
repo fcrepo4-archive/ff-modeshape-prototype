@@ -23,6 +23,7 @@ import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import freemarker.template.TemplateException;
 
 /**
  * 
@@ -40,9 +41,10 @@ public class FedoraRepository extends AbstractResource {
 		super();
 	}
 
+        
 	@GET
-	@Path("/describe")
-	public Response describe() throws JsonGenerationException,
+	@Path("/describe/modeshape")
+	public Response describeModeshape() throws JsonGenerationException,
 			JsonMappingException, IOException, RepositoryException {
 
 		// start with repo configuration properties
@@ -78,6 +80,14 @@ public class FedoraRepository extends AbstractResource {
 				.ok()
 				.entity(mapper.writerWithType(Map.class).writeValueAsString(
 						repoproperties.build())).build();
+        }
+        
+	@GET
+	@Path("/describe")
+	public Response describe() throws RepositoryException,
+    IOException, TemplateException {
+        ImmutableMap.Builder<String, Object> b = ImmutableMap.builder();
+		return Response.ok().entity(renderTemplate("describeRepository.ftl",ImmutableMap.of("asdf", (Object)"asdf"))).build();
 	}
 
 	@GET
