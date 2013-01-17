@@ -1,6 +1,12 @@
 package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.util.HashMap;
 
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
@@ -19,6 +25,8 @@ import org.modeshape.jcr.RepositoryConfiguration;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 public abstract class AbstractResource {
 
@@ -63,15 +71,16 @@ public abstract class AbstractResource {
 			ws.createWorkspace("fedora");
 			logger.debug("Created 'fedora' workspace.\n");
 		}
-		
+
 		if (freemarker == null) {
 			freemarker = new Configuration();
 			freemarker.setObjectWrapper(new DefaultObjectWrapper());
 			// Specify the data source where the template files come from.
-			freemarker.setClassForTemplateLoading(this.getClass(), "/freemarker");		  
+			freemarker.setClassForTemplateLoading(this.getClass(),
+					"/freemarker");
 		}
 	}
-	
+
 	protected Response getResourceMetadata(String path)
 			throws RepositoryException {
 		Session session = ws.getSession();
@@ -99,5 +108,33 @@ public abstract class AbstractResource {
 		} else {
 			return four04;
 		}
+	}
+
+	protected InputStream renderTemplate(final String templatename,
+			final Node node) throws RepositoryException, IOException {
+
+		final Template template = freemarker.getTemplate(templatename);
+		final PipedInputStream in = new PipedInputStream();
+		final PipedOutputStream out = new PipedOutputStream(in);
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					template.process(new HashMap<String, Node>() {
+						{
+							put("node", node);
+						}
+					}, new OutputStreamWriter(out));
+					out.close();
+				} catch (TemplateException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+			}
+		}).start();
+		return in;
+
 	}
 }

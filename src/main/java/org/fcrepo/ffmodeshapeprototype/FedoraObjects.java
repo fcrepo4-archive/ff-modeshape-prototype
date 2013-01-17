@@ -62,32 +62,10 @@ public class FedoraObjects extends AbstractResource {
 		final Node root = session.getRootNode();
 
 		if (root.hasNode(pid)) {
-			final Template profile = freemarker
-					.getTemplate("objectProfile.ftl");
-			final PipedInputStream in = new PipedInputStream();
-			final PipedOutputStream out = new PipedOutputStream(in);
-			new Thread(new Runnable() {
-				public void run() {
-					try {
-						profile.process(new HashMap<String, Node>() {
-							{
-								put("obj", root.getNode(pid));
-							}
-						}, new OutputStreamWriter(out));
-						out.close();
-					} catch (TemplateException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (RepositoryException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}).start();
-			return Response.status(200).entity(in).build();
+			return Response
+					.status(200)
+					.entity(renderTemplate("objectProfile.ftl",
+							root.getNode(pid))).build();
 		} else {
 			return four04;
 		}
