@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -46,11 +47,12 @@ public class FedoraObjects extends AbstractResource {
 		if (session.hasPermission("/" + pid, "add_node")) {
 			final Node obj = root.addNode(pid, "fedora:object");
 			obj.addMixin("fedora:owned");
+            obj.addMixin("fedora:created");
+
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
-            obj.setProperty("jcr:created", Calendar.getInstance());
             obj.setProperty("jcr:lastModified", Calendar.getInstance());
 			session.save();
-			return Response.ok().entity(pid).build();
+			return Response.status(Response.Status.CREATED).entity(pid).build();
 		} else {
 			return four01;
 		}
