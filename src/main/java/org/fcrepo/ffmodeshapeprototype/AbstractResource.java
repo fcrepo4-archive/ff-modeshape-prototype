@@ -23,7 +23,6 @@ import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.JcrRepository;
 import org.modeshape.jcr.ModeShapeEngine;
 import org.modeshape.jcr.RepositoryConfiguration;
-import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;

@@ -20,7 +20,7 @@
 /*
  * Any Fedora resource.
  */
-[fedora:resource] > nt:hierarchyNode abstract
+[fedora:resource] > mix:versionable, nt:hierarchyNode abstract
 
 
 /*

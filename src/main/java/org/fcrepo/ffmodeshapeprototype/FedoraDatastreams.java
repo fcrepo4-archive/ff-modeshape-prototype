@@ -4,9 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.lock.LockException;
+import javax.jcr.nodetype.ConstraintViolationException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import javax.jcr.version.VersionException;
+import javax.jcr.version.VersionManager;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -39,7 +46,7 @@ public class FedoraDatastreams extends AbstractResource {
 			throws RepositoryException, IOException, TemplateException {
 
 		final Node root = ws.getSession().getRootNode();
-
+		
 		if (root.hasNode(pid)) {
 
 			@SuppressWarnings("unchecked")
@@ -63,22 +70,48 @@ public class FedoraDatastreams extends AbstractResource {
 
 		final Session session = ws.getSession();
 		final Node root = session.getRootNode();
+		final VersionManager v = ws.getVersionManager();
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
+		String dspath = pid + "/" + dsid;
 
-		if (session.hasPermission("/" + pid + "/" + dsid, "add_node")) {
-			final Node ds = root.addNode(pid + "/" + dsid, "fedora:datastream");
-			ds.addMixin("fedora:owned");
-			ds.setProperty("fedora:ownerId", "Fedo Radmin");
-			ds.setProperty("fedora:contentType", contentType.toString());
-			ds.setProperty("fedora:content", session.getValueFactory()
-					.createBinary(requestBodyStream));
-			session.save();
-			return Response.ok().entity(ds.toString()).build();
+		if (session.hasPermission("/" + dspath, "add_node")) {
+			if (!root.hasNode(dspath)) {
+				return Response
+						.ok()
+						.entity(addDatastream(dspath, contentType,
+								requestBodyStream, session).toString()).build();
+			} else {
+				if (session.hasPermission("/" + dspath, "remove")) {
+					root.getNode(dspath).remove();
+					return Response
+							.ok()
+							.entity(addDatastream(dspath, contentType,
+									requestBodyStream, session).toString())
+							.build();
+
+				} else
+					return four01;
+			}
 		} else {
 			return four01;
 		}
+	}
+
+	private Node addDatastream(final String dspath,
+			final MediaType contentType, final InputStream requestBodyStream,
+			final Session session) throws ItemExistsException,
+			PathNotFoundException, NoSuchNodeTypeException, LockException,
+			VersionException, ConstraintViolationException, RepositoryException {
+		final Node ds = session.getRootNode().addNode(dspath,
+				"fedora:datastream");
+		ds.addMixin("fedora:owned");
+		ds.setProperty("fedora:ownerId", "Fedo Radmin");
+		ds.setProperty("fedora:contentType", contentType.toString());
+		ds.setProperty("fedora:content", session.getValueFactory()
+				.createBinary(requestBodyStream));
+		return ds;
 	}
 
 	@GET
