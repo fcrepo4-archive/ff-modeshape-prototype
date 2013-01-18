@@ -144,6 +144,7 @@ public class FedoraDatastreams extends AbstractResource {
 		ds.setProperty("fedora:content", session.getValueFactory()
 				.createBinary(requestBodyStream));
         ds.setProperty("jcr:lastModified", Calendar.getInstance());
+        session.save();
 		return ds;
 	}
 
