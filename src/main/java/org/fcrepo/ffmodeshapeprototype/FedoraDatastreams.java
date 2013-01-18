@@ -138,6 +138,7 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node ds = session.getRootNode().addNode(dspath,
                 "fedora:datastream");
 		ds.addMixin("fedora:owned");
+        ds.addMixin("fedora:created");
 		ds.setProperty("fedora:ownerId", "Fedo Radmin");
 		ds.setProperty("fedora:contentType", contentType.toString());
 		ds.setProperty("fedora:content", session.getValueFactory()
