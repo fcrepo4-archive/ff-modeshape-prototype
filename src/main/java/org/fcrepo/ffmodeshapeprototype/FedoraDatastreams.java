@@ -9,22 +9,12 @@ import javax.jcr.Node;
 import javax.jcr.PathNotFoundException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-<<<<<<< HEAD
 import javax.jcr.lock.LockException;
 import javax.jcr.nodetype.ConstraintViolationException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionManager;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-=======
 import javax.ws.rs.*;
->>>>>>> datastreams tesst
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -146,7 +136,7 @@ public class FedoraDatastreams extends AbstractResource {
 			PathNotFoundException, NoSuchNodeTypeException, LockException,
 			VersionException, ConstraintViolationException, RepositoryException {
 		final Node ds = session.getRootNode().addNode(dspath,
-				"fedora:datastream");
+                "fedora:datastream");
 		ds.addMixin("fedora:owned");
 		ds.setProperty("fedora:ownerId", "Fedo Radmin");
 		ds.setProperty("fedora:contentType", contentType.toString());
