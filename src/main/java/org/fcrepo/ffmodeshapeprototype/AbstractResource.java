@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.jcr.Node;
@@ -71,12 +72,20 @@ public abstract class AbstractResource {
 			final JcrRepository repository = engine.deploy(repository_config);
 			logger.debug("Deployed repository.");
 			ws = repository.login().getWorkspace();
-			ws.createWorkspace("fedora");
+
+            String[] workspaceNames = ws.getAccessibleWorkspaceNames();
+
+            if(!Arrays.asList(workspaceNames).contains("fedora")) {
+			    ws.createWorkspace("fedora");
+                logger.debug("Created 'fedora' workspace.\n");
+            }
+
 			// switching to our new Fedora workspace
 			ws = repository.login("fedora").getWorkspace();
-			ws.getNamespaceRegistry().registerNamespace("test", "test");
-			
-			logger.debug("Created 'fedora' workspace.\n");
+            if(!Arrays.asList(ws.getNamespaceRegistry().getPrefixes()).contains("test")) {
+			    ws.getNamespaceRegistry().registerNamespace("test", "test");
+            }
+
 		}
 
 		if (freemarker == null) {
