@@ -79,6 +79,7 @@ public class FedoraDatastreams extends AbstractResource {
             } else {
                 if (session.hasPermission("/" + dspath, "remove")) {
                     root.getNode(dspath).remove();
+                    session.save();
                     return Response
                             .ok()
                             .entity(addDatastreamNode(dspath, contentType,
@@ -116,6 +117,7 @@ public class FedoraDatastreams extends AbstractResource {
             } else {
                 if (session.hasPermission("/" + dspath, "remove")) {
                     root.getNode(dspath).remove();
+                    session.save();
                     return Response
                             .ok()
                             .entity(addDatastreamNode(dspath, contentType,
