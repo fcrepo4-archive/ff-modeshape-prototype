@@ -2,6 +2,7 @@ package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
 import java.util.Map;
 
 import javax.jcr.ItemExistsException;
@@ -24,7 +25,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
-import java.util.Calendar;
 
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
@@ -41,7 +41,7 @@ public class FedoraDatastreams extends AbstractResource {
 			throws RepositoryException, IOException, TemplateException {
 
 		final Node root = ws.getSession().getRootNode();
-		
+
 		if (root.hasNode(pid)) {
 
 			@SuppressWarnings("unchecked")
@@ -162,10 +162,10 @@ public class FedoraDatastreams extends AbstractResource {
 		if (root.hasNode(pid + "/" + dsid)) {
 			return Response
 					.ok()
-					.entity(renderTemplate(
-							"datastreamProfile.ftl",
+					.entity(renderTemplate("datastreamProfile.ftl",
 							ImmutableMap.of("ds",
-									(Object) root.getNode(pid + "/" + dsid), "obj", (Object) root.getNode(pid))))
+									(Object) root.getNode(pid + "/" + dsid),
+									"obj", (Object) root.getNode(pid))))
 					.build();
 		} else {
 			return four04;
@@ -190,6 +190,25 @@ public class FedoraDatastreams extends AbstractResource {
 		} else {
 			return four04;
 		}
+	}
+
+	@GET
+	@Path("/{dsid}/versions")
+	@Produces("text/xml")
+	public Response getDatastreamHistory(@PathParam("pid") final String pid,
+			@PathParam("dsid") final String dsid) throws RepositoryException,
+			IOException, TemplateException {
+		final Node root = ws.getSession().getRootNode();
+		if (root.hasNode(pid + "/" + dsid)) {
+			final Node ds = root.getNode(pid + "/" + dsid);
+			return Response
+					.ok()
+					.entity(renderTemplate("datastreamHistory.ftl",
+							ImmutableMap.of("ds", (Object) ds))).build();
+		} else {
+			return four04;
+		}
+
 	}
 
 	@DELETE

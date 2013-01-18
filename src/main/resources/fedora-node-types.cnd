@@ -16,16 +16,17 @@
  */
 <fedora = 'info:fedora'>
 
+
 /*
  * Any Fedora resource.
  */
-[fedora:resource] > mix:versionable, nt:hierarchyNode abstract
+[fedora:resource] > mix:lastModified, mix:versionable, nt:hierarchyNode abstract
 
 
 /*
  * A Fedora object.
  */
-[fedora:object] > fedora:resource
+[fedora:object] > fedora:resource 
 	+ * (fedora:datastream) = fedora:datastream COPY
 
 
@@ -64,8 +65,8 @@
 /*
  * Indicates that this resource is owned.
  */
-[fedora:created] > mix:created,mix:lastModified
-    mixin
+[fedora:created] > mix:created, mix:lastModified mixin
+
 
 /*
  * Some entity that owns a Fedora resource.
