@@ -84,16 +84,16 @@ public class FedoraDatastreamsTest {
         PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf");
         client.executeMethod(pmethod);
 
-        GetMethod method_test_get = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        GetMethod method_test_get = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/poiu");
         int status = client.executeMethod(method_test_get);
         assertEquals(404, status);
 
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/poiu");
         status = client.executeMethod(method);
         assertEquals(201, status);
 
 
-        GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/poiu");
         status = client.executeMethod(method_2);
         assertEquals(200, status);
     }
@@ -112,20 +112,20 @@ public class FedoraDatastreamsTest {
         client.executeMethod(pmethod);
 
 
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
         int status = client.executeMethod(method);
         assertEquals(201, status);
 
 
-        GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
         status = client.executeMethod(method_2);
         assertEquals(200, status);
 
-        DeleteMethod dmethod = new DeleteMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        DeleteMethod dmethod = new DeleteMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
         status = client.executeMethod(dmethod);
         assertEquals(204, status);
 
-        GetMethod method_test_get = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        GetMethod method_test_get = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
         status = client.executeMethod(method_test_get);
         assertEquals(404, status);
     }
