@@ -19,6 +19,10 @@
     <listener>
         <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
     </listener>
+
+    <listener>
+        <listener-class>org.fcrepo.ffmodeshapeprototype.Bootstrap</listener-class>
+    </listener>
     <servlet-mapping>
         <servlet-name>Server</servlet-name>
         <url-pattern>/*</url-pattern>
