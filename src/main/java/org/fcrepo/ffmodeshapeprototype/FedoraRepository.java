@@ -19,10 +19,13 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.jcr.ConfigurationException;
+import org.modeshape.jcr.JcrRepository;
+import org.modeshape.jcr.RepositoryConfiguration.Component;
 import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+
 import freemarker.template.TemplateException;
 
 /**
@@ -41,14 +44,14 @@ public class FedoraRepository extends AbstractResource {
 		super();
 	}
 
-        
 	@GET
 	@Path("/describe/modeshape")
 	public Response describeModeshape() throws JsonGenerationException,
 			JsonMappingException, IOException, RepositoryException {
 
 		// start with repo configuration properties
-		final Repository repo = ws.getSession().getRepository();
+		final JcrRepository repo = (JcrRepository) ws.getSession()
+				.getRepository();
 		logger.debug("Repository name: "
 				+ repo.getDescriptor(Repository.REP_NAME_DESC));
 		final Builder<String, Object> repoproperties = ImmutableMap.builder();
@@ -75,19 +78,30 @@ public class FedoraRepository extends AbstractResource {
 			nodetypes.put(nt.getName(), nt.toString());
 		}
 		repoproperties.put("node.types", nodetypes.build());
-		
+
+		// add in sequencers
+		final Builder<String, String> sequencers = ImmutableMap.builder();
+		for (Component seq : repo.getConfiguration().getSequencing()
+				.getSequencers()) {
+			sequencers.put(seq.getName(), seq.toString());
+		}
+		repoproperties.put("sequencers", sequencers.build());
+
 		return Response
 				.ok()
 				.entity(mapper.writerWithType(Map.class).writeValueAsString(
 						repoproperties.build())).build();
-        }
-        
+	}
+
 	@GET
 	@Path("/describe")
-	public Response describe() throws RepositoryException,
-    IOException, TemplateException {
-        ImmutableMap.Builder<String, Object> b = ImmutableMap.builder();
-		return Response.ok().entity(renderTemplate("describeRepository.ftl",ImmutableMap.of("asdf", (Object)"asdf"))).build();
+	public Response describe() throws RepositoryException, IOException,
+			TemplateException {
+		ImmutableMap.Builder<String, Object> b = ImmutableMap.builder();
+		return Response
+				.ok()
+				.entity(renderTemplate("describeRepository.ftl",
+						ImmutableMap.of("asdf", (Object) "asdf"))).build();
 	}
 
 	@GET

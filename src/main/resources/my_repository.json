@@ -15,5 +15,16 @@
             { "classname" : "servlet" }
         ]
     },
-    "node-types" : ["fedora-node-types.cnd"]
+    "sequencing" : {
+        "removeDerivedContentWithOriginal" : true,
+        "threadPool" : "modeshape-workers",
+        "sequencers" : {
+            "FOXML Sequencer" : {
+                "description" : "FOXML Files loaded under 'fedora:/foxml' and extracted into 'fedora:/'",
+                "classname" : "org.fcrepo.ffmodeshapeprototype.foxml.FOXMLSequencer",
+                "pathExpressions" : ["/foxml/(*)/jcr:content[@jcr:data] => fedora:/$1"]
+            }
+        }
+    },
+    "node-types" : ["fedora-node-types.cnd"] 
 }

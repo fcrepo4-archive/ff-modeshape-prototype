@@ -34,8 +34,8 @@ public abstract class AbstractResource {
 
 	static final ObjectMapper mapper = new ObjectMapper();
 
-	static final Response four01 = Response.status(404).entity("401").build();
-	static final Response four04 = Response.status(404).entity("404").build();
+	protected static final Response four01 = Response.status(404).entity("401").build();
+	protected static final Response four04 = Response.status(404).entity("404").build();
 
 	private final Logger logger = Logger.getLogger(AbstractResource.class);
 
