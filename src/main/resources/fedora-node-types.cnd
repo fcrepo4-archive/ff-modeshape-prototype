@@ -20,25 +20,19 @@
 /*
  * Any Fedora resource.
  */
-[fedora:resource] > mix:lastModified, mix:versionable, nt:hierarchyNode abstract
+[fedora:resource] > mix:created, mix:lastModified, mix:versionable mixin abstract
 
 
 /*
  * A Fedora object.
  */
-[fedora:object] > fedora:resource 
-	+ * (fedora:datastream) = fedora:datastream COPY
+[fedora:object] > fedora:resource, nt:folder mixin
 
 
 /*
  * A Fedora datastream.
  */
-[fedora:datastream] > fedora:resource primaryitem fedora:content
-	
-	/*
-	 * The stuff in a datastream. Is left untyped in order to allow for the use of the JCR value type system.
-	 */
-	- fedora:content (UNDEFINED) mandatory COPY
+[fedora:datastream] > fedora:resource, nt:file mixin
 	
 	/*
 	 * The MIMEtype of this datastream.
@@ -60,12 +54,6 @@
 	 * For use for when the owner-entities are not managed in the repository.
 	 */
 	- fedora:ownerId (STRING) COPY
-
-
-/*
- * Indicates that this resource is owned.
- */
-[fedora:created] > mix:created, mix:lastModified mixin
 
 
 /*
