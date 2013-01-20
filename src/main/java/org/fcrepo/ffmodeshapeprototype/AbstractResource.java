@@ -39,7 +39,6 @@ public abstract class AbstractResource {
 
 	private final Logger logger = Logger.getLogger(AbstractResource.class);
 
-    static protected int pid_index = 0;
 	static protected Configuration freemarker = null;
 	static protected Workspace ws = null;
 
@@ -127,7 +126,6 @@ public abstract class AbstractResource {
 	}
 
     protected String mintPid() {
-        pid_index += 1;
-        return "assigned_pid_" + pid_index;
+    		return java.util.UUID.randomUUID().toString();
     }
 }

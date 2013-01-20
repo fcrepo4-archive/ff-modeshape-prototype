@@ -88,21 +88,6 @@ public class FedoraObjects extends AbstractResource {
 	}
         
         
-    @POST
-    @Path("/nextPID")
-    @Produces("text/xml")
-    public Response getNextPid(@QueryParam("numPids") @DefaultValue("1") String numPids) throws RepositoryException,
-            IOException, TemplateException {
 
-        ImmutableSet.Builder<String> b = new ImmutableSet.Builder<String>();
-        for(int i = 0; i < Integer.parseInt(numPids); i++) {
-            b.add(mintPid());
-        }
-        return Response
-                .ok()
-                .entity(renderTemplate("nextPid.ftl",
-                        ImmutableMap.of("pids", (Object) b.build())))
-                .build();
-    }
 
 }

@@ -67,11 +67,4 @@ public class FedoraObjectsTest {
         assertEquals(204, status);
     }
 
-    @Test
-    public void testGetNextPid() throws Exception {
-        HttpClient client = new HttpClient();
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/nextPID");
-        int status = client.executeMethod(method);
-        assertEquals(200, status);
-    }
 }
