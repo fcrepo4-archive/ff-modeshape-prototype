@@ -46,31 +46,12 @@ public abstract class AbstractResource {
 	public AbstractResource() throws ConfigurationException,
 			RepositoryException, IOException {
 		if (ws == null) {
-			RepositoryConfiguration repository_config = null;
-			try {
-				repository_config = RepositoryConfiguration
-						.read("my_repository.json");
-				Problems problems = repository_config.validate();
 
-				if (problems.hasErrors()) {
-					throw new ConfigurationException(problems,
-							"Problems starting the engine.");
-				}
+            final JcrRepository repository = Bootstrap.getRepository();
 
-			} catch (ParsingException ex) {
-				logger.error(ex, null, (Object) null);
-			} catch (FileNotFoundException ex) {
-				logger.error(ex, null, (Object) null);
-			}
-
-			final ModeShapeEngine engine = new ModeShapeEngine();
-
-			if (engine == null || repository_config == null) {
-				throw new SystemFailureException("Missing engine");
-			}
-			engine.start();
-			final JcrRepository repository = engine.deploy(repository_config);
-			logger.debug("Deployed repository.");
+            if (repository == null) {
+               throw new RepositoryException("Missing repository?");
+            }
 			ws = repository.login().getWorkspace();
 
             String[] workspaceNames = ws.getAccessibleWorkspaceNames();
