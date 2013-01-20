@@ -47,9 +47,9 @@ public class FedoraObjects extends AbstractResource {
 		final Node root = session.getRootNode();
 
 		if (session.hasPermission("/" + pid, "add_node")) {
-			final Node obj = root.addNode(pid, "fedora:object");
+			final Node obj = root.addNode(pid, "nt:folder");
+			obj.addMixin("fedora:object");
 			obj.addMixin("fedora:owned");
-			obj.addMixin("fedora:created");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			obj.setProperty("jcr:lastModified", Calendar.getInstance());
 			session.save();
