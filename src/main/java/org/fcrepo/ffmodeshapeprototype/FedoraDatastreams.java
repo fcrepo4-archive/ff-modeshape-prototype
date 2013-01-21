@@ -185,7 +185,7 @@ public class FedoraDatastreams extends AbstractResource {
 					.getProperty("fedora:contentType").getString()
 					: "application/octet-stream";
 			return Response.ok(
-					ds.getProperty("fedora:content").getBinary().getStream(),
+					ds.getNode("jcr:content").getProperty("jcr:data").getBinary().getStream(),
 					mimeType).build();
 		} else {
 			return four04;

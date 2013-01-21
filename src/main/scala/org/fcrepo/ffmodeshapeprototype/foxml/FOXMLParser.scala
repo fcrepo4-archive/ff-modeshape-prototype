@@ -40,15 +40,16 @@ class FOXMLParser {
       //log.debug("Found datastream: " + datastream.toString)
       val dsId = (datastream \ "@ID").text
       val controlGroup = datastream \ "@CONTROL_GROUP" 
-      log.debug("Found control group: " + controlGroup) 
-      var latestVersion: InputStream = null
-      if (controlGroup == "X") {
-        latestVersion = new ByteArrayInputStream((datastream \\ "xmlContent").head.text.getBytes())
+      //log.debug("Found control group: " + controlGroup) 
+      var latestVersion: String = null
+      if (controlGroup.toString == "X") {
+        latestVersion = (datastream \\ "xmlContent" \ "_").head.toString
+        log.debug("Found content: \n" + latestVersion)
       } else {
         // insert placeholder
-    	  	latestVersion = new ByteArrayInputStream("PLACEHOLDER".getBytes())
+    	  	latestVersion = "PLACEHOLDER"
       }
-      val dsNode = jcrTools.uploadFile(objNode.getSession(), objNode.getPath() + "/" + dsId, latestVersion)
+      val dsNode = jcrTools.uploadFile(objNode.getSession(), objNode.getPath() + "/" + dsId, new ByteArrayInputStream(latestVersion.getBytes))
       dsNode.addMixin("fedora:datastream")
       dsNode.setProperty("fedora:contentType",
         (datastream \ "datastreamVersion").head \ "@MIMETYPE" text)
