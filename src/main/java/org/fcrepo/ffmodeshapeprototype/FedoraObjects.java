@@ -32,14 +32,12 @@ public class FedoraObjects extends AbstractResource {
 			IOException {
 		super();
 	}
-    @POST
-    @Path("/new")
-    public Response ingestAndMint()
-            throws RepositoryException {
-        final String pid = mintPid();
 
-        return ingest(pid);
-    }
+	@POST
+	@Path("/new")
+	public Response ingestAndMint() throws RepositoryException {
+		return ingest(pidMinter.mintPid());
+	}
 
 	@POST
 	@Path("/{pid}")
@@ -51,9 +49,9 @@ public class FedoraObjects extends AbstractResource {
 		if (session.hasPermission("/" + pid, "add_node")) {
 			final Node obj = root.addNode(pid, "fedora:object");
 			obj.addMixin("fedora:owned");
-            obj.addMixin("fedora:created");
+			obj.addMixin("fedora:created");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
-            obj.setProperty("jcr:lastModified", Calendar.getInstance());
+			obj.setProperty("jcr:lastModified", Calendar.getInstance());
 			session.save();
 			return Response.status(Response.Status.CREATED).entity(pid).build();
 		} else {
@@ -86,23 +84,5 @@ public class FedoraObjects extends AbstractResource {
 			throws RepositoryException {
 		return deleteResource(pid);
 	}
-        
-        
-    @POST
-    @Path("/nextPID")
-    @Produces("text/xml")
-    public Response getNextPid(@QueryParam("numPids") @DefaultValue("1") String numPids) throws RepositoryException,
-            IOException, TemplateException {
-
-        ImmutableSet.Builder<String> b = new ImmutableSet.Builder<String>();
-        for(int i = 0; i < Integer.parseInt(numPids); i++) {
-            b.add(mintPid());
-        }
-        return Response
-                .ok()
-                .entity(renderTemplate("nextPid.ftl",
-                        ImmutableMap.of("pids", (Object) b.build())))
-                .build();
-    }
 
 }

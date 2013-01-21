@@ -16,6 +16,8 @@ import javax.jcr.Workspace;
 import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.fcrepo.ffmodeshapeprototype.identifiers.PidMinter;
+import org.fcrepo.ffmodeshapeprototype.identifiers.UUIDPidMinter;
 import org.infinispan.schematic.document.ParsingException;
 import org.modeshape.common.SystemFailureException;
 import org.modeshape.common.collection.Problems;
@@ -39,9 +41,10 @@ public abstract class AbstractResource {
 
 	private final Logger logger = Logger.getLogger(AbstractResource.class);
 
-    static protected int pid_index = 0;
 	static protected Configuration freemarker = null;
 	static protected Workspace ws = null;
+	
+	protected static PidMinter pidMinter = new UUIDPidMinter();;
 
 	public AbstractResource() throws ConfigurationException,
 			RepositoryException, IOException {
@@ -107,8 +110,5 @@ public abstract class AbstractResource {
 		return in;
 	}
 
-    protected String mintPid() {
-        pid_index += 1;
-        return "assigned_pid_" + pid_index;
-    }
+
 }
