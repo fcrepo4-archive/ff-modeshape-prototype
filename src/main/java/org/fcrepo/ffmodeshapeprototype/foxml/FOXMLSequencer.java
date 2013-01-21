@@ -7,10 +7,14 @@ import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.RepositoryException;
 
+import org.modeshape.common.i18n.TextI18n;
+import org.modeshape.common.logging.Logger;
 import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 import org.modeshape.jcr.api.sequencer.Sequencer;
 
 public class FOXMLSequencer extends Sequencer {
+
+	private final Logger log = Logger.getLogger(FOXMLSequencer.class);
 
 	private FOXMLParser parser;
 
@@ -18,16 +22,15 @@ public class FOXMLSequencer extends Sequencer {
 
 	@Override
 	public boolean execute(Property inputProperty, Node outputNode,
-			Context context) throws Exception {
+			Context context) {
 
-		getLogger().debug(
-				"Now sequencing FOXML from: " + inputProperty.getPath());
+		log.debug("Now sequencing FOXML with: ");
 		try {
+			log.debug(parser.report());
 			parser.parse(inputProperty.getBinary().getStream(), outputNode);
 			return true;
 		} catch (Exception e) {
-			getLogger().error(e, "Failed to sequence {}",
-					inputProperty.getPath());
+			log.error(e, new TextI18n("Failed to sequence FOXML"));
 			return false;
 		}
 

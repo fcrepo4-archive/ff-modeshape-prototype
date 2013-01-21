@@ -4,6 +4,22 @@
 	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	 version="3.0">
+    
+    <!-- for ModeShape REST-->
+    <!-- <context-param>
+        <param-name>org.modeshape.jcr.URL</param-name>
+        <param-value>file:/my_repository.json</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.ws.rs.Application</param-name>
+        <param-value>org.modeshape.web.jcr.rest.JcrApplication</param-value>
+    </context-param> -->
+    
+    <!-- Required parameter for ModeShape REST - should not be modified -->
+    <!-- <listener>
+        <listener-class>org.modeshape.web.jcr.ModeShapeJcrDeployer</listener-class>
+    </listener> -->
+    
     <context-param>
         <param-name>resteasy.scan</param-name>
         <param-value>true</param-value>
@@ -23,4 +39,5 @@
         <servlet-name>Server</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
+    
 </web-app>

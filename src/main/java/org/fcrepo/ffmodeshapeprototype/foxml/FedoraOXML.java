@@ -27,6 +27,8 @@ public class FedoraOXML extends AbstractResource {
 
 	private final Logger logger = Logger.getLogger(FedoraOXML.class);
 
+	static private final FOXMLSequencer fseq = new FOXMLSequencer();
+
 	public FedoraOXML() throws ConfigurationException, RepositoryException,
 			IOException {
 		super();
@@ -34,15 +36,23 @@ public class FedoraOXML extends AbstractResource {
 
 	@PUT
 	@Path("/{filename}")
-	@Consumes("text/xml")
+	// @Consumes("text/xml")
 	public Response addFOXML(@PathParam("filename") final String filename,
 			InputStream foxml) throws RepositoryException, IOException {
-		logger.debug("Operating in workspace: " + ws.getName());
+
 		final Session session = ws.getSession();
 		if (session.hasPermission("/foxml", "add_node")) {
-			final Node foxmlnode = jcrtools.uploadFile(session, "/foxml/"
-					+ filename, foxml);
+			final String foxmlpath = "/foxml/" + filename;
+			logger.debug("Adding or updating FOXML file at " + ws.getName()
+					+ ":" + foxmlpath);
+			final Node foxmlnode = jcrtools.uploadFile(session, foxmlpath,
+					foxml);
 			session.save();
+			/*
+			 * fseq.execute( foxmlnode.getNode("jcr:content")
+			 * .getProperty("jcr:data"), session.getRootNode()
+			 * .addNode(filename,"nt:folder"), null);
+			 */
 			return Response.created(URI.create(foxmlnode.getPath())).build();
 		} else
 			return four01;
@@ -63,7 +73,7 @@ public class FedoraOXML extends AbstractResource {
 		} else
 			return four04;
 	}
-	
+
 	@GET
 	@Path("/")
 	public Response getFOXMLs() throws RepositoryException {
