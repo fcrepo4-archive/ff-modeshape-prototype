@@ -95,6 +95,11 @@
 			<artifactId>modeshape-jcr-api</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.jboss.jbossts</groupId>
+			<artifactId>jbossjta</artifactId>
+		</dependency>
+
 		<!-- Logging: we'll use LogBack (which implements the SLF4J API); ModeShape 
 			knows what to do. -->
 		<dependency>
