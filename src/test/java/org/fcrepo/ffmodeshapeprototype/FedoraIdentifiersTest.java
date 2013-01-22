@@ -1,6 +1,6 @@
 package org.fcrepo.ffmodeshapeprototype;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import javax.servlet.http.HttpServletResponse;
 

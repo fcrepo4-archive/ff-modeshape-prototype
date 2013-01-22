@@ -1,5 +1,7 @@
 package org.fcrepo.ffmodeshapeprototype;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -9,8 +11,6 @@ import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static junit.framework.Assert.assertEquals;
 
 public class FedoraDatastreamsTest {
 
