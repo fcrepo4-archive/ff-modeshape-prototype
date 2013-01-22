@@ -49,25 +49,25 @@
 	</dependencyManagement>
 
 	<dependencies>
-        <dependency>
-            <groupId>org.jboss.resteasy</groupId>
-            <artifactId>tjws</artifactId>
-            <version>2.3.5.Final</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>tjws</artifactId>
+			<version>2.3.5.Final</version>
+			<scope>test</scope>
+		</dependency>
 
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.4</version>
-        </dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.4</version>
+		</dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
@@ -117,6 +117,12 @@
 			<artifactId>guava-collections</artifactId>
 			<version>r03</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.scala-lang</groupId>
+			<artifactId>scala-library</artifactId>
+			<version>2.10.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -132,6 +138,50 @@
 						<endorseddirs>${endorsed.dir}</endorseddirs>
 					</compilerArguments>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.scala-tools</groupId>
+				<artifactId>maven-scala-plugin</artifactId>
+				<version>2.15.2</version>
+				<configuration>
+					<args>
+						<arg>-feature</arg>
+					</args>
+				</configuration>
+				<executions>
+					<execution>
+						<id>scala-compile-first</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>add-source</goal>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>scala-test-compile</id>
+						<phase>process-test-resources</phase>
+						<goals>
+							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/main/scala</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -172,7 +222,7 @@
 				<configuration>
 					<scanIntervalSeconds>2</scanIntervalSeconds>
 					<webApp>
-						<contextPath>/ff</contextPath>
+						<contextPath>/</contextPath>
 					</webApp>
 				</configuration>
 			</plugin>
