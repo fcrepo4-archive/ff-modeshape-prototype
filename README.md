@@ -5,11 +5,11 @@ Status](https://travis-ci.org/futures/ff-modeshape-prototype.png?branch=master)]
 
 ```bash
 $ mvn clean jetty:run
-$ curl "http://localhost:8080/ff/describe"
+$ curl "http://localhost:8080/describe"
 ```
 
 Before creating fedora-like namespaced nodes, you need to register a namespace:
 
 ```bash
-curl "http://localhost:8080/ff/namespaces/asdf" -X POST
+curl "http://localhost:8080/namespaces/asdf" -X POST
 ```
