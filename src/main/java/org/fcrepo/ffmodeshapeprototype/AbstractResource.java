@@ -69,7 +69,7 @@ public abstract class AbstractResource {
 
 		if (freemarker == null) {
 			freemarker = new Configuration();
-			logger.debug("Setting up Freemarker oject wrapper");
+			logger.debug("Setting up Freemarker object wrapper");
 			BeansWrapper objWrapper = new BeansWrapper();
 			objWrapper.setExposureLevel(BeansWrapper.EXPOSE_ALL);		
 			freemarker.setObjectWrapper(objWrapper);
