@@ -3,6 +3,8 @@ package org.fcrepo.ffmodeshapeprototype;
 import java.io.IOException;
 
 import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
@@ -65,14 +67,20 @@ public class FedoraObjects extends AbstractResource {
 	public Response getObjectInXML(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
 
-		final Node root = ws.getSession().getRootNode();
+		final Session session = ws.getSession();
 
-		if (root.hasNode(pid)) {
+		if (session.nodeExists("/" + pid)) {
+			final Node obj = session.getNode("/" + pid);
+			PropertyIterator i = obj.getProperties();
+			ImmutableMap.Builder<String, String> b = new ImmutableMap.Builder<String, String>();
+			while (i.hasNext()) {
+				Property p = i.nextProperty();
+				b.put(p.getName(), p.toString());
+			}
 			return Response
 					.ok()
-					.entity(renderTemplate("objectProfile.ftl",
-							ImmutableMap.of("obj", (Object) root.getNode(pid))))
-					.build();
+					.entity(renderTemplate("objectProfile.ftl", ImmutableMap
+							.of("obj", obj, "properties", b.build()))).build();
 		} else {
 			return four04;
 		}

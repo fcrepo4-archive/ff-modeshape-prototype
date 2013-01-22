@@ -73,7 +73,7 @@ public class FedoraDatastreamsTest {
 
         PutMethod method_2 = new PutMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
         status = client.executeMethod(method_2);
-        assertEquals(200, status);
+        assertEquals(201, status);
     }
 
     @Test

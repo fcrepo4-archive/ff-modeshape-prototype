@@ -2,7 +2,6 @@ package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -18,17 +17,13 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fcrepo.ffmodeshapeprototype.identifiers.PidMinter;
 import org.fcrepo.ffmodeshapeprototype.identifiers.UUIDPidMinter;
-import org.infinispan.schematic.document.ParsingException;
-import org.modeshape.common.SystemFailureException;
-import org.modeshape.common.collection.Problems;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.JcrRepository;
-import org.modeshape.jcr.ModeShapeEngine;
-import org.modeshape.jcr.RepositoryConfiguration;
 
+import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
-import freemarker.template.DefaultObjectWrapper;
+import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -74,7 +69,10 @@ public abstract class AbstractResource {
 
 		if (freemarker == null) {
 			freemarker = new Configuration();
-			freemarker.setObjectWrapper(new DefaultObjectWrapper());
+			logger.debug("Setting up Freemarker oject wrapper");
+			BeansWrapper objWrapper = new BeansWrapper();
+			objWrapper.setExposureLevel(BeansWrapper.EXPOSE_ALL);		
+			freemarker.setObjectWrapper(objWrapper);
 			// Specify the data source where the template files come from.
 			freemarker.setClassForTemplateLoading(this.getClass(),
 					"/freemarker");
@@ -99,7 +97,7 @@ public abstract class AbstractResource {
 	}
 
 	protected InputStream renderTemplate(final String templatename,
-			final Map<String, Object> map) throws RepositoryException,
+			final Map<String, ?> map) throws RepositoryException,
 			IOException, TemplateException {
 
 		final Template template = freemarker.getTemplate(templatename);

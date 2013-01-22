@@ -5,17 +5,20 @@ import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Map;
 
-import javax.jcr.ItemExistsException;
 import javax.jcr.Node;
-import javax.jcr.PathNotFoundException;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.lock.LockException;
-import javax.jcr.nodetype.ConstraintViolationException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-import javax.jcr.version.VersionException;
 import javax.jcr.version.VersionManager;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -23,6 +26,7 @@ import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.api.JcrTools;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
@@ -51,8 +55,8 @@ public class FedoraDatastreams extends AbstractResource {
 			@SuppressWarnings("unchecked")
 			final Builder<Node> datastreams = new Builder<Node>().addAll(root
 					.getNode(pid).getNodes());
-			final Map<String, Object> map = ImmutableMap.of("datastreams",
-					(Object) datastreams.build());
+			final Map<String, ImmutableSet<Node>> map = ImmutableMap.of(
+					"datastreams", datastreams.build());
 			return Response.ok()
 					.entity(renderTemplate("listDatastreams.ftl", map)).build();
 		} else {
@@ -113,24 +117,12 @@ public class FedoraDatastreams extends AbstractResource {
 		String dspath = "/" + pid + "/" + dsid;
 
 		if (session.hasPermission(dspath, "add_node")) {
-			if (!session.nodeExists(dspath)) {
-				return Response
-						.status(Response.Status.CREATED)
-						.entity(addDatastreamNode(dspath, contentType,
-								requestBodyStream, session).toString()).build();
-			} else {
-				if (session.hasPermission(dspath, "remove")) {
-					session.removeItem(dspath);
-					session.save();
-					return Response
-							.ok()
-							.entity(addDatastreamNode(dspath, contentType,
-									requestBodyStream, session).toString())
-							.build();
 
-				} else
-					return four01;
-			}
+			return Response
+					.status(Response.Status.CREATED)
+					.entity(addDatastreamNode(dspath, contentType,
+							requestBodyStream, session).toString()).build();
+
 		} else {
 			return four01;
 		}
@@ -140,16 +132,21 @@ public class FedoraDatastreams extends AbstractResource {
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws RepositoryException, IOException {
 
-		if (session.nodeExists(dspath))
-			session.removeItem(dspath);
-
+		Boolean created = false;
+		if (!session.nodeExists(dspath)) {
+			created = true;
+		}
 		final Node ds = jcrTools.uploadFile(session, dspath, requestBodyStream);
 		ds.addMixin("fedora:datastream");
 		ds.setProperty("fedora:contentType", contentType.toString());
 
 		ds.addMixin("fedora:owned");
 		ds.setProperty("fedora:ownerId", "Fedo Radmin");
+		if (created) {
+			ds.setProperty("fedora:created", Calendar.getInstance());
+		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
+
 		session.save();
 		return ds;
 	}
@@ -161,15 +158,20 @@ public class FedoraDatastreams extends AbstractResource {
 			@PathParam("dsid") final String dsid) throws RepositoryException,
 			IOException, TemplateException {
 
-		final Node root = ws.getSession().getRootNode();
+		final Node obj = ws.getSession().getNode("/" + pid);
 
-		if (root.hasNode(pid + "/" + dsid)) {
+		if (obj.hasNode(dsid)) {
+			Node ds = obj.getNode(dsid);
+			PropertyIterator i = ds.getProperties();
+			ImmutableMap.Builder<String, String> b = new ImmutableMap.Builder<String, String>();
+			while (i.hasNext()) {
+				Property p = i.nextProperty();
+				b.put(p.getName(), p.toString());
+			}
 			return Response
 					.ok()
 					.entity(renderTemplate("datastreamProfile.ftl",
-							ImmutableMap.of("ds",
-									(Object) root.getNode(pid + "/" + dsid),
-									"obj", (Object) root.getNode(pid))))
+							ImmutableMap.of("ds", ds, "properties", b.build())))
 					.build();
 		} else {
 			return four04;
@@ -208,7 +210,7 @@ public class FedoraDatastreams extends AbstractResource {
 			return Response
 					.ok()
 					.entity(renderTemplate("datastreamHistory.ftl",
-							ImmutableMap.of("ds", (Object) ds))).build();
+							ImmutableMap.of("ds", ds))).build();
 		} else {
 			return four04;
 		}
