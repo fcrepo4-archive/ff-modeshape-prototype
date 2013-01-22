@@ -5,6 +5,11 @@
  
     <global>
        <!-- Defines the global settings shared by all caches -->
+       <transport>
+          <properties>
+             <property name="configurationFile" value="jgroups-tcp.xml"/>
+          </properties>
+       </transport>
     </global>
  
     <default>
@@ -20,6 +25,12 @@
           use pessimistic locking, which is required whenever applications will be concurrently
           updating nodes within the same process. If you're not sure, use pessimistic locking.
        -->
+       <clustering mode="distribution">
+          <sync/>
+          <l1 enabled="false"  lifespan="0"  onRehash="false"/>
+          <hash numOwners="1" />
+          <stateTransfer fetchInMemoryState="true"/>
+       </clustering>
        <transaction transactionManagerLookupClass="org.infinispan.transaction.lookup.GenericTransactionManagerLookup"
                     transactionMode="TRANSACTIONAL"
                     lockingMode="PESSIMISTIC"/>
