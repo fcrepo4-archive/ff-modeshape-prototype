@@ -8,7 +8,6 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -26,8 +25,6 @@ public class FedoraOXML extends AbstractResource {
 	private final JcrTools jcrtools = new JcrTools();
 
 	private final Logger logger = Logger.getLogger(FedoraOXML.class);
-
-	static private final FOXMLSequencer fseq = new FOXMLSequencer();
 
 	public FedoraOXML() throws ConfigurationException, RepositoryException,
 			IOException {

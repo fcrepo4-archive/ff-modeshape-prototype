@@ -23,7 +23,6 @@ import org.modeshape.jcr.JcrRepository;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
-import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
@@ -39,7 +38,7 @@ public abstract class AbstractResource {
 	static protected Configuration freemarker = null;
 	static protected Workspace ws = null;
 	
-	protected static PidMinter pidMinter = new UUIDPidMinter();;
+	protected static PidMinter pidMinter = new UUIDPidMinter();
 
 	public AbstractResource() throws ConfigurationException,
 			RepositoryException, IOException {

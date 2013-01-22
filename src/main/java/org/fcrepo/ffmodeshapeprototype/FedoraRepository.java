@@ -86,7 +86,6 @@ public class FedoraRepository extends AbstractResource {
 	@Path("/describe")
 	public Response describe() throws RepositoryException,
     IOException, TemplateException {
-        ImmutableMap.Builder<String, Object> b = ImmutableMap.builder();
 		return Response.ok().entity(renderTemplate("describeRepository.ftl",ImmutableMap.of("asdf", (Object)"asdf"))).build();
 	}
 

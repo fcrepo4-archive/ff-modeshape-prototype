@@ -10,7 +10,6 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.version.VersionManager;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -72,7 +71,6 @@ public class FedoraDatastreams extends AbstractResource {
 			InputStream requestBodyStream) throws RepositoryException,
 			IOException {
 		final Session session = ws.getSession();
-		final VersionManager v = ws.getVersionManager();
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
@@ -110,7 +108,6 @@ public class FedoraDatastreams extends AbstractResource {
 			InputStream requestBodyStream) throws RepositoryException,
 			IOException {
 		final Session session = ws.getSession();
-		final VersionManager v = ws.getVersionManager();
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;

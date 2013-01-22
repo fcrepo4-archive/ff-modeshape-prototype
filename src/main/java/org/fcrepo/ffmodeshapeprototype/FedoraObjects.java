@@ -1,13 +1,13 @@
 package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.nodetype.NodeType;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -19,13 +19,8 @@ import javax.ws.rs.core.Response;
 import org.modeshape.jcr.ConfigurationException;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 
 import freemarker.template.TemplateException;
-
-import java.util.Calendar;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.QueryParam;
 
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
