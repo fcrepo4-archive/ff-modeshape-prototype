@@ -10,9 +10,9 @@
         "cacheName" : "FedoraRepository",
         "cacheConfiguration" : "infinispan_configuration.xml",
         "binaryStorage" : {
-            "type" : "file",
-            "directory" : "FedoraRepository/bitstreams",
-            "minimumBinarySizeInBytes" : 1
+            "type" : "cache",
+            "dataCacheName" : "FedoraRepository",
+            "metadataCacheName" : "FedoraRepository"
         }
     },
     "security" : {
