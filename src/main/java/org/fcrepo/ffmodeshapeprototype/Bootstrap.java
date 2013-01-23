@@ -2,6 +2,8 @@ package org.fcrepo.ffmodeshapeprototype;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.ServletContext;
@@ -11,6 +13,7 @@ import javax.servlet.ServletContextListener;
 import org.infinispan.schematic.document.ParsingException;
 import org.modeshape.common.SystemFailureException;
 import org.modeshape.common.collection.Problems;
+import org.modeshape.common.i18n.TextI18n;
 import org.modeshape.common.logging.Logger;
 import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.JcrRepository;
@@ -24,6 +27,8 @@ import freemarker.template.Configuration;
 
 public class Bootstrap implements ServletContextListener {
 	ServletContext context;
+
+	private static ModeShapeEngine engine = new ModeShapeEngine();
 	private static JcrRepository repository = null;
 
 	private static Workspace ws = null;
@@ -39,7 +44,7 @@ public class Bootstrap implements ServletContextListener {
 		context = contextEvent.getServletContext();
 		try {
 			if (initialized == false)
-				initializeEngine();
+				initializeRepo();
 			initialized = true;
 		} catch (RepositoryException e) {
 			throw new java.lang.RuntimeException(e);
@@ -47,52 +52,68 @@ public class Bootstrap implements ServletContextListener {
 	}
 
 	public void contextDestroyed(ServletContextEvent contextEvent) {
+
+		Future<Boolean> future = engine.shutdown();
+		try {
+			if (future.get()) { // optional, but blocks until engine is
+								// completely
+								// shutdown or interrupted
+				logger.debug("Shut down ModeShape safely");
+			}
+		} catch (InterruptedException e) {
+			logger.error(e, new TextI18n(
+					"Could not shut down ModeShape safely!"));
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			logger.error(e, new TextI18n(
+					"Could not shut down ModeShape safely!"));
+			e.printStackTrace();
+		}
 	}
 
 	public static JcrRepository getRepository() throws RepositoryException {
 		if (repository == null)
-			initializeEngine();
+			initializeRepo();
 		return repository;
 	}
 
 	public static Workspace getWorkspace() throws RepositoryException {
 		if (ws == null)
-			initializeEngine();
+			initializeRepo();
 		return ws;
 	}
 
 	public static Configuration getFreemarker() throws RepositoryException {
 		if (freemarker == null)
-			initializeEngine();
+			initializeRepo();
 		return freemarker;
 	}
 
-	private static void initializeEngine() throws RepositoryException {
-		RepositoryConfiguration repository_config = null;
-		try {
-			repository_config = RepositoryConfiguration
-					.read("my_repository.json");
-			Problems problems = repository_config.validate();
-
-			if (problems.hasErrors()) {
-				throw new ConfigurationException(problems,
-						"Problems starting the engine.");
-			}
-
-		} catch (ParsingException ex) {
-			logger.error(ex, null, (Object) null);
-		} catch (FileNotFoundException ex) {
-			logger.error(ex, null, (Object) null);
-		}
-
-		final ModeShapeEngine engine = new ModeShapeEngine();
-
-		if (engine == null || repository_config == null) {
-			throw new SystemFailureException("Missing engine");
-		}
+	private static void initializeRepo() throws RepositoryException {
 		engine.start();
-		repository = engine.deploy(repository_config);
-		final JcrRepository repository = Bootstrap.getRepository();
+		if (!engine.getRepositoryNames().contains("repo")) {
+			RepositoryConfiguration repository_config = null;
+			try {
+				repository_config = RepositoryConfiguration
+						.read("my_repository.json");
+				Problems problems = repository_config.validate();
+
+				if (problems.hasErrors()) {
+					throw new ConfigurationException(problems,
+							"Problems starting the engine.");
+				}
+
+			} catch (ParsingException ex) {
+				logger.error(ex, null);
+			} catch (FileNotFoundException ex) {
+				logger.error(ex, null);
+			}
+			
+			repository = engine.deploy(repository_config);
+
+		} else {
+			repository = engine.getRepository("repo");
+		}
 
 		if (repository == null) {
 			throw new RepositoryException("Missing repository?");
