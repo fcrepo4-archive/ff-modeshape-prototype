@@ -62,8 +62,16 @@ public class Bootstrap implements ServletContextListener {
 	}
 
 	public static Configuration getFreemarker() throws RepositoryException {
-		if (freemarker == null)
-			initializeEngine();
+		if (freemarker == null) {
+			freemarker = new Configuration();
+			logger.debug("Setting up Freemarker object wrapper");
+			BeansWrapper objWrapper = new BeansWrapper();
+			objWrapper.setExposureLevel(BeansWrapper.EXPOSE_ALL);
+			freemarker.setObjectWrapper(objWrapper);
+			// Specify the data source where the template files come from.
+			freemarker.setClassForTemplateLoading(Bootstrap.class,
+					"/freemarker");
+		}
 		return freemarker;
 	}
 
@@ -115,14 +123,6 @@ public class Bootstrap implements ServletContextListener {
 		}
 		jcrTools.findOrCreateChild(ws.getSession().getRootNode(), "fedora");
 		logger.debug("Deployed Fedora repository.");
-
-		freemarker = new Configuration();
-		logger.debug("Setting up Freemarker object wrapper");
-		BeansWrapper objWrapper = new BeansWrapper();
-		objWrapper.setExposureLevel(BeansWrapper.EXPOSE_ALL);
-		freemarker.setObjectWrapper(objWrapper);
-		// Specify the data source where the template files come from.
-		freemarker.setClassForTemplateLoading(Bootstrap.class, "/freemarker");
 
 	}
 }
