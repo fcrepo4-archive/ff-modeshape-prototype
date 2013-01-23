@@ -16,6 +16,12 @@
          Defines the default behavior for all caches, including those created dynamically (e.g., when a 
          repository uses a cache that doesn't exist in this configuration). 
        -->
+      <clustering mode="distribution">
+         <sync/>
+         <l1 enabled="false" lifespan="0" onRehash="false"/>
+         <hash numOwners="1"/>
+         <stateTransfer fetchInMemoryState="true"/>
+      </clustering>
    </default>
 
    <namedCache name="FedoraRepository">

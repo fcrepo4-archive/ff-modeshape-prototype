@@ -42,7 +42,7 @@ public class FedoraDatastreams extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
+	@Path("")
 	@Produces("text/xml")
 	public Response getDatastreams(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {

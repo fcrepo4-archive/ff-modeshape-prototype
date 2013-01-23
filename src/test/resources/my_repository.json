@@ -2,8 +2,8 @@
     "name" : "repo",
     "jndiName" : "",
     "workspaces" : {
-        "predefined" : [""],
-        "default" : "default",
+        "predefined" : ["fedora"],
+        "default" : "fedora",
         "allowCreation" : true
     },
     "storage" : {
@@ -23,6 +23,17 @@
         "providers" : [
             { "classname" : "servlet" }
         ]
+    },
+    "sequencing" : {
+        "removeDerivedContentWithOriginal" : true,
+        
+        "sequencers" : {
+            "FOXML Eater" : {
+                "description" : "FOXML Files loaded under 'fedora:/foxml' and extracted into 'fedora:/'",
+                "classname" : "org.fcrepo.ffmodeshapeprototype.foxml.FOXMLSequencer",
+                "pathExpressions" : ["fedora:/foxml/(.*)/jcr:content[@jcr:data] => fedora:/$1"]
+            }
+        }
     },
     "node-types" : ["fedora-node-types.cnd"]
 }

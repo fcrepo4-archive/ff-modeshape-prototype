@@ -103,7 +103,7 @@ public class Bootstrap implements ServletContextListener {
 		String[] workspaceNames = ws.getAccessibleWorkspaceNames();
 
 		if (!Arrays.asList(workspaceNames).contains("fedora")) {
-			ws.createWorkspace("fedora");
+			ws.getSession().getWorkspace().createWorkspace("fedora");
 			logger.debug("Created 'fedora' workspace.\n");
 		}
 

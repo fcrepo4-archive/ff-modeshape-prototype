@@ -3,7 +3,7 @@
     "jndiName" : "",
     "workspaces" : {
         "predefined" : ["fedora"],
-        "default" : "default",
+        "default" : "fedora",
         "allowCreation" : true
     },
     "storage" : {

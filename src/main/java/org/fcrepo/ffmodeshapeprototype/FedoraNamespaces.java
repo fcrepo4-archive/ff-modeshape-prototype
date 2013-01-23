@@ -65,7 +65,7 @@ public class FedoraNamespaces extends AbstractResource {
 	}
 
 	@POST
-	@Path("/")
+	@Path("")
 	@Consumes("application/json")
 	public Response registerObjectNamespaceJSON(final InputStream message)
 			throws RepositoryException, JsonParseException,
@@ -84,7 +84,7 @@ public class FedoraNamespaces extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
+	@Path("")
 	@Produces("text/plain")
 	public Response getObjectNamespaces() throws RepositoryException {
 		final Session session = ws.getSession();
@@ -102,7 +102,7 @@ public class FedoraNamespaces extends AbstractResource {
 	}
 
 	@GET
-	@Path("/")
+	@Path("")
 	@Produces("text/xml")
 	public Response getObjectNamespacesInXML() throws RepositoryException,
 			IOException, TemplateException {
