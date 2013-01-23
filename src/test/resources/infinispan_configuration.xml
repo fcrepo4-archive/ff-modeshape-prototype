@@ -15,6 +15,9 @@
     </default>
  
     <namedCache name="FedoraRepository">
+       <clustering>
+          <l1 enabled="false" onRehash="false"/>
+       </clustering>
        <!-- 
           Our Infinispan cache needs to be transactional. However, we'll also configure it to
           use pessimistic locking, which is required whenever applications will be concurrently
