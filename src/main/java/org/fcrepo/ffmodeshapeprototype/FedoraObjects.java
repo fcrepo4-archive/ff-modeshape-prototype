@@ -47,8 +47,7 @@ public class FedoraObjects extends AbstractResource {
 
 		final Session session = ws.getSession();
 		logger.debug("Working in repository: "
-				+ session.getRepository().getDescriptor(
-						Repository.REP_NAME_DESC));
+				+ session.getRepository().getDescriptor("custom.rep.name"));
 		logger.debug("Working in workspace: " + ws.getName());
 		final Node root = session.getRootNode();
 
@@ -73,10 +72,9 @@ public class FedoraObjects extends AbstractResource {
 
 		final Session session = ws.getSession();
 		logger.debug("Working in repository: "
-				+ session.getRepository().getDescriptor(
-						"custom.rep.name"));
+				+ session.getRepository().getDescriptor("custom.rep.name"));
 		logger.debug("Working in workspace: " + ws.getName());
-		
+
 		if (session.nodeExists("/" + pid)) {
 			final Node obj = session.getNode("/" + pid);
 			PropertyIterator i = obj.getProperties();

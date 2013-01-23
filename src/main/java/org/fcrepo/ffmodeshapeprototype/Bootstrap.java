@@ -11,7 +11,6 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.infinispan.schematic.document.ParsingException;
-import org.modeshape.common.SystemFailureException;
 import org.modeshape.common.collection.Problems;
 import org.modeshape.common.i18n.TextI18n;
 import org.modeshape.common.logging.Logger;
