@@ -20,7 +20,7 @@ $ curl "http://localhost:8080/rest/objects/myobject" -H "Accept: text/xml"
 
 To import FOXML, try:
 ```
-$ curl "http://localhost:8080/rest/foxml/myobject" --data-ascii @myfoxmlfile.xml
+$ curl "http://localhost:8080/rest/foxml/myobject" --data-ascii @myfoxmlfile.xml -H "Content-type: text/xml"
 ```
 and you should see an object appear at:
 ```
