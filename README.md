@@ -38,6 +38,6 @@ To run clustered instances on a single machine, start by making as many copies o
 $ mvn -Djetty.port=9999 clean jetty:run
 $ cd ../other-copy
 $ mvn -Djetty.port=9998 clean jetty:run
-
+```
 and the instances should find each other via JGroups using TCP.
 
