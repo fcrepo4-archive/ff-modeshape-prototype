@@ -1,6 +1,6 @@
 {
     "name" : "repo",
-    "jndiName" : "",
+    "jndiName" : "java:/fedora",
     "workspaces" : {
         "predefined" : ["fedora"],
         "default" : "fedora",

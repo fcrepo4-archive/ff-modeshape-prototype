@@ -6,6 +6,7 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
+import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.DELETE;
@@ -16,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import org.modeshape.common.logging.Logger;
 import org.modeshape.jcr.ConfigurationException;
 
 import com.google.common.collect.ImmutableMap;
@@ -24,6 +26,8 @@ import freemarker.template.TemplateException;
 
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
+
+	private static final Logger logger = Logger.getLogger(FedoraObjects.class);
 
 	public FedoraObjects() throws ConfigurationException, RepositoryException,
 			IOException {
@@ -40,7 +44,11 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	public Response ingest(@PathParam("pid") final String pid)
 			throws RepositoryException {
+
 		final Session session = ws.getSession();
+		logger.debug("Working in repository: "
+				+ session.getRepository().getDescriptor("custom.rep.name"));
+		logger.debug("Working in workspace: " + ws.getName());
 		final Node root = session.getRootNode();
 
 		if (session.hasPermission("/" + pid, "add_node")) {
@@ -63,6 +71,9 @@ public class FedoraObjects extends AbstractResource {
 			throws RepositoryException, IOException, TemplateException {
 
 		final Session session = ws.getSession();
+		logger.debug("Working in repository: "
+				+ session.getRepository().getDescriptor("custom.rep.name"));
+		logger.debug("Working in workspace: " + ws.getName());
 
 		if (session.nodeExists("/" + pid)) {
 			final Node obj = session.getNode("/" + pid);
