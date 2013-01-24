@@ -32,3 +32,12 @@ Before creating fedora-like namespaced nodes, you need to register a namespace:
 ```bash
 curl "http://localhost:8080/rest/namespaces/asdf" -X POST
 ```
+
+To run clustered instances on a single machine, start by making as many copies of the project as you want instances. Then, if each project directory, launch the prototype with a different port, a la:
+```
+$ mvn -Djetty.port=9999 clean jetty:run
+$ cd ../other-copy
+$ mvn -Djetty.port=9998 clean jetty:run
+
+and the instances should find each other via JGroups using TCP.
+
