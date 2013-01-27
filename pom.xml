@@ -14,6 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<netbeans.hint.deploy.server>gfv3ee6</netbeans.hint.deploy.server>
 		<netbeans.hint.j2eeVersion>1.6</netbeans.hint.j2eeVersion>
+		<modeshape.version>3.1.0.Final</modeshape.version>
 	</properties>
 
 	<repositories>
@@ -91,6 +92,11 @@
 		<dependency>
 			<groupId>org.modeshape</groupId>
 			<artifactId>modeshape-jcr-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.modeshape</groupId>
+			<artifactId>modeshape-web-jcr-rest</artifactId>
+			<version>${modeshape.version}</version>
 		</dependency>
 
 		<dependency>

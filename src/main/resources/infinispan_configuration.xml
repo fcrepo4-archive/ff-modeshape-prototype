@@ -47,7 +47,8 @@
  
           We can have multiple cache loaders, which get chained. But we'll define just one.
        -->
-      <loaders passivation="false" shared="true" preload="true">
+      
+      <loaders passivation="false" shared="false" preload="true">
 
          <!-- 
             The 'fetchPersistentState' attribute applies when this cache joins the cluster; the value doesn't 
@@ -71,6 +72,14 @@
                always.)
              <async enabled="true" flushLockTimeout="15000" threadPoolSize="5"/>
              -->
+         </loader>
+         <!-- fall back to other nodes if we don't have this data -->
+         <loader class="org.infinispan.loaders.cluster.ClusterCacheLoader"
+            fetchPersistentState="false" purgeOnStartup="false">
+            <properties>
+               <property name="remoteCallTimeout" value="20000"/>
+            </properties>
+            
          </loader>
       </loaders>
    </namedCache>
