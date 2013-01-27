@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,31 +7,16 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/testContext.xml")
 public class FedoraDatastreamsTest {
 
-    private TJWSEmbeddedJaxrsServer server;
     int SERVER_PORT = 9999;
-
-    @Before
-    public void start() throws Exception {
-
-        server = new TJWSEmbeddedJaxrsServer();
-        server.setPort(SERVER_PORT);
-        server.getDeployment().getActualResourceClasses().add(FedoraObjects.class);
-        server.getDeployment().getActualResourceClasses().add(FedoraDatastreams.class);
-        server.start();
-
-    }
-
-    @After
-    public void stop() {
-        server.stop();
-    }
 
     @Test
     public void testGetDatastreams() throws Exception {

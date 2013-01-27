@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import java.io.IOException;
 import java.io.InputStream;

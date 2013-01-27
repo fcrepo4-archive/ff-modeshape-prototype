@@ -5,50 +5,30 @@
 	 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	 version="3.0">
     
-    <!-- engaging the ModeShape REST API -->
+    <display-name>Fedora-on-ModeShape</display-name>
     
     <context-param>
-        <param-name>org.modeshape.jcr.URL</param-name>
-        <param-value>file:/my_repository.json</param-value>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>WEB-INF/classes/rest.xml</param-value>
     </context-param>
     
-    <context-param>
-        <param-name>org.modeshape.jcr.RepositoryName</param-name>
-        <param-value>repo</param-value>
-    </context-param>
+    <listener>
+        <listener-class>
+            org.springframework.web.context.ContextLoaderListener
+        </listener-class>
+    </listener>
     
-    <!-- Required parameter for ModeShape REST - should not be modified 
-    <context-param>
-        <param-name>javax.ws.rs.Application</param-name>
-        <param-value>org.modeshape.web.jcr.rest.JcrApplication</param-value>
-    </context-param> -->
-    
-    <context-param>
-        <param-name>resteasy.scan</param-name>
-        <param-value>true</param-value>
-    </context-param>
-    <context-param>
-        <param-name>resteasy.servlet.mapping.prefix</param-name>
-        <param-value>/rest/</param-value>
-    </context-param>
     <servlet>
-        <servlet-name>Server</servlet-name>
-        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+        <servlet-name>CXFServlet</servlet-name>
+        <servlet-class>
+            org.apache.cxf.transport.servlet.CXFServlet
+        </servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
-    <listener>
-        <listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
-    </listener>
-
-    <!-- Required parameter for ModeShape REST - should not be modified -->
-    <listener>
-        <listener-class>org.modeshape.web.jcr.ModeShapeJcrDeployer</listener-class>
-    </listener>
-
-    <listener>
-        <listener-class>org.fcrepo.ffmodeshapeprototype.Bootstrap</listener-class>
-    </listener>
+    
     <servlet-mapping>
-        <servlet-name>Server</servlet-name>
-        <url-pattern>/rest/*</url-pattern>
+        <servlet-name>CXFServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
+    
 </web-app>

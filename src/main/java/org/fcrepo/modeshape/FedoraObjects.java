@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -6,7 +6,6 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.DELETE;

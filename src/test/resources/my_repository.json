@@ -1,6 +1,6 @@
 {
     "name" : "repo",
-    "jndiName" : "java:jcr/local/fedora",
+    "jndiName" : "",
     "workspaces" : {
         "predefined" : ["fedora"],
         "default" : "fedora",
@@ -30,7 +30,7 @@
         "sequencers" : {
             "FOXML Eater" : {
                 "description" : "FOXML Files loaded under 'fedora:/foxml' and extracted into 'fedora:/'",
-                "classname" : "org.fcrepo.ffmodeshapeprototype.foxml.FOXMLSequencer",
+                "classname" : "org.fcrepo.modeshape.foxml.FOXMLSequencer",
                 "pathExpressions" : ["fedora:/foxml/(.*)/jcr:content[@jcr:data] => fedora:/$1"]
             }
         }

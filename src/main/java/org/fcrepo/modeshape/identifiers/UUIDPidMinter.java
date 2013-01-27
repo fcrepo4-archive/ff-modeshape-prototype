@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype.identifiers;
+package org.fcrepo.modeshape.identifiers;
 
 public class UUIDPidMinter implements PidMinter {
 
