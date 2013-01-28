@@ -36,6 +36,9 @@
          <hash numOwners="1"/>
          <stateTransfer fetchInMemoryState="true"/>
       </clustering>
+      
+      <eviction maxEntries="100"  strategy="LRU" threadPolicy="DEFAULT"/>
+      
       <transaction
          transactionManagerLookupClass="org.infinispan.transaction.lookup.GenericTransactionManagerLookup"
          transactionMode="TRANSACTIONAL" lockingMode="PESSIMISTIC"/>

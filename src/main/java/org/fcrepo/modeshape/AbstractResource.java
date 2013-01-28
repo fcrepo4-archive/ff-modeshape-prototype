@@ -45,6 +45,7 @@ public abstract class AbstractResource extends Constants {
 			RepositoryException {
 
 		ws = repo.login("fedora").getWorkspace();
+		ws.getNamespaceRegistry().registerNamespace("test", "info:fedora/test");
 
 		freemarker.setObjectWrapper(new BeansWrapper());
 		// Specify the data source where the template files come from.
