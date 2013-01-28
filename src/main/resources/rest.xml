@@ -10,7 +10,7 @@
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/osgi/cxf-extension-osgi.xml"/>
-    
+
     <import resource="classpath:/repo.xml"/>
 
     <context:annotation-config/>
@@ -24,6 +24,17 @@
             <bean class="org.fcrepo.modeshape.FedoraObjects"/>
             <bean class="org.fcrepo.modeshape.foxml.FedoraOXML"/>
         </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server address="/modeshape">
+        <jaxrs:serviceBeans>
+            <bean class="org.modeshape.web.jcr.rest.ModeShapeRestService"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.modeshape.web.jcr.rest.output.HtmlBodyWriter"/>
+            <bean class="org.modeshape.web.jcr.rest.output.JSONBodyWriter"/>
+            <bean class="org.modeshape.web.jcr.rest.output.TextBodyWriter"/>
+        </jaxrs:providers>
     </jaxrs:server>
 
 </beans>
