@@ -12,7 +12,6 @@ import javax.ws.rs.core.Response;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
 
