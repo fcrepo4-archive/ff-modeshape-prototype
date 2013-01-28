@@ -1,23 +1,28 @@
-package org.fcrepo.ffmodeshapeprototype.foxml;
+package org.fcrepo.modeshape.foxml;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
-import org.fcrepo.ffmodeshapeprototype.AbstractResource;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.fcrepo.modeshape.AbstractResource;
 import org.modeshape.common.logging.Logger;
-import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.api.JcrTools;
+
+import com.google.common.collect.ImmutableMap;
 
 @Path("/foxml")
 public class FedoraOXML extends AbstractResource {
@@ -26,14 +31,9 @@ public class FedoraOXML extends AbstractResource {
 
 	private final Logger logger = Logger.getLogger(FedoraOXML.class);
 
-	public FedoraOXML() throws ConfigurationException, RepositoryException,
-			IOException {
-		super();
-	}
-
 	@PUT
 	@Path("/{filename}")
-	// @Consumes("text/xml")
+	@Consumes("text/xml")
 	public Response addFOXML(@PathParam("filename") final String filename,
 			InputStream foxml) throws RepositoryException, IOException {
 
@@ -45,11 +45,6 @@ public class FedoraOXML extends AbstractResource {
 			final Node foxmlnode = jcrtools.uploadFile(session, foxmlpath,
 					foxml);
 			session.save();
-			/*
-			 * fseq.execute( foxmlnode.getNode("jcr:content")
-			 * .getProperty("jcr:data"), session.getRootNode()
-			 * .addNode(filename,"nt:folder"), null);
-			 */
 			return Response.created(URI.create(foxmlnode.getPath())).build();
 		} else
 			return four01;
@@ -73,22 +68,21 @@ public class FedoraOXML extends AbstractResource {
 
 	@GET
 	@Path("/")
-	public Response getFOXMLs() throws RepositoryException {
-		Session session = ws.getSession();
-		Node foxml = session.getNode("/foxml");
-		StringBuffer nodes = new StringBuffer();
+	public Response getFOXMLs() throws RepositoryException,
+			JsonGenerationException, JsonMappingException, IOException {
 
+		Node foxml = ws.getSession().getNode("/foxml");
+
+		ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
 		for (NodeIterator i = foxml.getNodes(); i.hasNext();) {
 			Node n = i.nextNode();
-			nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
-					+ "\n");
-			for (NodeIterator j = n.getNodes(); j.hasNext();) {
-				Node n2 = j.nextNode();
-				nodes.append("\t Path:" + n2.getPath() + "\n");
-			}
+			b.put(n.getName(), n.getPath());
 		}
 
-		return Response.ok().entity(nodes.toString()).build();
+		return Response
+				.ok()
+				.entity(mapper.writerWithType(Map.class).writeValueAsString(
+						b.build())).build();
 
 	}
 }

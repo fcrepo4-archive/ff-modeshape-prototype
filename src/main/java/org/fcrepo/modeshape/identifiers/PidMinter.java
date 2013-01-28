@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype.identifiers;
+package org.fcrepo.modeshape.identifiers;
 
 public interface PidMinter {
 	

@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,9 +21,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.modeshape.jcr.ConfigurationException;
-import org.modeshape.jcr.api.JcrTools;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
@@ -32,14 +29,6 @@ import freemarker.template.TemplateException;
 
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
-
-	// adding JcrTools in debug mode for now
-	static private final JcrTools jcrTools = new JcrTools(true);
-
-	public FedoraDatastreams() throws ConfigurationException,
-			RepositoryException, IOException {
-		super();
-	}
 
 	@GET
 	@Path("")
@@ -218,6 +207,6 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		return deleteResource(pid + "/" + dsid);
+		return deleteResource("/" + pid + "/" + dsid);
 	}
 }

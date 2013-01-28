@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import java.io.IOException;
 
@@ -10,21 +10,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import org.modeshape.jcr.ConfigurationException;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
 
 @Path("/")
 public class FedoraIdentifiers extends AbstractResource {
-
-	public FedoraIdentifiers() throws ConfigurationException,
-			RepositoryException, IOException {
-		super();
-	}
 
 	@POST
 	@Path("/nextPID")
@@ -33,7 +25,7 @@ public class FedoraIdentifiers extends AbstractResource {
 			@QueryParam("numPids") @DefaultValue("1") Integer numPids)
 			throws RepositoryException, IOException, TemplateException {
 
-		ImmutableSet.Builder<String> b = new Builder<String>();
+		ImmutableSet.Builder<String> b = ImmutableSet.builder();
 		for (int i = 0; i < numPids; i++) {
 			b.add(pidMinter.mintPid());
 		}

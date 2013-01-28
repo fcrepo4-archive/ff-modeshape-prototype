@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -7,51 +7,56 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.Map;
 
-import javax.jcr.Node;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.jcr.LoginException;
+import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
 import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.fcrepo.ffmodeshapeprototype.identifiers.PidMinter;
-import org.fcrepo.ffmodeshapeprototype.identifiers.UUIDPidMinter;
-import org.modeshape.jcr.ConfigurationException;
+import org.fcrepo.modeshape.identifiers.PidMinter;
+import org.modeshape.jcr.api.JcrTools;
+import org.modeshape.jcr.api.Repository;
 
+import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-public abstract class AbstractResource {
+public abstract class AbstractResource extends Constants {
 
-	static final ObjectMapper mapper = new ObjectMapper();
+	@Inject
+	protected ObjectMapper mapper;
+	@Inject
+	protected Repository repo;
+	@Inject
+	protected PidMinter pidMinter;
 
-	protected static final Response four01 = Response.status(404).entity("401")
-			.build();
-	protected static final Response four04 = Response.status(404).entity("404")
-			.build();
+	static protected Workspace ws;
 
-	static protected Configuration freemarker = null;
-	static protected Workspace ws = null;
-	protected static PidMinter pidMinter = new UUIDPidMinter();
+	final static protected Configuration freemarker = new Configuration();
+	final static protected JcrTools jcrTools = new JcrTools(true);
 
-	public AbstractResource() throws ConfigurationException,
-			RepositoryException, IOException {
-		if (ws == null) {
-			ws = Bootstrap.getWorkspace();
-		}
-		if (freemarker == null) {
-			freemarker = Bootstrap.getFreemarker();
-		}
+	@PostConstruct
+	public void initialize() throws LoginException, NoSuchWorkspaceException,
+			RepositoryException {
+
+		ws = repo.login("fedora").getWorkspace();
+
+		freemarker.setObjectWrapper(new BeansWrapper());
+		// Specify the data source where the template files come from.
+		freemarker.setClassForTemplateLoading(this.getClass(), "/freemarker");
 	}
 
 	protected Response deleteResource(final String path)
 			throws RepositoryException {
 		final Session session = ws.getSession();
-		final Node root = session.getRootNode();
-		if (root.hasNode(path)) {
-			if (session.hasPermission("/" + path, "remove")) {
-				root.getNode(path).remove();
+		if (session.nodeExists(path)) {
+			if (session.hasPermission(path, "remove")) {
+				session.getNode(path).remove();
 				session.save();
 				return Response.status(204).build();
 			} else {

@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import java.io.IOException;
 import java.util.Map;
@@ -8,7 +8,6 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.ws.rs.GET;
@@ -18,11 +17,11 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.modeshape.common.logging.Logger;
-import org.modeshape.jcr.ConfigurationException;
 import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+
 import freemarker.template.TemplateException;
 
 /**
@@ -35,20 +34,12 @@ import freemarker.template.TemplateException;
 public class FedoraRepository extends AbstractResource {
 
 	private final Logger logger = Logger.getLogger(FedoraRepository.class);
-
-	public FedoraRepository() throws ConfigurationException,
-			RepositoryException, IOException {
-		super();
-	}
-
         
 	@GET
 	@Path("/describe/modeshape")
 	public Response describeModeshape() throws JsonGenerationException,
 			JsonMappingException, IOException, RepositoryException {
 
-		// start with repo configuration properties
-		final Repository repo = ws.getSession().getRepository();
 		logger.debug("Repository name: "
 				+ repo.getDescriptor(Repository.REP_NAME_DESC));
 		final Builder<String, Object> repoproperties = ImmutableMap.builder();
@@ -92,8 +83,8 @@ public class FedoraRepository extends AbstractResource {
 	@GET
 	@Path("/objects")
 	public Response getObjects() throws RepositoryException {
-		Session session = ws.getSession();
-		Node root = session.getRootNode();
+
+		Node root = ws.getSession().getRootNode();
 		StringBuffer nodes = new StringBuffer();
 
 		for (NodeIterator i = root.getNodes(); i.hasNext();) {

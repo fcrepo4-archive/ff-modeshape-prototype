@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -6,7 +6,6 @@ import java.util.Calendar;
 import javax.jcr.Node;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
-import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.DELETE;
@@ -78,7 +77,7 @@ public class FedoraObjects extends AbstractResource {
 		if (session.nodeExists("/" + pid)) {
 			final Node obj = session.getNode("/" + pid);
 			PropertyIterator i = obj.getProperties();
-			ImmutableMap.Builder<String, String> b = new ImmutableMap.Builder<String, String>();
+			ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
 			while (i.hasNext()) {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
@@ -96,7 +95,7 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	public Response deleteObject(@PathParam("pid") final String pid)
 			throws RepositoryException {
-		return deleteResource(pid);
+		return deleteResource("/" + pid);
 	}
 
 }

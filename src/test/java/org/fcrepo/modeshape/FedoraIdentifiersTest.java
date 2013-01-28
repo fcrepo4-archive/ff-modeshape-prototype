@@ -1,4 +1,4 @@
-package org.fcrepo.ffmodeshapeprototype;
+package org.fcrepo.modeshape;
 
 import static org.junit.Assert.assertEquals;
 
@@ -6,34 +6,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.jboss.resteasy.plugins.server.tjws.TJWSEmbeddedJaxrsServer;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-/**
- * Created with IntelliJ IDEA. User: cabeer Date: 1/17/13 Time: 14:11 To change
- * this template use File | Settings | File Templates.
- */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("/testContext.xml")
 public class FedoraIdentifiersTest {
 
-	private TJWSEmbeddedJaxrsServer server;
 	int SERVER_PORT = 9999;
-
-	@Before
-	public void start() {
-
-		server = new TJWSEmbeddedJaxrsServer();
-		server.setPort(SERVER_PORT);
-		server.getDeployment().getActualResourceClasses()
-				.add(FedoraIdentifiers.class);
-		server.start();
-	}
-
-	@After
-	public void stop() {
-		server.stop();
-	}
 
 	@Test
 	public void testGetNextPid() throws Exception {

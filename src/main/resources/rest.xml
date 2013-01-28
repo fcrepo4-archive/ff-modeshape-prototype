@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
+
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/osgi/cxf-extension-osgi.xml"/>
+
+    <import resource="classpath:/repo.xml"/>
+
+    <context:annotation-config/>
+
+    <jaxrs:server address="/rest">
+        <jaxrs:serviceBeans>
+            <bean class="org.fcrepo.modeshape.FedoraRepository"/>
+            <bean class="org.fcrepo.modeshape.FedoraDatastreams"/>
+            <bean class="org.fcrepo.modeshape.FedoraIdentifiers"/>
+            <bean class="org.fcrepo.modeshape.FedoraNamespaces"/>
+            <bean class="org.fcrepo.modeshape.FedoraObjects"/>
+            <bean class="org.fcrepo.modeshape.foxml.FedoraOXML"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server address="/rest/modeshape">
+        <jaxrs:serviceBeans>
+            <bean class="org.modeshape.web.jcr.rest.ModeShapeRestService"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <bean class="org.modeshape.web.jcr.rest.output.HtmlBodyWriter"/>
+            <bean class="org.modeshape.web.jcr.rest.output.JSONBodyWriter"/>
+            <bean class="org.modeshape.web.jcr.rest.output.TextBodyWriter"/>
+        </jaxrs:providers>
+    </jaxrs:server>
+
+</beans>
