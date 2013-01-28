@@ -207,6 +207,6 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		return deleteResource(pid + "/" + dsid);
+		return deleteResource("/" + pid + "/" + dsid);
 	}
 }

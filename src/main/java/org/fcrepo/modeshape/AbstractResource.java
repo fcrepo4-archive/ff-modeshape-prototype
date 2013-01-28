@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
-import javax.jcr.Node;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
@@ -55,10 +54,9 @@ public abstract class AbstractResource extends Constants {
 	protected Response deleteResource(final String path)
 			throws RepositoryException {
 		final Session session = ws.getSession();
-		final Node root = session.getRootNode();
-		if (root.hasNode(path)) {
-			if (session.hasPermission("/" + path, "remove")) {
-				root.getNode(path).remove();
+		if (session.nodeExists(path)) {
+			if (session.hasPermission(path, "remove")) {
+				session.getNode(path).remove();
 				session.save();
 				return Response.status(204).build();
 			} else {

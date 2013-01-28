@@ -26,7 +26,7 @@ public class FedoraIdentifiers extends AbstractResource {
 			@QueryParam("numPids") @DefaultValue("1") Integer numPids)
 			throws RepositoryException, IOException, TemplateException {
 
-		ImmutableSet.Builder<String> b = new Builder<String>();
+		ImmutableSet.Builder<String> b = ImmutableSet.builder();
 		for (int i = 0; i < numPids; i++) {
 			b.add(pidMinter.mintPid());
 		}

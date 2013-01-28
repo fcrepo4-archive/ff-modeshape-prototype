@@ -77,7 +77,7 @@ public class FedoraObjects extends AbstractResource {
 		if (session.nodeExists("/" + pid)) {
 			final Node obj = session.getNode("/" + pid);
 			PropertyIterator i = obj.getProperties();
-			ImmutableMap.Builder<String, String> b = new ImmutableMap.Builder<String, String>();
+			ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
 			while (i.hasNext()) {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
@@ -95,7 +95,7 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	public Response deleteObject(@PathParam("pid") final String pid)
 			throws RepositoryException {
-		return deleteResource(pid);
+		return deleteResource("/" + pid);
 	}
 
 }
