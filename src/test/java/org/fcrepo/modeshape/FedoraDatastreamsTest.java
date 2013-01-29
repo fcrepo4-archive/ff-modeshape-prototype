@@ -7,6 +7,7 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -16,102 +17,132 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("/testContext.xml")
 public class FedoraDatastreamsTest {
 
-    int SERVER_PORT = 9999;
+	int SERVER_PORT = 9999;
 
-    @Test
-    public void testGetDatastreams() throws Exception {
-        HttpClient client = new HttpClient();
+	@Test
+	public void testGetDatastreams() throws Exception {
+		HttpClient client = new HttpClient();
 
-        PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf");
-        client.executeMethod(pmethod);
+		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf");
+		client.executeMethod(pmethod);
 
-        GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams");
-        int status = client.executeMethod(method);
-        assertEquals(200, status);
-    }
+		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf/datastreams");
+		int status = client.executeMethod(method);
+		assertEquals(200, status);
+	}
 
-    @Test
-    public void testAddDatastream() throws Exception {
+	@Test
+	public void testAddDatastream() throws Exception {
 
-        HttpClient client = new HttpClient();
+		HttpClient client = new HttpClient();
 
-        PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf");
-        client.executeMethod(pmethod);
+		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf");
+		client.executeMethod(pmethod);
 
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/zxc");
-        int status = client.executeMethod(method);
-        assertEquals(201, status);
-    }
+		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf/datastreams/zxc");
+		int status = client.executeMethod(method);
+		assertEquals(201, status);
+	}
 
-    @Test
-    public void testMutateDatastream() throws Exception {
+	@Test
+	public void testMutateDatastream() throws Exception {
 
-        HttpClient client = new HttpClient();
- 
-        PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf2");
-        client.executeMethod(pmethod);
+		HttpClient client = new HttpClient();
 
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf2/datastreams/vcxz");
-        int status = client.executeMethod(method);
-        assertEquals(201, status);
+		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf2");
+		client.executeMethod(pmethod);
 
+		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf2/datastreams/vcxz");
+		int status = client.executeMethod(method);
+		assertEquals(201, status);
 
-        PutMethod method_2 = new PutMethod("http://localhost:" + SERVER_PORT + "/objects/asdf2/datastreams/vcxz");
-        status = client.executeMethod(method_2);
-        assertEquals(201, status);
-    }
+		PutMethod method_2 = new PutMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf2/datastreams/vcxz");
+		status = client.executeMethod(method_2);
+		assertEquals(201, status);
+	}
 
-    @Test
-    public void testGetDatastream() throws Exception {
+	@Test
+	public void testGetDatastream() throws Exception {
 
-        HttpClient client = new HttpClient();
+		HttpClient client = new HttpClient();
 
-        PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf");
-        client.executeMethod(pmethod);
+		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf");
+		client.executeMethod(pmethod);
 
-        GetMethod method_test_get = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/poiu");
-        int status = client.executeMethod(method_test_get);
-        assertEquals(404, status);
+		GetMethod method_test_get = new GetMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/asdf/datastreams/poiu");
+		int status = client.executeMethod(method_test_get);
+		assertEquals(404, status);
 
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/poiu");
-        status = client.executeMethod(method);
-        assertEquals(201, status);
+		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf/datastreams/poiu");
+		status = client.executeMethod(method);
+		assertEquals(201, status);
 
+		GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf/datastreams/poiu");
+		status = client.executeMethod(method_2);
+		assertEquals(200, status);
+	}
 
-        GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/poiu");
-        status = client.executeMethod(method_2);
-        assertEquals(200, status);
-    }
+	@Test
+	public void testDeleteDatastream() throws Exception {
 
-    @Test
-    public void testGetDatastreamContent() throws Exception {
+		HttpClient client = new HttpClient();
 
-    }
+		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf");
+		client.executeMethod(pmethod);
 
-    @Test
-    public void testDeleteDatastream() throws Exception {
+		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf/datastreams/lkjh");
+		int status = client.executeMethod(method);
+		assertEquals(201, status);
 
-        HttpClient client = new HttpClient();
+		GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT
+				+ "/objects/asdf/datastreams/lkjh");
+		status = client.executeMethod(method_2);
+		assertEquals(200, status);
 
-        PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf");
-        client.executeMethod(pmethod);
+		DeleteMethod dmethod = new DeleteMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/asdf/datastreams/lkjh");
+		status = client.executeMethod(dmethod);
+		assertEquals(204, status);
 
+		GetMethod method_test_get = new GetMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/asdf/datastreams/lkjh");
+		status = client.executeMethod(method_test_get);
+		assertEquals(404, status);
+	}
 
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
-        int status = client.executeMethod(method);
-        assertEquals(201, status);
+	@Test
+	public void testGetDatastreamContent() throws Exception {
+		final HttpClient client = new HttpClient();
 
+		final PostMethod pmethod = new PostMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/testfoo");
+		client.executeMethod(pmethod);
+		assertEquals(201, client.executeMethod(pmethod));
 
-        GetMethod method_2 = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
-        status = client.executeMethod(method_2);
-        assertEquals(200, status);
+		final PostMethod method = new PostMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/testfoo/datastreams/testfoozle");
+		method.setRequestEntity(new StringRequestEntity("marbles for everyone",
+				null, null));
+		assertEquals(201, client.executeMethod(method));
+		GetMethod method_test_get = new GetMethod("http://localhost:"
+				+ SERVER_PORT
+				+ "/objects/testfoo/datastreams/testfoozle/content");
+		assertEquals(200, client.executeMethod(method_test_get));
+		assertEquals("marbles for everyone",
+				method_test_get.getResponseBodyAsString());
 
-        DeleteMethod dmethod = new DeleteMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
-        status = client.executeMethod(dmethod);
-        assertEquals(204, status);
-
-        GetMethod method_test_get = new GetMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/lkjh");
-        status = client.executeMethod(method_test_get);
-        assertEquals(404, status);
-    }
+	}
 }

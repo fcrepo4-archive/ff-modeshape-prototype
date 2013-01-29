@@ -62,8 +62,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@POST
 	@Path("/{dsid}")
-	public Response addDatastream(
-			@PathParam("pid") final String pid,
+	public Response addDatastream(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid,
 			@HeaderParam("Content-Type") MediaType contentType,
 			InputStream requestBodyStream) throws RepositoryException,
@@ -106,8 +105,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@PUT
 	@Path("/{dsid}")
-	public Response modifyDatastream(
-			@PathParam("pid") final String pid,
+	public Response modifyDatastream(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid,
 			@HeaderParam("Content-Type") MediaType contentType,
 			InputStream requestBodyStream) throws RepositoryException,
@@ -143,7 +141,8 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node ds = jcrTools.findOrCreateNode(session, dspath, "nt:file");
 		ds.addMixin("fedora:datastream");
 		// ws.getLockManager().lock(dspath, true, true, Long.MAX_VALUE, "");
-		final Node contentNode = jcrTools.findOrCreateChild(ds,"jcr:content", "nt:resource");
+		final Node contentNode = jcrTools.findOrCreateChild(ds, "jcr:content",
+				"nt:resource");
 		logger.debug("Created content node at path: " + contentNode.getPath());
 		Property dataProperty = contentNode.setProperty("jcr:data", session
 				.getValueFactory().createBinary(requestBodyStream));
@@ -207,10 +206,10 @@ public class FedoraDatastreams extends AbstractResource {
 			final String mimeType = ds.hasProperty("fedora:contentType") ? ds
 					.getProperty("fedora:contentType").getString()
 					: "application/octet-stream";
+			InputStream responseStream = ds.getNode("jcr:content")
+					.getProperty("jcr:data").getBinary().getStream();
 			session.logout();
-			return Response.ok(
-					ds.getNode("jcr:content").getProperty("jcr:data")
-							.getBinary().getStream(), mimeType).build();
+			return Response.ok(responseStream, mimeType).build();
 		} else {
 			return four04;
 		}
