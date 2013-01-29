@@ -14,12 +14,16 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
+import javax.jcr.lock.Lock;
+import javax.jcr.lock.LockManager;
 import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fcrepo.modeshape.identifiers.PidMinter;
 import org.modeshape.jcr.api.JcrTools;
 import org.modeshape.jcr.api.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -27,6 +31,10 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 public abstract class AbstractResource extends Constants {
+	
+	final private Logger logger = LoggerFactory
+			.getLogger(AbstractResource.class);
+
 
 	@Inject
 	protected ObjectMapper mapper;
@@ -52,11 +60,18 @@ public abstract class AbstractResource extends Constants {
 		freemarker.setClassForTemplateLoading(this.getClass(), "/freemarker");
 	}
 
-	protected Response deleteResource(final String path)
+	protected synchronized Response deleteResource(final String path)
 			throws RepositoryException {
+
+		logger.debug("Attempting to delete datastream resource at path: " + path);
+
+		
 		final Session session = ws.getSession();
+
 		if (session.nodeExists(path)) {
+
 			if (session.hasPermission(path, "remove")) {
+				//ws.getLockManager().lock(path, true, true, Long.MAX_VALUE, "");
 				session.getNode(path).remove();
 				session.save();
 				return Response.status(204).build();

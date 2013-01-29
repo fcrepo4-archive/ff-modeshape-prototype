@@ -41,18 +41,20 @@ public class FedoraObjects extends AbstractResource {
 
 	@POST
 	@Path("/{pid}")
-	public Response ingest(@PathParam("pid") final String pid)
+	public synchronized Response ingest(@PathParam("pid") final String pid)
 			throws RepositoryException {
 
-		final Session session = ws.getSession();
-		logger.debug("Working in repository: "
-				+ session.getRepository().getDescriptor("custom.rep.name"));
-		logger.debug("Working in workspace: " + ws.getName());
-		final Node root = session.getRootNode();
+		logger.debug("Attempting to ingest with pid: " + pid);
 
+		final Session session = ws.getSession();
+
+		// final Node root = session.getRootNode();
 		if (session.hasPermission("/" + pid, "add_node")) {
-			final Node obj = root.addNode(pid, "nt:folder");
+			final Node obj = jcrTools.findOrCreateNode(session, "/" + pid,
+					"nt:folder");
 			obj.addMixin("fedora:object");
+			// ws.getLockManager().lock("/" + pid, false, true, Long.MAX_VALUE,
+			// "");
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			obj.setProperty("jcr:lastModified", Calendar.getInstance());

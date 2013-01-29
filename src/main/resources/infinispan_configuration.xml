@@ -62,7 +62,7 @@
             <!-- See the documentation for more configuration examples and flags. -->
             <properties>
                <!-- We have to set the location where we want to store the data. -->
-               <property name="location" value="FedoraRepository/storage"/>
+               <property name="location" value="target/FedoraRepository/storage"/>
             </properties>
             <!-- This repository isn't clustered, so we could set up the SingletonStore.
              singletonStore enabled="true" pushStateWhenCoordinator="true" pushStateTimeout="20000"/>

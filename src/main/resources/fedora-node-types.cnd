@@ -20,7 +20,7 @@
 /*
  * Any Fedora resource.
  */
-[fedora:resource] > mix:created, mix:lastModified, mix:versionable mixin abstract
+[fedora:resource] > mix:created, mix:lastModified, mix:lockable, mix:versionable mixin abstract
 	
 	/*
 	 * Temporary for us until we better understand the use of jcr:created.

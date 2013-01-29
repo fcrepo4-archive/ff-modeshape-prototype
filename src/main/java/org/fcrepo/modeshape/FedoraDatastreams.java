@@ -10,6 +10,8 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.lock.Lock;
+import javax.jcr.lock.LockManager;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -27,8 +29,14 @@ import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
+
+	final private Logger logger = LoggerFactory
+			.getLogger(FedoraDatastreams.class);
 
 	@GET
 	@Path("")
@@ -114,16 +122,23 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
-	private Node addDatastreamNode(final String dspath,
+	private synchronized Node addDatastreamNode(final String dspath,
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws RepositoryException, IOException {
+
+		logger.debug("Attempting to add datastream node at path: " + dspath);
 
 		Boolean created = false;
 		if (!session.nodeExists(dspath)) {
 			created = true;
 		}
-		final Node ds = jcrTools.uploadFile(session, dspath, requestBodyStream);
+
+		final Node ds = jcrTools.findOrCreateNode(session, dspath, "nt:file");
 		ds.addMixin("fedora:datastream");
+		// ws.getLockManager().lock(dspath, true, true, Long.MAX_VALUE, "");
+		final Node contentNode = ds.addNode("jcr:content", "nt:resource");
+		contentNode.setProperty("jcr:data", session.getValueFactory()
+				.createBinary(requestBodyStream));
 		ds.setProperty("fedora:contentType", contentType.toString());
 
 		ds.addMixin("fedora:owned");

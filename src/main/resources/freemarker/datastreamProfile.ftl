@@ -3,7 +3,7 @@
   pid="${ds.getParent().getName()}" dsID="${ds.getName()}">
     <dsLabel>${ds.getName()}</dsLabel>
     <dsVersionID></dsVersionID>
-    <dsCreateDate>${properties.get("fedora:created")}</dsCreateDate>
+    <#-- <dsCreateDate>${properties.get("jcr:created")}</dsCreateDate> -->
     <dsState>A</dsState>
     <dsMIME></dsMIME>
     <dsFormatURI></dsFormatURI>
