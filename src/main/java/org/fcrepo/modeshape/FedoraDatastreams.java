@@ -62,7 +62,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@POST
 	@Path("/{dsid}")
-	public synchronized Response addDatastream(
+	public Response addDatastream(
 			@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid,
 			@HeaderParam("Content-Type") MediaType contentType,
@@ -106,7 +106,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@PUT
 	@Path("/{dsid}")
-	public synchronized Response modifyDatastream(
+	public Response modifyDatastream(
 			@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid,
 			@HeaderParam("Content-Type") MediaType contentType,
@@ -130,7 +130,7 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
-	private synchronized Node addDatastreamNode(final String dspath,
+	private Node addDatastreamNode(final String dspath,
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws RepositoryException, IOException {
 

@@ -41,7 +41,7 @@ public class FedoraObjects extends AbstractResource {
 
 	@POST
 	@Path("/{pid}")
-	public synchronized Response ingest(@PathParam("pid") final String pid)
+	public Response ingest(@PathParam("pid") final String pid)
 			throws RepositoryException {
 
 		logger.debug("Attempting to ingest with pid: " + pid);
@@ -73,9 +73,6 @@ public class FedoraObjects extends AbstractResource {
 			throws RepositoryException, IOException, TemplateException {
 
 		final Session session = repo.login();
-		logger.debug("Working in repository: "
-				+ session.getRepository().getDescriptor("custom.rep.name"));
-		logger.debug("Working in workspace: " + ws.getName());
 
 		if (session.nodeExists("/" + pid)) {
 			final Node obj = session.getNode("/" + pid);
