@@ -46,19 +46,20 @@ public class FedoraObjects extends AbstractResource {
 
 		logger.debug("Attempting to ingest with pid: " + pid);
 
-		final Session session = ws.getSession();
+		final Session session = repo.login();
 
-		// final Node root = session.getRootNode();
 		if (session.hasPermission("/" + pid, "add_node")) {
 			final Node obj = jcrTools.findOrCreateNode(session, "/" + pid,
 					"nt:folder");
 			obj.addMixin("fedora:object");
-			// ws.getLockManager().lock("/" + pid, false, true, Long.MAX_VALUE,
-			// "");
+			/* ws.getLockManager()
+					.lock("/" + pid, false, true, Long.MAX_VALUE, ""); */
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			obj.setProperty("jcr:lastModified", Calendar.getInstance());
 			session.save();
+			session.logout();
+			logger.debug("Finished ingest with pid: " + pid);
 			return Response.status(Response.Status.CREATED).entity(pid).build();
 		} else {
 			return four01;
@@ -71,7 +72,7 @@ public class FedoraObjects extends AbstractResource {
 	public Response getObjectInXML(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
 
-		final Session session = ws.getSession();
+		final Session session = repo.login();
 		logger.debug("Working in repository: "
 				+ session.getRepository().getDescriptor("custom.rep.name"));
 		logger.debug("Working in workspace: " + ws.getName());
@@ -84,6 +85,7 @@ public class FedoraObjects extends AbstractResource {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
 			}
+			session.logout();
 			return Response
 					.ok()
 					.entity(renderTemplate("objectProfile.ftl", ImmutableMap

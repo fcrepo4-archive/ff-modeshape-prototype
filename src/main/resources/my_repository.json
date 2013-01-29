@@ -35,5 +35,5 @@
             }
         }
     },
-    "node-types" : ["fedora-node-types.cnd"]
+"node-types" : ["fedora-node-types.cnd"]
 }

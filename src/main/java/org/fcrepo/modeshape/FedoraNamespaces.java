@@ -37,10 +37,8 @@ public class FedoraNamespaces extends AbstractResource {
 	@Path("/{ns}")
 	public Response registerObjectNamespace(@PathParam("ns") final String ns)
 			throws RepositoryException {
-		final Session session = ws.getSession();
-		Workspace w = session.getWorkspace();
-		NamespaceRegistry r = w.getNamespaceRegistry();
 
+		NamespaceRegistry r = ws.getNamespaceRegistry();
 		r.registerNamespace(ns, "info:fedora/" + ns);
 
 		return Response.ok().entity(ns).build();
@@ -52,8 +50,7 @@ public class FedoraNamespaces extends AbstractResource {
 	public Response retrieveObjectNamespace(@PathParam("ns") final String prefix)
 			throws RepositoryException {
 
-		final NamespaceRegistry r = ws.getSession().getWorkspace()
-				.getNamespaceRegistry();
+		final NamespaceRegistry r = ws.getNamespaceRegistry();
 
 		if (ImmutableSet.copyOf(r.getPrefixes()).contains(prefix)) {
 			return Response
@@ -71,8 +68,7 @@ public class FedoraNamespaces extends AbstractResource {
 			throws RepositoryException, JsonParseException,
 			JsonMappingException, IOException {
 
-		final NamespaceRegistry r = ws.getSession().getWorkspace()
-				.getNamespaceRegistry();
+		final NamespaceRegistry r = ws.getNamespaceRegistry();
 
 		@SuppressWarnings("unchecked")
 		final Map<String, String> nses = mapper.readValue(message, Map.class);
@@ -87,9 +83,8 @@ public class FedoraNamespaces extends AbstractResource {
 	@Path("")
 	@Produces("text/plain")
 	public Response getObjectNamespaces() throws RepositoryException {
-		final Session session = ws.getSession();
-		Workspace w = session.getWorkspace();
-		NamespaceRegistry r = w.getNamespaceRegistry();
+
+		NamespaceRegistry r = ws.getNamespaceRegistry();
 
 		StringBuffer out = new StringBuffer();
 		String[] uris = r.getURIs();

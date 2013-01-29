@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<datastreamProfile xmlns="http://www.fedora.info/definitions/1/0/management/"
+<#-- <datastreamProfile xmlns="http://www.fedora.info/definitions/1/0/management/"
   pid="${ds.getParent().getName()}" dsID="${ds.getName()}">
     <dsLabel>${ds.getName()}</dsLabel>
     <dsVersionID></dsVersionID>
-    <#-- <dsCreateDate>${properties.get("jcr:created")}</dsCreateDate> -->
+    <dsCreateDate>${properties.get("jcr:created")}</dsCreateDate> -->
     <dsState>A</dsState>
     <dsMIME></dsMIME>
     <dsFormatURI></dsFormatURI>

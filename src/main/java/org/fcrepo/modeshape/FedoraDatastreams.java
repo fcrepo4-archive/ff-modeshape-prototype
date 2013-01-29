@@ -10,8 +10,6 @@ import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
-import javax.jcr.lock.Lock;
-import javax.jcr.lock.LockManager;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -23,14 +21,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
@@ -44,7 +42,8 @@ public class FedoraDatastreams extends AbstractResource {
 	public Response getDatastreams(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
 
-		final Node root = ws.getSession().getRootNode();
+		final Session session = repo.login();
+		final Node root = session.getRootNode();
 
 		if (root.hasNode(pid)) {
 
@@ -53,6 +52,7 @@ public class FedoraDatastreams extends AbstractResource {
 					.getNode(pid).getNodes());
 			final Map<String, ImmutableSet<Node>> map = ImmutableMap.of(
 					"datastreams", datastreams.build());
+			session.logout();
 			return Response.ok()
 					.entity(renderTemplate("listDatastreams.ftl", map)).build();
 		} else {
@@ -62,16 +62,23 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@POST
 	@Path("/{dsid}")
-	public Response addDatastream(@PathParam("pid") final String pid,
+	public synchronized Response addDatastream(
+			@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid,
 			@HeaderParam("Content-Type") MediaType contentType,
 			InputStream requestBodyStream) throws RepositoryException,
 			IOException {
-		final Session session = ws.getSession();
+		final Session session = repo.login();
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
 		String dspath = "/" + pid + "/" + dsid;
+
+		if (!session.nodeExists(dspath.substring(0, dspath.lastIndexOf('/')))) {
+			logger.debug("This bozo tried to create a datastream for an object that doesn't exist, at resource path: "
+					+ dspath);
+			return Response.notAcceptable(null).build();
+		}
 
 		if (session.hasPermission(dspath, "add_node")) {
 			if (!session.nodeExists(dspath)) {
@@ -99,12 +106,13 @@ public class FedoraDatastreams extends AbstractResource {
 
 	@PUT
 	@Path("/{dsid}")
-	public Response modifyDatastream(@PathParam("pid") final String pid,
+	public synchronized Response modifyDatastream(
+			@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid,
 			@HeaderParam("Content-Type") MediaType contentType,
 			InputStream requestBodyStream) throws RepositoryException,
 			IOException {
-		final Session session = ws.getSession();
+		final Session session = repo.login();
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
@@ -127,7 +135,6 @@ public class FedoraDatastreams extends AbstractResource {
 			final Session session) throws RepositoryException, IOException {
 
 		logger.debug("Attempting to add datastream node at path: " + dspath);
-
 		Boolean created = false;
 		if (!session.nodeExists(dspath)) {
 			created = true;
@@ -137,8 +144,11 @@ public class FedoraDatastreams extends AbstractResource {
 		ds.addMixin("fedora:datastream");
 		// ws.getLockManager().lock(dspath, true, true, Long.MAX_VALUE, "");
 		final Node contentNode = ds.addNode("jcr:content", "nt:resource");
-		contentNode.setProperty("jcr:data", session.getValueFactory()
-				.createBinary(requestBodyStream));
+		logger.debug("Created content node at path: " + contentNode.getPath());
+		Property dataProperty = contentNode.setProperty("jcr:data", session
+				.getValueFactory().createBinary(requestBodyStream));
+		logger.debug("Created data property at path: " + dataProperty.getPath());
+
 		ds.setProperty("fedora:contentType", contentType.toString());
 
 		ds.addMixin("fedora:owned");
@@ -149,6 +159,9 @@ public class FedoraDatastreams extends AbstractResource {
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
 
 		session.save();
+		session.logout();
+		logger.debug("Finished adding datastream node at path: " + dspath);
+
 		return ds;
 	}
 
@@ -159,7 +172,8 @@ public class FedoraDatastreams extends AbstractResource {
 			@PathParam("dsid") final String dsid) throws RepositoryException,
 			IOException, TemplateException {
 
-		final Node obj = ws.getSession().getNode("/" + pid);
+		Session session = repo.login();
+		final Node obj = session.getNode("/" + pid);
 
 		if (obj.hasNode(dsid)) {
 			Node ds = obj.getNode(dsid);
@@ -169,6 +183,7 @@ public class FedoraDatastreams extends AbstractResource {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
 			}
+			session.logout();
 			return Response
 					.ok()
 					.entity(renderTemplate("datastreamProfile.ftl",
@@ -184,13 +199,15 @@ public class FedoraDatastreams extends AbstractResource {
 	public Response getDatastreamContent(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException {
 
-		final Node root = ws.getSession().getRootNode();
+		final Session session = repo.login();
+		final Node root = session.getRootNode();
 
 		if (root.hasNode(pid + "/" + dsid)) {
 			final Node ds = root.getNode(pid + "/" + dsid);
 			final String mimeType = ds.hasProperty("fedora:contentType") ? ds
 					.getProperty("fedora:contentType").getString()
 					: "application/octet-stream";
+			session.logout();
 			return Response.ok(
 					ds.getNode("jcr:content").getProperty("jcr:data")
 							.getBinary().getStream(), mimeType).build();
@@ -205,7 +222,8 @@ public class FedoraDatastreams extends AbstractResource {
 	public Response getDatastreamHistory(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
 			IOException, TemplateException {
-		final Node root = ws.getSession().getRootNode();
+		final Session session = repo.login();
+		final Node root = session.getRootNode();
 		if (root.hasNode(pid + "/" + dsid)) {
 			final Node ds = root.getNode(pid + "/" + dsid);
 			return Response

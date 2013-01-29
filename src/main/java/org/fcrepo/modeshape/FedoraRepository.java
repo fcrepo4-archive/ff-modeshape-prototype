@@ -8,6 +8,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.ws.rs.GET;
@@ -34,7 +35,7 @@ import freemarker.template.TemplateException;
 public class FedoraRepository extends AbstractResource {
 
 	private final Logger logger = Logger.getLogger(FedoraRepository.class);
-        
+
 	@GET
 	@Path("/describe/modeshape")
 	public Response describeModeshape() throws JsonGenerationException,
@@ -66,25 +67,28 @@ public class FedoraRepository extends AbstractResource {
 			nodetypes.put(nt.getName(), nt.toString());
 		}
 		repoproperties.put("node.types", nodetypes.build());
-		
+
 		return Response
 				.ok()
 				.entity(mapper.writerWithType(Map.class).writeValueAsString(
 						repoproperties.build())).build();
-        }
-        
+	}
+
 	@GET
 	@Path("/describe")
-	public Response describe() throws RepositoryException,
-    IOException, TemplateException {
-		return Response.ok().entity(renderTemplate("describeRepository.ftl",ImmutableMap.of("asdf", (Object)"asdf"))).build();
+	public Response describe() throws RepositoryException, IOException,
+			TemplateException {
+		return Response
+				.ok()
+				.entity(renderTemplate("describeRepository.ftl",
+						ImmutableMap.of("asdf", (Object) "asdf"))).build();
 	}
 
 	@GET
 	@Path("/objects")
 	public Response getObjects() throws RepositoryException {
-
-		Node root = ws.getSession().getRootNode();
+		final Session session = ws.getSession();
+		Node root = session.getRootNode();
 		StringBuffer nodes = new StringBuffer();
 
 		for (NodeIterator i = root.getNodes(); i.hasNext();) {
@@ -92,7 +96,7 @@ public class FedoraRepository extends AbstractResource {
 			nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
 					+ "\n");
 		}
-
+		session.logout();
 		return Response.ok().entity(nodes.toString()).build();
 
 	}
