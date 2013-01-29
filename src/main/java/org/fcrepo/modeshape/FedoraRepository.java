@@ -87,7 +87,7 @@ public class FedoraRepository extends AbstractResource {
 	@GET
 	@Path("/objects")
 	public Response getObjects() throws RepositoryException {
-		final Session session = ws.getSession();
+		final Session session = repo.login();
 		Node root = session.getRootNode();
 		StringBuffer nodes = new StringBuffer();
 

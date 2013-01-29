@@ -143,7 +143,7 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node ds = jcrTools.findOrCreateNode(session, dspath, "nt:file");
 		ds.addMixin("fedora:datastream");
 		// ws.getLockManager().lock(dspath, true, true, Long.MAX_VALUE, "");
-		final Node contentNode = ds.addNode("jcr:content", "nt:resource");
+		final Node contentNode = jcrTools.findOrCreateChild(ds,"jcr:content", "nt:resource");
 		logger.debug("Created content node at path: " + contentNode.getPath());
 		Property dataProperty = contentNode.setProperty("jcr:data", session
 				.getValueFactory().createBinary(requestBodyStream));

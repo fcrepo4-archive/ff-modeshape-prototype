@@ -62,7 +62,7 @@ public abstract class AbstractResource extends Constants {
 			throws RepositoryException {
 
 		logger.debug("Attempting to delete resource at path: " + path);
-		final Session session = ws.getSession();
+		final Session session = repo.login();
 
 		if (session.nodeExists(path)) {
 

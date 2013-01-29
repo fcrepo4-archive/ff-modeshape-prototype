@@ -47,16 +47,16 @@ public class FedoraDatastreamsTest {
     public void testMutateDatastream() throws Exception {
 
         HttpClient client = new HttpClient();
-
-        PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf");
+ 
+        PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf2");
         client.executeMethod(pmethod);
 
-        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT + "/objects/asdf2/datastreams/vcxz");
         int status = client.executeMethod(method);
         assertEquals(201, status);
 
 
-        PutMethod method_2 = new PutMethod("http://localhost:" + SERVER_PORT + "/objects/asdf/datastreams/vcxz");
+        PutMethod method_2 = new PutMethod("http://localhost:" + SERVER_PORT + "/objects/asdf2/datastreams/vcxz");
         status = client.executeMethod(method_2);
         assertEquals(201, status);
     }
