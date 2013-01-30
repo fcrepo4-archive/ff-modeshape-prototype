@@ -16,6 +16,7 @@
 		<netbeans.hint.j2eeVersion>1.6</netbeans.hint.j2eeVersion>
 		<modeshape.version>3.1.0.Final</modeshape.version>
 		<cxf.version>2.7.2</cxf.version>
+        <activemq.version>5.7.0</activemq.version>
 	</properties>
 
 
@@ -117,6 +118,12 @@
 			<version>${cxf.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-spring</artifactId>
+            <version>${activemq.version}</version>
+        </dependency>
 		
 		
 	</dependencies>
