@@ -13,7 +13,7 @@
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/osgi/cxf-extension-osgi.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/>
-    <import resource="classpath:/repo.xml"/>
+    <import resource="classpath:/spring/repo.xml"/>
     
     <jaxrs:server address="http://localhost:9999">
         <jaxrs:serviceBeans>
