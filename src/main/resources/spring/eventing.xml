@@ -11,16 +11,16 @@
     <import resource="classpath:/spring/repo.xml"/>
     
     <context:annotation-config/>
-    
-    <bean class="CHRISLISTENER">
-        <!-- not sure if we need anything here, depends on what Chris writes -->
+
+    <bean class="org.fcrepo.modeshape.observer.TestObserver">
     </bean>
     
     <bean name="fedoraInternalEventQueue" class="java.util.concurrent.ConcurrentLinkedQueue"/>
 
+    <!--
     <bean name="jmsBroker" class="org.apache.activemq.xbean.BrokerFactoryBean">
         <property name="config" value="classpath:/spring/activemq.xml" />
         <property name="start" value="true" />
     </bean>
-
+        -->
 </beans>
