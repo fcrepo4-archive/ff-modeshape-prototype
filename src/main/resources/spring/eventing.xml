@@ -12,8 +12,10 @@
     
     <context:annotation-config/>
 
-    <bean class="org.fcrepo.modeshape.observer.TestObserver">
+    <bean class="org.fcrepo.modeshape.observer.SimpleObserver">
     </bean>
+
+    <bean name="fedoraEventFilter" class="org.fcrepo.modeshape.observer.DefaultFilter" />
     
     <bean name="fedoraInternalEventQueue" class="java.util.concurrent.ConcurrentLinkedQueue"/>
 

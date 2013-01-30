@@ -1,18 +1,21 @@
 package org.fcrepo.modeshape.observer;
 
+import com.google.common.base.Predicate;
 import org.modeshape.jcr.api.Repository;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.jcr.LoginException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 import javax.jcr.observation.ObservationManager;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
 
-public class TestObserver implements EventListener {
+public class SimpleObserver implements EventListener {
 
 
     @Inject
@@ -20,6 +23,10 @@ public class TestObserver implements EventListener {
 
     private Session session;
     private ObservationManager observationManager;
+
+    @Resource(name="fedoraInternalEventQueue") public Queue<Event> outQueue;
+
+    @Resource(name="fedoraEventFilter") private Predicate<Event> eventPredicate;
 
 
     @PostConstruct
@@ -32,7 +39,13 @@ public class TestObserver implements EventListener {
 
     @Override
     public void onEvent(EventIterator events) {
-        System.out.println(events.toString());
+        while(events.hasNext()) {
+            Event e = events.nextEvent();
+
+            if(eventPredicate.apply(e)) {
+                outQueue.add(e);
+            }
+        }
 
     }
 
