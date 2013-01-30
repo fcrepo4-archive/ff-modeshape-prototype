@@ -6,8 +6,6 @@ import java.util.Map;
 
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
-import javax.jcr.Workspace;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
