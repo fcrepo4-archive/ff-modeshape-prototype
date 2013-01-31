@@ -25,11 +25,13 @@ public class DefaultFilter implements EventFilter {
 	@Inject
 	private Repository repository;
 
-	// it's safe to keep the session around, because this is a non-mutating actor
+	// it's safe to keep the session around, because this code does not mutate
+	// the state of the repository
 	private Session session;
 
 	@Override
 	public boolean apply(Event event) {
+
 		Predicate<NodeType> isFedoraNodeType = new Predicate<NodeType>() {
 			@Override
 			public boolean apply(NodeType type) {
