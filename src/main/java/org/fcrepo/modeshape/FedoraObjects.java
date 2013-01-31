@@ -1,6 +1,7 @@
 package org.fcrepo.modeshape;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
@@ -82,11 +83,12 @@ public class FedoraObjects extends AbstractResource {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
 			}
+            InputStream content = renderTemplate("objectProfile.ftl", ImmutableMap
+                    .of("obj", obj, "properties", b.build()));
 			session.logout();
 			return Response
 					.ok()
-					.entity(renderTemplate("objectProfile.ftl", ImmutableMap
-							.of("obj", obj, "properties", b.build()))).build();
+					.entity(content).build();
 		} else {
 			return four04;
 		}

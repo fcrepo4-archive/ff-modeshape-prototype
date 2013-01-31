@@ -52,9 +52,11 @@ public class FedoraDatastreams extends AbstractResource {
 					.getNode(pid).getNodes());
 			final Map<String, ImmutableSet<Node>> map = ImmutableMap.of(
 					"datastreams", datastreams.build());
+
+            final InputStream content = renderTemplate("listDatastreams.ftl", map);
 			session.logout();
 			return Response.ok()
-					.entity(renderTemplate("listDatastreams.ftl", map)).build();
+					.entity(content).build();
 		} else {
 			return four04;
 		}
@@ -187,11 +189,14 @@ public class FedoraDatastreams extends AbstractResource {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
 			}
+
+            final InputStream content = renderTemplate("datastreamProfile.ftl",
+                    ImmutableMap.of("ds", ds, "properties", b.build()));
+
 			session.logout();
 			return Response
 					.ok()
-					.entity(renderTemplate("datastreamProfile.ftl",
-							ImmutableMap.of("ds", ds, "properties", b.build())))
+					.entity(content)
 					.build();
 		} else {
 			return four04;
@@ -211,7 +216,7 @@ public class FedoraDatastreams extends AbstractResource {
 			final String mimeType = ds.hasProperty("fedora:contentType") ? ds
 					.getProperty("fedora:contentType").getString()
 					: "application/octet-stream";
-			InputStream responseStream = ds.getNode("jcr:content")
+			final InputStream responseStream = ds.getNode("jcr:content")
 					.getProperty("jcr:data").getBinary().getStream();
 			session.logout();
 			return Response.ok(responseStream, mimeType).build();
@@ -230,10 +235,11 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node root = session.getRootNode();
 		if (root.hasNode(pid + "/" + dsid)) {
 			final Node ds = root.getNode(pid + "/" + dsid);
+            final InputStream content = renderTemplate("datastreamHistory.ftl",
+                    ImmutableMap.of("ds", ds));
 			return Response
 					.ok()
-					.entity(renderTemplate("datastreamHistory.ftl",
-							ImmutableMap.of("ds", ds))).build();
+					.entity(content).build();
 		} else {
 			return four04;
 		}
