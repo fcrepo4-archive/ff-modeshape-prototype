@@ -15,11 +15,10 @@ import com.google.common.collect.ImmutableSet;
 
 import freemarker.template.TemplateException;
 
-@Path("/")
+@Path("nextPID")
 public class FedoraIdentifiers extends AbstractResource {
 
 	@POST
-	@Path("/nextPID")
 	@Produces("text/xml")
 	public Response getNextPid(
 			@QueryParam("numPids") @DefaultValue("1") Integer numPids)

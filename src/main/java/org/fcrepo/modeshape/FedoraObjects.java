@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
-import javax.jcr.Node;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
+import javax.jcr.*;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -34,7 +30,24 @@ public class FedoraObjects extends AbstractResource {
 		super();
 	}
 
-	@POST
+
+    @GET
+    public Response getObjects() throws RepositoryException {
+        final Session session = repo.login();
+        Node root = session.getRootNode();
+        StringBuffer nodes = new StringBuffer();
+
+        for (NodeIterator i = root.getNodes(); i.hasNext();) {
+            Node n = i.nextNode();
+            nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
+                    + "\n");
+        }
+        session.logout();
+        return Response.ok().entity(nodes.toString()).build();
+
+    }
+
+    @POST
 	@Path("/new")
 	public Response ingestAndMint() throws RepositoryException {
 		return ingest(pidMinter.mintPid());

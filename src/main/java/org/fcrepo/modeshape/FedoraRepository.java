@@ -31,7 +31,7 @@ import freemarker.template.TemplateException;
  * @author ajs6f
  */
 
-@Path("/")
+@Path("")
 public class FedoraRepository extends AbstractResource {
 
 	private final Logger logger = Logger.getLogger(FedoraRepository.class);
@@ -82,23 +82,6 @@ public class FedoraRepository extends AbstractResource {
 				.ok()
 				.entity(renderTemplate("describeRepository.ftl",
 						ImmutableMap.of("asdf", (Object) "asdf"))).build();
-	}
-
-	@GET
-	@Path("/objects")
-	public Response getObjects() throws RepositoryException {
-		final Session session = repo.login();
-		Node root = session.getRootNode();
-		StringBuffer nodes = new StringBuffer();
-
-		for (NodeIterator i = root.getNodes(); i.hasNext();) {
-			Node n = i.nextNode();
-			nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
-					+ "\n");
-		}
-		session.logout();
-		return Response.ok().entity(nodes.toString()).build();
-
 	}
 
 }
