@@ -37,7 +37,7 @@ public class FedoraDatastreams extends AbstractResource {
 			.getLogger(FedoraDatastreams.class);
 
 	@GET
-	@Path("")
+	@Path("/")
 	@Produces("text/xml")
 	public Response getDatastreams(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
@@ -172,6 +172,11 @@ public class FedoraDatastreams extends AbstractResource {
 			IOException, TemplateException {
 
 		Session session = repo.login();
+
+        if(!session.getRootNode().hasNode(pid)) {
+            return four04;
+        }
+
 		final Node obj = session.getNode("/" + pid);
 
 		if (obj.hasNode(dsid)) {
