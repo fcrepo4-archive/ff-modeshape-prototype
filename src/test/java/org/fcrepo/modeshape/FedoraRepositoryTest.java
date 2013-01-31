@@ -20,7 +20,7 @@ public class FedoraRepositoryTest {
 	public void testDescribeModeshape() throws Exception {
 		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
-				+ "/fedora/describe/modeshape");
+				+ "/describe/modeshape");
 		int status = client.executeMethod(method);
 		assertEquals(200, status);
 	}
@@ -29,7 +29,7 @@ public class FedoraRepositoryTest {
 	public void testDescribe() throws Exception {
 		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
-				+ "/fedora/describe");
+				+ "/describe");
 		int status = client.executeMethod(method);
 		assertEquals(200, status);
 	}
@@ -38,7 +38,7 @@ public class FedoraRepositoryTest {
 	public void testGetObjects() throws Exception {
 		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
-				+ "/fedora/objects");
+				+ "/objects");
 		int status = client.executeMethod(method);
 		assertEquals(200, status);
 	}
