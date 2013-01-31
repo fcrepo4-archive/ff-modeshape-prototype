@@ -31,7 +31,7 @@ import freemarker.template.TemplateException;
  * @author ajs6f
  */
 
-@Path("/fedora")
+@Path("/")
 public class FedoraRepository extends AbstractResource {
 
 	private final Logger logger = Logger.getLogger(FedoraRepository.class);
