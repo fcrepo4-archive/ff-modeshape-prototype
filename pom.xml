@@ -14,7 +14,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<netbeans.hint.deploy.server>gfv3ee6</netbeans.hint.deploy.server>
 		<netbeans.hint.j2eeVersion>1.6</netbeans.hint.j2eeVersion>
-		<modeshape.version>3.1.0.Final</modeshape.version>
+		<modeshape.version>3.1.1.Final</modeshape.version>
 		<cxf.version>2.7.2</cxf.version>
 		<activemq.version>5.7.0</activemq.version>
 	</properties>
@@ -47,7 +47,20 @@
 			<groupId>org.modeshape</groupId>
 			<artifactId>modeshape-jcr</artifactId>
 		</dependency>
-		<dependency>
+
+        <dependency>
+            <groupId>org.infinispan</groupId>
+            <artifactId>infinispan-core</artifactId>
+            <version>5.2.0.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jgroups</groupId>
+            <artifactId>jgroups</artifactId>
+            <version>3.2.6.Final</version>
+        </dependency>
+
+        <dependency>
 			<groupId>org.modeshape</groupId>
 			<artifactId>modeshape-jcr-api</artifactId>
 		</dependency>
