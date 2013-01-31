@@ -10,6 +10,8 @@ import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
 
 import org.modeshape.jcr.api.Repository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.eventbus.EventBus;
@@ -29,6 +31,8 @@ public class SimpleObserver implements EventListener {
 	@Inject
 	private EventFilter eventFilter;
 
+	final private Logger logger = LoggerFactory.getLogger(SimpleObserver.class);
+
 	@PostConstruct
 	public void buildListener() throws RepositoryException {
 		repository
@@ -42,8 +46,10 @@ public class SimpleObserver implements EventListener {
 	@Override
 	public void onEvent(EventIterator events) {
 		for (Event e : filter(new Builder<Event>().addAll(events).build(),
-				eventFilter))
+				eventFilter)) {
+			logger.debug("Putting event: " + e.toString() + " on the bus.");
 			eventBus.post(e);
+		}
 	}
 
 }
