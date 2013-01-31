@@ -191,7 +191,7 @@ public class FedoraDatastreams extends AbstractResource {
 			}
 
             final InputStream content = renderTemplate("datastreamProfile.ftl",
-                    ImmutableMap.of("ds", ds, "properties", b.build()));
+                    ImmutableMap.of("ds", ds, "properties", b.build(), "obj", ds.getParent()));
 
 			session.logout();
 			return Response
@@ -236,7 +236,7 @@ public class FedoraDatastreams extends AbstractResource {
 		if (root.hasNode(pid + "/" + dsid)) {
 			final Node ds = root.getNode(pid + "/" + dsid);
             final InputStream content = renderTemplate("datastreamHistory.ftl",
-                    ImmutableMap.of("ds", ds));
+                    ImmutableMap.of("ds", ds, "obj", ds.getParent()));
 			return Response
 					.ok()
 					.entity(content).build();
