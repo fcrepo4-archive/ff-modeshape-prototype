@@ -240,7 +240,18 @@ public class FedoraDatastreams extends AbstractResource {
 
 	}
 
-	@DELETE
+
+    @GET
+    @Path("/{dsid}/history")
+    @Produces("text/xml")
+    public Response getDatastreamHistoryOld(@PathParam("pid") final String pid,
+                                         @PathParam("dsid") final String dsid) throws RepositoryException,
+            IOException, TemplateException {
+        return getDatastreamHistory(pid, dsid);
+    }
+
+
+    @DELETE
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
