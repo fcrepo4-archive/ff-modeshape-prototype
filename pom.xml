@@ -16,7 +16,7 @@
 		<netbeans.hint.j2eeVersion>1.6</netbeans.hint.j2eeVersion>
 		<modeshape.version>3.1.0.Final</modeshape.version>
 		<cxf.version>2.7.2</cxf.version>
-        <activemq.version>5.7.0</activemq.version>
+		<activemq.version>5.7.0</activemq.version>
 	</properties>
 
 
@@ -120,6 +120,11 @@
             <version>${activemq.version}</version>
         </dependency>
 
+		<dependency>
+		  <groupId>org.apache.xbean</groupId>
+		  <artifactId>xbean-spring</artifactId>
+		  <version>3.9</version>
+		</dependency>
 
         <dependency>
         	<groupId>com.google.guava</groupId>

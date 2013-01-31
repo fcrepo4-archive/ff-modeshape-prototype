@@ -48,9 +48,8 @@ public class SimpleObserverTest {
 			e.printStackTrace();
 		}
 
-		// Should be two messages:
-		// - add node
-		// - add property jcr:primaryType
+		// Should be two messages, for each time
+		// each node becomes a Fedora object
 
 		assertEquals("Where are my messages!?", (Integer) 2, messageCount);
 	}

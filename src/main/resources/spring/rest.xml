@@ -11,8 +11,6 @@
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/osgi/cxf-extension-osgi.xml"/>
 
-    <import resource="classpath:/spring/repo.xml"/>
-
     <context:annotation-config/>
 
     <jaxrs:server address="/rest">

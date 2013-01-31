@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans
-    xmlns="http://www.springframework.org/schema/beans"
+<beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:amq="http://activemq.apache.org/schema/core"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
-    
-    <!-- Allows us to use system properties as variables in this configuration file -->
-    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <value>file:${activemq.conf}/credentials.properties</value>
-        </property>
-    </bean>
-    
+
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
     -->
-    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}">
-        
+    <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost">
+
         <!--
             For better performances use VM cursor and small memory limit.
             For more information, see:
@@ -28,7 +20,7 @@
             For more information, see:
             http://activemq.apache.org/producer-flow-control.html
         -->
-        
+
         <destinationPolicy>
             <policyMap>
                 <policyEntries>
@@ -59,8 +51,8 @@
                 </policyEntries>
             </policyMap>
         </destinationPolicy>
-        
-        
+
+
         <!--
             The managementContext is used to configure how ActiveMQ is exposed in
             JMX. By default, ActiveMQ uses the MBean server that is started by
@@ -71,7 +63,7 @@
         <managementContext>
             <managementContext createConnector="false"/>
         </managementContext>
-        
+
         <!--
             Configure message persistence for the broker. The default persistence
             mechanism is the KahaDB store (identified by the kahaDB tag).
@@ -82,8 +74,8 @@
         <persistenceAdapter>
             <kahaDB directory="${activemq.data}/kahadb"/>
         </persistenceAdapter>
-        
-        
+
+
         <!--
             The systemUsage controls the maximum amount of space the broker will
             use before slowing down producers. For more information, see:
@@ -117,7 +109,7 @@
                 </tempUsage>
             </systemUsage>
         </systemUsage>
-        
+
         <!--
             The transport connectors expose ActiveMQ over a given protocol to
             clients and other brokers. For more information, see:
@@ -126,17 +118,19 @@
         -->
         <transportConnectors>
             <!-- DOS protection, limit concurrent connections to 1000 and frame size to 100MB -->
-            <transportConnector name="openwire" uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"/>
-            <transportConnector name="amqp" uri="amqp://0.0.0.0:5672?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"/>
+            <transportConnector name="openwire"
+                uri="tcp://0.0.0.0:61616?maximumConnections=1000&amp;wireformat.maxFrameSize=104857600"
+            />
         </transportConnectors>
-        
+
         <!-- destroy the spring context on shutdown to stop jetty -->
         <shutdownHooks>
-            <bean xmlns="http://www.springframework.org/schema/beans" class="org.apache.activemq.hooks.SpringContextHook" />
+            <bean xmlns="http://www.springframework.org/schema/beans"
+                class="org.apache.activemq.hooks.SpringContextHook"/>
         </shutdownHooks>
-        
+
     </broker>
-    
+
     <!--
         Enable web consoles, REST and Ajax APIs and demos
         
