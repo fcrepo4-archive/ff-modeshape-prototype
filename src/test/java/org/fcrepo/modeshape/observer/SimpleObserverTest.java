@@ -5,43 +5,56 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
+
 import javax.inject.Inject;
 import javax.jcr.*;
+import javax.jcr.observation.Event;
 
 import static junit.framework.Assert.assertEquals;
-
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring/eventing.xml")
 public class SimpleObserverTest {
 
-    @Inject
-    private Repository repository;
+	private Integer messageCount = 0;
 
-    @Inject
-    private SimpleObserver o;
+	@Inject
+	private Repository repository;
 
-    @Test
-    public void TestSimpleIntegration() throws RepositoryException {
+	@Inject
+	private SimpleObserver o;
 
-        Session se = repository.login();
-        Workspace ws = se.getWorkspace();
+	@Inject
+	private EventBus eventBus;
 
-        Node n = se.getRootNode();
-        n.addNode("/simple-integration-test");
+	@Test
+	public void TestSimpleIntegration() throws RepositoryException {
 
-        se.save();
+		eventBus.register(this);
 
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+		Session se = repository.login();
+		se.getRootNode().addNode("/simple-integration-test");
+		se.save();
+		se.logout();
 
-        // Should be two messages:
-        //    - add node
-        //    - add property jcr:primaryType
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
-        assertEquals(2, o.outQueue.size());
-    }
+		// Should be two messages:
+		// - add node
+		// - add property jcr:primaryType
+
+		assertEquals("Where are my messages!?", (Integer) 2, messageCount);
+	}
+
+	@Subscribe
+	public void countMessages(Event e) {
+		messageCount++;
+	}
+
 }

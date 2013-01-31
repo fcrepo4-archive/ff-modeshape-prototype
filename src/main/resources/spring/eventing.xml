@@ -12,12 +12,11 @@
     
     <context:annotation-config/>
 
-    <bean class="org.fcrepo.modeshape.observer.SimpleObserver">
-    </bean>
-
+    <bean class="org.fcrepo.modeshape.observer.SimpleObserver"/>
+    
     <bean name="fedoraEventFilter" class="org.fcrepo.modeshape.observer.DefaultFilter" />
     
-    <bean name="fedoraInternalEventQueue" class="java.util.concurrent.ConcurrentLinkedQueue"/>
+    <bean name="fedoraInternalEventBus" class="com.google.common.eventbus.EventBus"/>
 
     <!--
     <bean name="jmsBroker" class="org.apache.activemq.xbean.BrokerFactoryBean">

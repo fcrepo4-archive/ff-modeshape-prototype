@@ -1,52 +1,49 @@
 package org.fcrepo.modeshape.observer;
 
-import com.google.common.base.Predicate;
-import org.modeshape.jcr.api.Repository;
+import static com.google.common.collect.Collections2.filter;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.jcr.LoginException;
 import javax.jcr.RepositoryException;
-import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
-import javax.jcr.observation.ObservationManager;
-import java.util.Queue;
+
+import org.modeshape.jcr.api.Repository;
+
+import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.eventbus.EventBus;
 
 public class SimpleObserver implements EventListener {
 
+	final private Integer eventTypes = Event.NODE_ADDED + Event.NODE_REMOVED
+			+ Event.NODE_MOVED + Event.PROPERTY_ADDED + Event.PROPERTY_CHANGED
+			+ Event.PROPERTY_REMOVED;
 
-    @Inject
-    private Repository repository;
+	@Inject
+	private Repository repository;
 
-    private Session session;
-    private ObservationManager observationManager;
+	@Inject
+	private EventBus eventBus;
 
-    @Resource(name="fedoraInternalEventQueue") public Queue<Event> outQueue;
+	@Inject
+	private EventFilter eventFilter;
 
-    @Resource(name="fedoraEventFilter") private Predicate<Event> eventPredicate;
+	@PostConstruct
+	public void buildListener() throws RepositoryException {
+		repository
+				.login("fedora")
+				.getWorkspace()
+				.getObservationManager()
+				.addEventListener(this, eventTypes, "/", true, null, null,
+						false);
+	}
 
-
-    @PostConstruct
-    public void buildListener() throws RepositoryException {
-        session = repository.login("fedora");
-        observationManager = session.getWorkspace().getObservationManager();
-
-        observationManager.addEventListener(this, 63, "/", true, null, null, false);
-    }
-
-    @Override
-    public void onEvent(EventIterator events) {
-        while(events.hasNext()) {
-            Event e = events.nextEvent();
-
-            if(eventPredicate.apply(e)) {
-                outQueue.add(e);
-            }
-        }
-
-    }
+	@Override
+	public void onEvent(EventIterator events) {
+		for (Event e : filter(new Builder<Event>().addAll(events).build(),
+				eventFilter))
+			eventBus.post(e);
+	}
 
 }
