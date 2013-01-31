@@ -35,7 +35,10 @@ public class SimpleObserverTest {
 		eventBus.register(this);
 
 		Session se = repository.login();
-		se.getRootNode().addNode("/simple-integration-test");
+		Node testnode = se.getRootNode().addNode("/object1");
+		testnode.addMixin("fedora:object");
+		Node testnode2 = se.getRootNode().addNode("/object2");
+		testnode2.addMixin("fedora:object");
 		se.save();
 		se.logout();
 
