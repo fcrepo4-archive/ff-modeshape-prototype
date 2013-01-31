@@ -5,13 +5,13 @@
     <dsVersionID></dsVersionID>
     <dsCreateDate>${properties.get("jcr:created")}</dsCreateDate>
     <dsState>A</dsState>
-    <dsMIME></dsMIME>
+    <dsMIME>${properties.get("fedora:contentType")}</dsMIME>
     <dsFormatURI></dsFormatURI>
     <dsControlGroup></dsControlGroup>
     <dsSize></dsSize>
     <dsVersionable></dsVersionable>
     <dsInfoType></dsInfoType>
-    <dsLocation>${ds.getPath()}</dsLocation>
+    <dsLocation></dsLocation>
     <dsLocationType></dsLocationType>
     <dsChecksumType></dsChecksumType>
     <dsChecksum></dsChecksum>
