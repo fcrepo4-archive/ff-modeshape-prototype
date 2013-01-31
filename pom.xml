@@ -16,6 +16,7 @@
 		<netbeans.hint.j2eeVersion>1.6</netbeans.hint.j2eeVersion>
 		<modeshape.version>3.1.0.Final</modeshape.version>
 		<cxf.version>2.7.2</cxf.version>
+        <activemq.version>5.7.0</activemq.version>
 	</properties>
 
 
@@ -73,11 +74,6 @@
 			<artifactId>freemarker</artifactId>
 			<version>2.3.19</version>
 		</dependency>
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava-collections</artifactId>
-			<version>r03</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.scala-lang</groupId>
@@ -117,8 +113,19 @@
 			<version>${cxf.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-		
+
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-spring</artifactId>
+            <version>${activemq.version}</version>
+        </dependency>
+
+
+        <dependency>
+        	<groupId>com.google.guava</groupId>
+        	<artifactId>guava</artifactId>
+        	<version>13.0.1</version>
+        </dependency>
 	</dependencies>
 
 	<build>
