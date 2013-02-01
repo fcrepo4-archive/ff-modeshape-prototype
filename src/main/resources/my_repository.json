@@ -6,6 +6,10 @@
         "default" : "fedora",
         "allowCreation" : true
     },
+    "clustering" : {
+        "clusterName" : "modeshape",
+        "channelConfiguration" : "${fcrepo.modeshape.jgroups.configuration:jgroups-modeshape.xml}"
+    },
     "storage" : {
         "cacheName" : "FedoraRepository",
         "cacheConfiguration" : "infinispan_configuration.xml",

@@ -6,7 +6,7 @@
       <!-- Defines the global settings shared by all caches -->
       <transport>
          <properties>
-            <property name="configurationFile" value="jgroups-tcp.xml"/>
+            <property name="configurationFile" value="${fcrepo.modeshape.ispn.configuration:jgroups-infinispan.xml}"/>
          </properties>
       </transport>
    </global>
