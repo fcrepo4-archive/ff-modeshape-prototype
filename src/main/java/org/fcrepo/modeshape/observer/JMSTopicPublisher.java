@@ -53,12 +53,14 @@ public class JMSTopicPublisher {
 	private Session jmsSession;
 	private MessageProducer producer;
 
+	// Atom engine
 	final static private Abdera abdera = new Abdera();
+
+	// maps JCR mutations to Fedora Classic API method types
+	private OperationsMappings operationsMappings;
 
 	final private Logger logger = LoggerFactory
 			.getLogger(JMSTopicPublisher.class);
-
-	private OperationsMappings operationsMappings;
 
 	@Subscribe
 	public void publishJCREvent(Event jcrEvent) throws JMSException,
@@ -69,6 +71,7 @@ public class JMSTopicPublisher {
 		entry.setTitle(operationsMappings.getFedoraMethodType(jcrEvent), TEXT)
 				.setBaseUri("http://localhost:8080/rest");
 
+		// assume that the PID is the last section of the node path
 		String path = jcrEvent.getPath();
 		String pid = path.substring(path.lastIndexOf('/') + 1, path.length());
 		entry.addCategory("xsd:string", pid, "fedora-types:pid");
@@ -84,7 +87,7 @@ public class JMSTopicPublisher {
 	@PostConstruct
 	public void acquireConnections() throws JMSException, LoginException,
 			RepositoryException {
-		logger.debug("Initializing " + this.getClass().getCanonicalName());
+		logger.debug("Initializing: " + this.getClass().getCanonicalName());
 
 		operationsMappings = new OperationsMappings();
 
@@ -97,17 +100,21 @@ public class JMSTopicPublisher {
 
 	@PreDestroy
 	public void releaseConnections() throws JMSException {
+		logger.debug("Tearing down: " + this.getClass().getCanonicalName());
+
 		operationsMappings.session.logout();
+		
 		producer.close();
 		jmsSession.close();
 		connection.close();
 		eventBus.unregister(this);
 	}
 
+	// maps JCR mutations to Fedora Classic API method types
 	final private class OperationsMappings {
 
 		// this actor will never mutate the state of the repo,
-		// so we keep the jmsSession live for efficiency
+		// so we keep the session live for efficiency
 		private javax.jcr.Session session;
 
 		public String getFedoraMethodType(Event jcrEvent)
