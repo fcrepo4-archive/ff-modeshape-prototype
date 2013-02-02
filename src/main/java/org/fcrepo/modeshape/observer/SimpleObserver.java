@@ -43,6 +43,10 @@ public class SimpleObserver implements EventListener {
 						false);
 	}
 
+	// it's okay to suppress type-safety warning here,
+	// because we know that EventIterator only produces
+	// Events, like an Iterator<Event>
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onEvent(EventIterator events) {
 		for (Event e : filter(new Builder<Event>().addAll(events).build(),
