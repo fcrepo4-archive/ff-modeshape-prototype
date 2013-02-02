@@ -1,6 +1,11 @@
 package org.fcrepo.modeshape.observer;
 
 import static com.google.common.collect.Iterables.any;
+import static javax.jcr.observation.Event.NODE_ADDED;
+import static javax.jcr.observation.Event.NODE_REMOVED;
+import static javax.jcr.observation.Event.PROPERTY_ADDED;
+import static javax.jcr.observation.Event.PROPERTY_CHANGED;
+import static javax.jcr.observation.Event.PROPERTY_REMOVED;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -101,32 +106,41 @@ public class JMSTopicPublisher {
 		public String getFedoraMethodType(Event jcrEvent)
 				throws PathNotFoundException, RepositoryException {
 
-			// first determine if this is an object or a datastream
+			// we need to know if this is an object or a datastream
 			Set<NodeType> nodeTypes = Sets.newHashSet(session.getNode(
 					jcrEvent.getPath()).getMixinNodeTypes());
-			Boolean isObject = any(nodeTypes, isObjectNodeType);
-			Boolean isDatastream = any(nodeTypes, isDatastreamNodeType);
 
 			// Now we can select from the combination of JCR Event type
 			// and resource type to determine a Fedora Classic API method
 			Integer eventType = jcrEvent.getType();
-			if (isObject) {
-				if (eventType == Event.NODE_ADDED)
+
+			if (any(nodeTypes, isObjectNodeType)) {
+				switch (eventType) {
+				case NODE_ADDED:
 					return "ingest";
-				if (eventType == Event.NODE_REMOVED)
+				case NODE_REMOVED:
 					return "purgeObject";
-				if ((eventType == Event.PROPERTY_ADDED
-						|| eventType == Event.PROPERTY_CHANGED || eventType == Event.PROPERTY_REMOVED))
+				case PROPERTY_ADDED:
 					return "modifyObject";
+				case PROPERTY_CHANGED:
+					return "modifyObject";
+				case PROPERTY_REMOVED:
+					return "modifyObject";
+				}
 			}
-			if (isDatastream) {
-				if (eventType == Event.NODE_ADDED)
+			if (any(nodeTypes, isDatastreamNodeType)) {
+				switch (eventType) {
+				case NODE_ADDED:
 					return "addDatastream";
-				if (eventType == Event.NODE_REMOVED)
+				case NODE_REMOVED:
 					return "purgeDatastream";
-				if ((eventType == Event.PROPERTY_ADDED
-						|| eventType == Event.PROPERTY_CHANGED || eventType == Event.PROPERTY_REMOVED))
-					return "modifyDatstream";
+				case PROPERTY_ADDED:
+					return "modifyDatastream";
+				case PROPERTY_CHANGED:
+					return "modifyDatastream";
+				case PROPERTY_REMOVED:
+					return "modifyDatastream";
+				}
 			}
 			return null;
 		}
