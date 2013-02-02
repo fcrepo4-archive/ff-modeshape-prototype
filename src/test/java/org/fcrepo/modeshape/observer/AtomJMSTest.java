@@ -73,7 +73,7 @@ public class AtomJMSTest implements MessageListener {
 				path = cat.getTerm();
 			}
 		}
-		assertEquals("Got wrong pid!", "/test1", path);
+		assertEquals("Got wrong pid!", "test1", path);
 		assertEquals("Got wrong method!", "ingest", entry.getTitle());
 	}
 

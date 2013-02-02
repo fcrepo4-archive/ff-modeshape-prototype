@@ -6,6 +6,7 @@ import static javax.jcr.observation.Event.NODE_REMOVED;
 import static javax.jcr.observation.Event.PROPERTY_ADDED;
 import static javax.jcr.observation.Event.PROPERTY_CHANGED;
 import static javax.jcr.observation.Event.PROPERTY_REMOVED;
+import static org.apache.abdera.model.Text.Type.TEXT;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -27,7 +28,7 @@ import javax.jms.Session;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Entry;
-import org.apache.abdera.model.Text.Type;
+
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class JMSTopicPublisher {
 	private ActiveMQConnectionFactory connectionFactory;
 
 	private Connection connection;
-	private Session session;
+	private Session jmsSession;
 	private MessageProducer producer;
 
 	final static private Abdera abdera = new Abdera();
@@ -62,14 +63,20 @@ public class JMSTopicPublisher {
 	@Subscribe
 	public void publishJCREvent(Event jcrEvent) throws JMSException,
 			RepositoryException, IOException {
+
 		Entry entry = abdera.newEntry();
-		entry.setTitle(operationsMappings.getFedoraMethodType(jcrEvent),
-				Type.TEXT).setBaseUri("http://localhost:8080/rest");
-		entry.addCategory("xsd:string", jcrEvent.getPath(), "fedora-types:pid");
+
+		entry.setTitle(operationsMappings.getFedoraMethodType(jcrEvent), TEXT)
+				.setBaseUri("http://localhost:8080/rest");
+
+		String path = jcrEvent.getPath();
+		String pid = path.substring(path.lastIndexOf('/') + 1, path.length());
+		entry.addCategory("xsd:string", pid, "fedora-types:pid");
+
 		StringWriter writer = new StringWriter();
 		entry.writeTo(writer);
 		String atomMessage = writer.toString();
-		producer.send(session.createTextMessage(atomMessage));
+		producer.send(jmsSession.createTextMessage(atomMessage));
 
 		logger.debug("Put event: \n" + atomMessage + "\n onto JMS.");
 	}
@@ -83,8 +90,8 @@ public class JMSTopicPublisher {
 
 		connection = connectionFactory.createConnection();
 		connection.start();
-		session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		producer = session.createProducer(session.createTopic("fedora"));
+		jmsSession = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		producer = jmsSession.createProducer(jmsSession.createTopic("fedora"));
 		eventBus.register(this);
 	}
 
@@ -92,7 +99,7 @@ public class JMSTopicPublisher {
 	public void releaseConnections() throws JMSException {
 		operationsMappings.session.logout();
 		producer.close();
-		session.close();
+		jmsSession.close();
 		connection.close();
 		eventBus.unregister(this);
 	}
@@ -100,7 +107,7 @@ public class JMSTopicPublisher {
 	final private class OperationsMappings {
 
 		// this actor will never mutate the state of the repo,
-		// so we keep the session live for efficiency
+		// so we keep the jmsSession live for efficiency
 		private javax.jcr.Session session;
 
 		public String getFedoraMethodType(Event jcrEvent)
