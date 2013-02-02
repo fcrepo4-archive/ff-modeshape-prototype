@@ -49,9 +49,9 @@ public class JMSTopicPublisher {
 	public void publishJCREvent(Event jcrEvent) throws JMSException,
 			RepositoryException, IOException {
 		Entry entry = abdera.newEntry();
-		entry.addCategory("fedora-types:pid", jcrEvent.getPath(), "xsd:string");
-		entry.setTitle(operationsMappings.get(jcrEvent.getType()), Type.TEXT);
-		entry.setBaseUri("http://localhost:8080/rest");
+		entry.setTitle(operationsMappings.get(jcrEvent.getType()), Type.TEXT)
+				.setBaseUri("http://localhost:8080/rest");
+		entry.addCategory("xsd:string", jcrEvent.getPath(), "fedora-types:pid");
 		StringWriter writer = new StringWriter();
 		entry.writeTo(writer);
 		String atomMessage = writer.toString();
