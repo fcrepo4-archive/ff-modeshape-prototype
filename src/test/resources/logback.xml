@@ -8,7 +8,7 @@
     <logger name="org.fcrepo" additivity="false" level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.modeshape" additivity="false" level="INFO">
+    <logger name="org.modeshape" additivity="false" level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </logger>
     <logger name="org.apache.abdera" additivity="false" level="DEBUG">
