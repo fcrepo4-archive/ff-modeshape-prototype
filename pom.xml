@@ -300,6 +300,26 @@
 					</webApp>
 				</configuration>
 			</plugin>
+
+            <plugin>
+                <groupId>org.codehaus.enunciate</groupId>
+                <artifactId>maven-enunciate-plugin</artifactId>
+                <!-- check for the latest version -->
+                <version>1.26</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>docs</goal>
+                        </goals>
+                        <configuration>
+
+                            <!-- the directory where to put the docs -->
+                            <docsDir>${project.build.directory}/docs</docsDir>
+
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
