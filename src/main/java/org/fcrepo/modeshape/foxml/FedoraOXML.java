@@ -20,14 +20,11 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.fcrepo.modeshape.AbstractResource;
 import org.modeshape.common.logging.Logger;
-import org.modeshape.jcr.api.JcrTools;
 
 import com.google.common.collect.ImmutableMap;
 
 @Path("/foxml")
 public class FedoraOXML extends AbstractResource {
-
-	private final JcrTools jcrtools = new JcrTools();
 
 	private final Logger logger = Logger.getLogger(FedoraOXML.class);
 
@@ -37,17 +34,19 @@ public class FedoraOXML extends AbstractResource {
 	public Response addFOXML(@PathParam("filename") final String filename,
 			InputStream foxml) throws RepositoryException, IOException {
 
-		final Session session = ws.getSession();
+		final Session session = repo.login();
 		if (session.hasPermission("/foxml", "add_node")) {
 			final String foxmlpath = "/foxml/" + filename;
 			logger.debug("Adding or updating FOXML file at " + ws.getName()
 					+ ":" + foxmlpath);
-			final Node foxmlnode = jcrtools.uploadFile(session, foxmlpath,
-					foxml);
+			jcrTools.uploadFile(session, foxmlpath, foxml);
 			session.save();
-			return Response.created(URI.create(foxmlnode.getPath())).build();
-		} else
+			session.logout();
+			return Response.created(URI.create(foxmlpath)).build();
+		} else {
+			session.logout();
 			return four01;
+		}
 	}
 
 	@GET
@@ -55,15 +54,20 @@ public class FedoraOXML extends AbstractResource {
 	public Response getFOXML(@PathParam("filename") final String filename)
 			throws RepositoryException {
 
-		final Node foxmlfolder = ws.getSession().getNode("/foxml");
+		final String foxmlpath = "/foxml" + filename;
 
-		if (foxmlfolder.hasNode(filename)) {
-			final Node foxmlfile = foxmlfolder.getNode(filename);
-			return Response.ok(
-					foxmlfile.getNode("jcr:content").getProperty("jcr:data")
-							.getBinary().getStream(), "text/xml").build();
-		} else
+		final Session session = repo.login();
+
+		if (session.nodeExists(foxmlpath)) {
+			final Node foxmlfile = session.getNode(foxmlpath);
+			InputStream contentStream = foxmlfile.getNode("jcr:content")
+					.getProperty("jcr:data").getBinary().getStream();
+			session.logout();
+			return Response.ok(contentStream, "text/xml").build();
+		} else {
+			session.logout();
 			return four04;
+		}
 	}
 
 	@GET
@@ -71,18 +75,19 @@ public class FedoraOXML extends AbstractResource {
 	public Response getFOXMLs() throws RepositoryException,
 			JsonGenerationException, JsonMappingException, IOException {
 
-		Node foxml = ws.getSession().getNode("/foxml");
+		final Session session = repo.login();
+
+		final Node foxml = session.getNode("/foxml");
 
 		ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
 		for (NodeIterator i = foxml.getNodes(); i.hasNext();) {
 			Node n = i.nextNode();
 			b.put(n.getName(), n.getPath());
 		}
-
-		return Response
-				.ok()
-				.entity(mapper.writerWithType(Map.class).writeValueAsString(
-						b.build())).build();
+		String foxmls = mapper.writerWithType(Map.class).writeValueAsString(
+				b.build());
+		session.logout();
+		return Response.ok().entity(foxmls).build();
 
 	}
 }
