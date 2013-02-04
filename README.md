@@ -5,7 +5,7 @@ Status](https://travis-ci.org/futures/ff-modeshape-prototype.png?branch=master)]
 
 ```bash
 $ mvn clean jetty:run
-$ curl "http://localhost:8080/rest/fedora/describe"
+$ curl "http://localhost:8080/rest/describe"
 ```
 to create an object, try:
 
