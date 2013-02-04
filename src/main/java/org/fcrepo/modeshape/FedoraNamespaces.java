@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.jcr.NamespaceRegistry;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -22,6 +23,16 @@ import com.google.common.collect.ImmutableSet;
 
 import freemarker.template.TemplateException;
 
+/**
+ * The purpose of this class is to allow clients to manipulate the JCR
+ * namespaces in play in a repository. This is necessary to allow the use of
+ * traditional Fedora namespaced PIDs. Unlike Fedora Classic, a JCR requires
+ * that namespaces be registered before use. The catalog of namespaces is very
+ * simple, just a set of prefix-URI pairs.
+ * 
+ * @author ajs6f
+ * 
+ */
 @Path("/namespaces")
 public class FedoraNamespaces extends AbstractResource {
 
@@ -29,10 +40,11 @@ public class FedoraNamespaces extends AbstractResource {
 	@Path("/{ns}")
 	public Response registerObjectNamespace(@PathParam("ns") final String ns)
 			throws RepositoryException {
-
-		NamespaceRegistry r = ws.getNamespaceRegistry();
+		
+		final Session session = repo.login();
+		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
 		r.registerNamespace(ns, "info:fedora/" + ns);
-
+		session.logout();
 		return Response.ok().entity(ns).build();
 	}
 
@@ -41,16 +53,20 @@ public class FedoraNamespaces extends AbstractResource {
 	@Produces("application/json")
 	public Response retrieveObjectNamespace(@PathParam("ns") final String prefix)
 			throws RepositoryException {
-
-		final NamespaceRegistry r = ws.getNamespaceRegistry();
+		
+		final Session session = repo.login();
+		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
 
 		if (ImmutableSet.copyOf(r.getPrefixes()).contains(prefix)) {
+			session.logout();
 			return Response
 					.ok()
 					.entity("{ \"" + prefix + "\":\"" + r.getURI(prefix)
 							+ "\" }").build();
-		} else
+		} else {
+			session.logout();
 			return four04;
+		}
 	}
 
 	@POST
@@ -60,14 +76,15 @@ public class FedoraNamespaces extends AbstractResource {
 			throws RepositoryException, JsonParseException,
 			JsonMappingException, IOException {
 
-		final NamespaceRegistry r = ws.getNamespaceRegistry();
+		final Session session = repo.login();
+		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
 
 		@SuppressWarnings("unchecked")
 		final Map<String, String> nses = mapper.readValue(message, Map.class);
 		for (final Map.Entry<String, String> entry : nses.entrySet()) {
 			r.registerNamespace(entry.getKey(), entry.getValue());
 		}
-
+		session.logout();
 		return Response.ok().entity(nses).build();
 	}
 
@@ -76,7 +93,8 @@ public class FedoraNamespaces extends AbstractResource {
 	@Produces("text/plain")
 	public Response getObjectNamespaces() throws RepositoryException {
 
-		NamespaceRegistry r = ws.getNamespaceRegistry();
+		final Session session = repo.login();
+		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
 
 		StringBuffer out = new StringBuffer();
 		String[] uris = r.getURIs();
@@ -84,7 +102,7 @@ public class FedoraNamespaces extends AbstractResource {
 		for (int i = 0; i < uris.length; i++) {
 			out.append(prefixes[i] + " : " + uris[i] + "\n");
 		}
-
+		session.logout();
 		return Response.ok().entity(out.toString()).build();
 	}
 
@@ -93,11 +111,15 @@ public class FedoraNamespaces extends AbstractResource {
 	@Produces("text/xml")
 	public Response getObjectNamespacesInXML() throws RepositoryException,
 			IOException, TemplateException {
-		final NamespaceRegistry reg = ws.getNamespaceRegistry();
+		
+		final Session session = repo.login();
+		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
+
 		final ImmutableMap.Builder<String, Object> b = ImmutableMap.builder();
-		for (final String prefix : reg.getPrefixes()) {
-			b.put(prefix, reg.getURI(prefix));
+		for (final String prefix : r.getPrefixes()) {
+			b.put(prefix, r.getURI(prefix));
 		}
+		session.logout();
 		return Response
 				.ok()
 				.entity(renderTemplate("namespaceRegistry.ftl",
