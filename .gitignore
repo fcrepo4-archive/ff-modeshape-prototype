@@ -3,4 +3,7 @@ target/
 .settings/
 .project
 .metadata
-
+ActiveMQ/
+FedoraRepository/
+indexes/
+ObjectStore/
