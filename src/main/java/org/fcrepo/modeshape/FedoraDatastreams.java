@@ -344,6 +344,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@GET
 	@Path("/{dsid}/history")
 	@Produces("text/xml")
+	@Deprecated
 	public Response getDatastreamHistoryOld(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
 			IOException, TemplateException {
