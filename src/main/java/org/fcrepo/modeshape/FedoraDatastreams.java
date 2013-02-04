@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
 
@@ -36,6 +35,7 @@ public class FedoraDatastreams extends AbstractResource {
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraDatastreams.class);
 
+	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/")
 	@Produces("text/xml")
@@ -43,21 +43,20 @@ public class FedoraDatastreams extends AbstractResource {
 			throws RepositoryException, IOException, TemplateException {
 
 		final Session session = repo.login();
-		final Node root = session.getRootNode();
 
-		if (root.hasNode(pid)) {
-
-			@SuppressWarnings("unchecked")
-			final Builder<Node> datastreams = new Builder<Node>().addAll(root
-					.getNode(pid).getNodes());
+		if (session.nodeExists("/" + pid)) {
+			final ImmutableSet.Builder<Node> datastreams = ImmutableSet
+					.builder();
+			datastreams.addAll(session.getNode("/" + pid).getNodes());
 			final Map<String, ImmutableSet<Node>> map = ImmutableMap.of(
 					"datastreams", datastreams.build());
 
-            final InputStream content = renderTemplate("listDatastreams.ftl", map);
+			final InputStream content = renderTemplate("listDatastreams.ftl",
+					map);
 			session.logout();
-			return Response.ok()
-					.entity(content).build();
+			return Response.ok().entity(content).build();
 		} else {
+			session.logout();
 			return four04;
 		}
 	}
@@ -75,7 +74,7 @@ public class FedoraDatastreams extends AbstractResource {
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
 		String dspath = "/" + pid + "/" + dsid;
 
-		if (!session.nodeExists(dspath.substring(0, dspath.lastIndexOf('/')))) {
+		if (!session.nodeExists("/" + pid)) {
 			logger.debug("This bozo tried to create a datastream for an object that doesn't exist, at resource path: "
 					+ dspath);
 			return Response.notAcceptable(null).build();
@@ -98,9 +97,11 @@ public class FedoraDatastreams extends AbstractResource {
 							.build();
 
 				} else
-					return four01;
+					session.logout();
+				return four01;
 			}
 		} else {
+			session.logout();
 			return four01;
 		}
 	}
@@ -126,6 +127,7 @@ public class FedoraDatastreams extends AbstractResource {
 							requestBodyStream, session).toString()).build();
 
 		} else {
+			session.logout();
 			return four01;
 		}
 	}
@@ -142,10 +144,27 @@ public class FedoraDatastreams extends AbstractResource {
 
 		final Node ds = jcrTools.findOrCreateNode(session, dspath, "nt:file");
 		ds.addMixin("fedora:datastream");
-		// ws.getLockManager().lock(dspath, true, true, Long.MAX_VALUE, "");
 		final Node contentNode = jcrTools.findOrCreateChild(ds, "jcr:content",
 				"nt:resource");
 		logger.debug("Created content node at path: " + contentNode.getPath());
+		/*
+		 * This next line of code deserves explanation. If we chose for the
+		 * simpler line:
+		 * 
+		 * Property dataProperty = contentNode.setProperty("jcr:data", requestBodyStream);
+		 * 
+		 * then the JCR would not block on the stream's completion, and we would
+		 * return to the requestor before the mutation to the repo had actually 
+		 * completed. So instead we use createBinary(requestBodyStream),
+		 * because its contract specifies:
+		 * 
+		 * "The passed InputStream  is closed before this method returns
+		 * either normally or because of an exception."
+		 * 
+		 * which lets us block and not return until the job is done!
+		 * The simpler code may still be useful to us for an asychronous
+		 * method that we develop later.
+		 */
 		Property dataProperty = contentNode.setProperty("jcr:data", session
 				.getValueFactory().createBinary(requestBodyStream));
 		logger.debug("Created data property at path: " + dataProperty.getPath());
@@ -175,30 +194,29 @@ public class FedoraDatastreams extends AbstractResource {
 
 		Session session = repo.login();
 
-        if(!session.getRootNode().hasNode(pid)) {
-            return four04;
-        }
+		if (!session.getRootNode().hasNode(pid)) {
+			return four04;
+		}
 
 		final Node obj = session.getNode("/" + pid);
 
 		if (obj.hasNode(dsid)) {
 			Node ds = obj.getNode(dsid);
 			PropertyIterator i = ds.getProperties();
-			ImmutableMap.Builder<String, String> b = new ImmutableMap.Builder<String, String>();
+			ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
 			while (i.hasNext()) {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
 			}
 
-            final InputStream content = renderTemplate("datastreamProfile.ftl",
-                    ImmutableMap.of("ds", ds, "properties", b.build(), "obj", ds.getParent()));
+			final InputStream content = renderTemplate("datastreamProfile.ftl",
+					ImmutableMap.of("ds", ds, "properties", b.build(), "obj",
+							ds.getParent()));
 
 			session.logout();
-			return Response
-					.ok()
-					.entity(content)
-					.build();
+			return Response.ok().entity(content).build();
 		} else {
+			session.logout();
 			return four04;
 		}
 	}
@@ -209,10 +227,10 @@ public class FedoraDatastreams extends AbstractResource {
 			@PathParam("dsid") final String dsid) throws RepositoryException {
 
 		final Session session = repo.login();
-		final Node root = session.getRootNode();
+		final String dsPath = "/" + pid + "/" + dsid;
 
-		if (root.hasNode(pid + "/" + dsid)) {
-			final Node ds = root.getNode(pid + "/" + dsid);
+		if (session.nodeExists(dsPath)) {
+			final Node ds = session.getNode(dsPath);
 			final String mimeType = ds.hasProperty("fedora:contentType") ? ds
 					.getProperty("fedora:contentType").getString()
 					: "application/octet-stream";
@@ -221,6 +239,7 @@ public class FedoraDatastreams extends AbstractResource {
 			session.logout();
 			return Response.ok(responseStream, mimeType).build();
 		} else {
+			session.logout();
 			return four04;
 		}
 	}
@@ -231,33 +250,32 @@ public class FedoraDatastreams extends AbstractResource {
 	public Response getDatastreamHistory(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
 			IOException, TemplateException {
+
 		final Session session = repo.login();
-		final Node root = session.getRootNode();
-		if (root.hasNode(pid + "/" + dsid)) {
-			final Node ds = root.getNode(pid + "/" + dsid);
-            final InputStream content = renderTemplate("datastreamHistory.ftl",
-                    ImmutableMap.of("ds", ds, "obj", ds.getParent()));
-			return Response
-					.ok()
-					.entity(content).build();
+		final String dsPath = pid + "/" + dsid;
+
+		if (session.nodeExists(dsPath)) {
+			final Node ds = session.getNode(dsPath);
+			final InputStream content = renderTemplate("datastreamHistory.ftl",
+					ImmutableMap.of("ds", ds, "obj", ds.getParent()));
+			session.logout();
+			return Response.ok().entity(content).build();
 		} else {
+			session.logout();
 			return four04;
 		}
-
 	}
 
+	@GET
+	@Path("/{dsid}/history")
+	@Produces("text/xml")
+	public Response getDatastreamHistoryOld(@PathParam("pid") final String pid,
+			@PathParam("dsid") final String dsid) throws RepositoryException,
+			IOException, TemplateException {
+		return getDatastreamHistory(pid, dsid);
+	}
 
-    @GET
-    @Path("/{dsid}/history")
-    @Produces("text/xml")
-    public Response getDatastreamHistoryOld(@PathParam("pid") final String pid,
-                                         @PathParam("dsid") final String dsid) throws RepositoryException,
-            IOException, TemplateException {
-        return getDatastreamHistory(pid, dsid);
-    }
-
-
-    @DELETE
+	@DELETE
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
