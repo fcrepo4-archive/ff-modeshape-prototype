@@ -1,9 +1,11 @@
 package org.fcrepo.modeshape;
 
+import static com.google.common.collect.ImmutableMap.builder;
+import static com.google.common.collect.ImmutableSet.copyOf;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
-import java.util.Map;
 
 import javax.jcr.Node;
 import javax.jcr.Property;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSet;
 
 import freemarker.template.TemplateException;
@@ -36,15 +39,16 @@ public class FedoraDatastreams extends AbstractResource {
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraDatastreams.class);
 
-    /**
-     * Returns a list of datastreams for the object
-     *
-     * @param pid persistent identifier of the digital object
-     * @return the list of datastreams
-     * @throws RepositoryException
-     * @throws IOException
-     * @throws TemplateException
-     */
+	/**
+	 * Returns a list of datastreams for the object
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @return the list of datastreams
+	 * @throws RepositoryException
+	 * @throws IOException
+	 * @throws TemplateException
+	 */
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/")
@@ -55,14 +59,10 @@ public class FedoraDatastreams extends AbstractResource {
 		final Session session = repo.login();
 
 		if (session.nodeExists("/" + pid)) {
-			final ImmutableSet.Builder<Node> datastreams = ImmutableSet
-					.builder();
-			datastreams.addAll(session.getNode("/" + pid).getNodes());
-			final Map<String, ImmutableSet<Node>> map = ImmutableMap.of(
-					"datastreams", datastreams.build());
-
+			final ImmutableSet<Node> datastreams = copyOf(session.getNode(
+					"/" + pid).getNodes());
 			final InputStream content = renderTemplate("listDatastreams.ftl",
-					map);
+					ImmutableMap.of("datastreams", datastreams));
 			session.logout();
 			return Response.ok().entity(content).build();
 		} else {
@@ -71,17 +71,21 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
-    /**
-     * Create a new datastream
-     *
-     * @param pid persistent identifier of the digital object
-     * @param dsid datastream identifier
-     * @param contentType Content-Type header
-     * @param requestBodyStream Binary blob
-     * @return 201 Created
-     * @throws RepositoryException
-     * @throws IOException
-     */
+	/**
+	 * Create a new datastream
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @param dsid
+	 *            datastream identifier
+	 * @param contentType
+	 *            Content-Type header
+	 * @param requestBodyStream
+	 *            Binary blob
+	 * @return 201 Created
+	 * @throws RepositoryException
+	 * @throws IOException
+	 */
 	@POST
 	@Path("/{dsid}")
 	public Response addDatastream(@PathParam("pid") final String pid,
@@ -127,17 +131,21 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
-    /**
-     * Modify an existing datastream's content
-     *
-     * @param pid persistent identifier of the digital object
-     * @param dsid datastream identifier
-     * @param contentType Content-Type header
-     * @param requestBodyStream Binary blob
-     * @return 201 Created
-     * @throws RepositoryException
-     * @throws IOException
-     */
+	/**
+	 * Modify an existing datastream's content
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @param dsid
+	 *            datastream identifier
+	 * @param contentType
+	 *            Content-Type header
+	 * @param requestBodyStream
+	 *            Binary blob
+	 * @return 201 Created
+	 * @throws RepositoryException
+	 * @throws IOException
+	 */
 	@PUT
 	@Path("/{dsid}")
 	public Response modifyDatastream(@PathParam("pid") final String pid,
@@ -219,16 +227,18 @@ public class FedoraDatastreams extends AbstractResource {
 		return ds;
 	}
 
-    /**
-     * Get the datastream profile of a datastream
-     *
-     * @param pid persistent identifier of the digital object
-     * @param dsid datastream identifier
-     * @return 200
-     * @throws RepositoryException
-     * @throws IOException
-     * @throws TemplateException
-     */
+	/**
+	 * Get the datastream profile of a datastream
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @param dsid
+	 *            datastream identifier
+	 * @return 200
+	 * @throws RepositoryException
+	 * @throws IOException
+	 * @throws TemplateException
+	 */
 	@GET
 	@Path("/{dsid}")
 	@Produces("text/xml")
@@ -247,7 +257,7 @@ public class FedoraDatastreams extends AbstractResource {
 		if (obj.hasNode(dsid)) {
 			Node ds = obj.getNode(dsid);
 			PropertyIterator i = ds.getProperties();
-			ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
+			Builder<String, String> b = builder();
 			while (i.hasNext()) {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
@@ -265,14 +275,16 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
-    /**
-     * Get the binary content of a datastream
-     *
-     * @param pid persistent identifier of the digital object
-     * @param dsid datastream identifier
-     * @return Binary blob
-     * @throws RepositoryException
-     */
+	/**
+	 * Get the binary content of a datastream
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @param dsid
+	 *            datastream identifier
+	 * @return Binary blob
+	 * @throws RepositoryException
+	 */
 	@GET
 	@Path("/{dsid}/content")
 	public Response getDatastreamContent(@PathParam("pid") final String pid,
@@ -297,16 +309,18 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
-    /**
-     * Get previous version information for this datastream
-     *
-     * @param pid persistent identifier of the digital object
-     * @param dsid datastream identifier
-     * @return 200
-     * @throws RepositoryException
-     * @throws IOException
-     * @throws TemplateException
-     */
+	/**
+	 * Get previous version information for this datastream
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @param dsid
+	 *            datastream identifier
+	 * @return 200
+	 * @throws RepositoryException
+	 * @throws IOException
+	 * @throws TemplateException
+	 */
 	@GET
 	@Path("/{dsid}/versions")
 	@Produces("text/xml")
@@ -328,19 +342,22 @@ public class FedoraDatastreams extends AbstractResource {
 			return four04;
 		}
 	}
-    /**
-     * Get previous version information for this datastream. See /{dsid}/versions. Kept for compatibility
-     * with fcrepo <3.5 API.
-     *
-     * @deprecated
-     *
-     * @param pid persistent identifier of the digital object
-     * @param dsid datastream identifier
-     * @return 200
-     * @throws RepositoryException
-     * @throws IOException
-     * @throws TemplateException
-     */
+
+	/**
+	 * Get previous version information for this datastream. See
+	 * /{dsid}/versions. Kept for compatibility with fcrepo <3.5 API.
+	 * 
+	 * @deprecated
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @param dsid
+	 *            datastream identifier
+	 * @return 200
+	 * @throws RepositoryException
+	 * @throws IOException
+	 * @throws TemplateException
+	 */
 	@GET
 	@Path("/{dsid}/history")
 	@Produces("text/xml")
@@ -351,14 +368,16 @@ public class FedoraDatastreams extends AbstractResource {
 		return getDatastreamHistory(pid, dsid);
 	}
 
-    /**
-     * Purge the datastream
-     *
-     * @param pid persistent identifier of the digital object
-     * @param dsid datastream identifier
-     * @return 204
-     * @throws RepositoryException
-     */
+	/**
+	 * Purge the datastream
+	 * 
+	 * @param pid
+	 *            persistent identifier of the digital object
+	 * @param dsid
+	 *            datastream identifier
+	 * @return 204
+	 * @throws RepositoryException
+	 */
 	@DELETE
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
