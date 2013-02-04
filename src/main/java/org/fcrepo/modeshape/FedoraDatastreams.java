@@ -21,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.modeshape.jcr.api.JcrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,31 +143,33 @@ public class FedoraDatastreams extends AbstractResource {
 			created = true;
 		}
 
-		final Node ds = jcrTools.findOrCreateNode(session, dspath, "nt:file");
+		final Node ds = jcrTools.findOrCreateNode(session, dspath,
+				JcrConstants.NT_FILE);
 		ds.addMixin("fedora:datastream");
-		final Node contentNode = jcrTools.findOrCreateChild(ds, "jcr:content",
-				"nt:resource");
+		final Node contentNode = jcrTools.findOrCreateChild(ds,
+				JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE);
 		logger.debug("Created content node at path: " + contentNode.getPath());
 		/*
 		 * This next line of code deserves explanation. If we chose for the
 		 * simpler line:
 		 * 
-		 * Property dataProperty = contentNode.setProperty("jcr:data", requestBodyStream);
+		 * Property dataProperty = contentNode.setProperty("jcr:data",
+		 * requestBodyStream);
 		 * 
 		 * then the JCR would not block on the stream's completion, and we would
-		 * return to the requestor before the mutation to the repo had actually 
-		 * completed. So instead we use createBinary(requestBodyStream),
-		 * because its contract specifies:
+		 * return to the requestor before the mutation to the repo had actually
+		 * completed. So instead we use createBinary(requestBodyStream), because
+		 * its contract specifies:
 		 * 
-		 * "The passed InputStream  is closed before this method returns
-		 * either normally or because of an exception."
+		 * "The passed InputStream is closed before this method returns either
+		 * normally or because of an exception."
 		 * 
-		 * which lets us block and not return until the job is done!
-		 * The simpler code may still be useful to us for an asychronous
-		 * method that we develop later.
+		 * which lets us block and not return until the job is done! The simpler
+		 * code may still be useful to us for an asychronous method that we
+		 * develop later.
 		 */
-		Property dataProperty = contentNode.setProperty("jcr:data", session
-				.getValueFactory().createBinary(requestBodyStream));
+		Property dataProperty = contentNode.setProperty(JcrConstants.JCR_DATA,
+				session.getValueFactory().createBinary(requestBodyStream));
 		logger.debug("Created data property at path: " + dataProperty.getPath());
 
 		ds.setProperty("fedora:contentType", contentType.toString());
@@ -234,8 +237,9 @@ public class FedoraDatastreams extends AbstractResource {
 			final String mimeType = ds.hasProperty("fedora:contentType") ? ds
 					.getProperty("fedora:contentType").getString()
 					: "application/octet-stream";
-			final InputStream responseStream = ds.getNode("jcr:content")
-					.getProperty("jcr:data").getBinary().getStream();
+			final InputStream responseStream = ds
+					.getNode(JcrConstants.JCR_CONTENT)
+					.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
 			session.logout();
 			return Response.ok(responseStream, mimeType).build();
 		} else {
