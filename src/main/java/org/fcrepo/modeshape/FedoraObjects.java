@@ -4,7 +4,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
-import javax.jcr.*;
+import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -13,8 +18,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
-import org.modeshape.common.logging.Logger;
-import org.modeshape.jcr.ConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -23,31 +28,26 @@ import freemarker.template.TemplateException;
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
 
-	private static final Logger logger = Logger.getLogger(FedoraObjects.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(FedoraObjects.class);
 
-	public FedoraObjects() throws ConfigurationException, RepositoryException,
-			IOException {
-		super();
+	@GET
+	public Response getObjects() throws RepositoryException {
+		final Session session = repo.login();
+		Node root = session.getRootNode();
+		StringBuffer nodes = new StringBuffer();
+
+		for (NodeIterator i = root.getNodes(); i.hasNext();) {
+			Node n = i.nextNode();
+			nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
+					+ "\n");
+		}
+		session.logout();
+		return Response.ok().entity(nodes.toString()).build();
+
 	}
 
-
-    @GET
-    public Response getObjects() throws RepositoryException {
-        final Session session = repo.login();
-        Node root = session.getRootNode();
-        StringBuffer nodes = new StringBuffer();
-
-        for (NodeIterator i = root.getNodes(); i.hasNext();) {
-            Node n = i.nextNode();
-            nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
-                    + "\n");
-        }
-        session.logout();
-        return Response.ok().entity(nodes.toString()).build();
-
-    }
-
-    @POST
+	@POST
 	@Path("/new")
 	public Response ingestAndMint() throws RepositoryException {
 		return ingest(pidMinter.mintPid());
@@ -66,8 +66,6 @@ public class FedoraObjects extends AbstractResource {
 			final Node obj = jcrTools.findOrCreateNode(session, "/" + pid,
 					"nt:folder");
 			obj.addMixin("fedora:object");
-			/* ws.getLockManager()
-					.lock("/" + pid, false, true, Long.MAX_VALUE, ""); */
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			obj.setProperty("jcr:lastModified", Calendar.getInstance());
@@ -76,6 +74,7 @@ public class FedoraObjects extends AbstractResource {
 			logger.debug("Finished ingest with pid: " + pid);
 			return Response.status(Response.Status.CREATED).entity(pid).build();
 		} else {
+			session.logout();
 			return four01;
 		}
 	}
@@ -96,13 +95,12 @@ public class FedoraObjects extends AbstractResource {
 				Property p = i.nextProperty();
 				b.put(p.getName(), p.toString());
 			}
-            InputStream content = renderTemplate("objectProfile.ftl", ImmutableMap
-                    .of("obj", obj, "properties", b.build()));
+			InputStream content = renderTemplate("objectProfile.ftl",
+					ImmutableMap.of("obj", obj, "properties", b.build()));
 			session.logout();
-			return Response
-					.ok()
-					.entity(content).build();
+			return Response.ok().entity(content).build();
 		} else {
+			session.logout();
 			return four04;
 		}
 	}

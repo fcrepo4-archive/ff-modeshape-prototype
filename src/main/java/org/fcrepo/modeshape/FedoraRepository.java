@@ -14,8 +14,9 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.modeshape.common.logging.Logger;
+import org.slf4j.Logger;
 import org.modeshape.jcr.api.nodetype.NodeTypeManager;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -31,7 +32,8 @@ import freemarker.template.TemplateException;
 @Path("")
 public class FedoraRepository extends AbstractResource {
 
-	private final Logger logger = Logger.getLogger(FedoraRepository.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(FedoraRepository.class);
 
 	@GET
 	@Path("/describe/modeshape")
