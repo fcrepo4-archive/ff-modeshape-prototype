@@ -36,6 +36,15 @@ public class FedoraDatastreams extends AbstractResource {
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraDatastreams.class);
 
+    /**
+     * Returns a list of datastreams for the object
+     *
+     * @param pid persistent identifier of the digital object
+     * @return the list of datastreams
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws TemplateException
+     */
 	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/")
@@ -62,6 +71,17 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
+    /**
+     * Create a new datastream
+     *
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @param contentType Content-Type header
+     * @param requestBodyStream Binary blob
+     * @return 201 Created
+     * @throws RepositoryException
+     * @throws IOException
+     */
 	@POST
 	@Path("/{dsid}")
 	public Response addDatastream(@PathParam("pid") final String pid,
@@ -107,6 +127,17 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
+    /**
+     * Modify an existing datastream's content
+     *
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @param contentType Content-Type header
+     * @param requestBodyStream Binary blob
+     * @return 201 Created
+     * @throws RepositoryException
+     * @throws IOException
+     */
 	@PUT
 	@Path("/{dsid}")
 	public Response modifyDatastream(@PathParam("pid") final String pid,
@@ -188,6 +219,16 @@ public class FedoraDatastreams extends AbstractResource {
 		return ds;
 	}
 
+    /**
+     * Get the datastream profile of a datastream
+     *
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return 200
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws TemplateException
+     */
 	@GET
 	@Path("/{dsid}")
 	@Produces("text/xml")
@@ -224,6 +265,14 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
+    /**
+     * Get the binary content of a datastream
+     *
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return Binary blob
+     * @throws RepositoryException
+     */
 	@GET
 	@Path("/{dsid}/content")
 	public Response getDatastreamContent(@PathParam("pid") final String pid,
@@ -248,6 +297,16 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
+    /**
+     * Get previous version information for this datastream
+     *
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return 200
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws TemplateException
+     */
 	@GET
 	@Path("/{dsid}/versions")
 	@Produces("text/xml")
@@ -269,7 +328,19 @@ public class FedoraDatastreams extends AbstractResource {
 			return four04;
 		}
 	}
-
+    /**
+     * Get previous version information for this datastream. See /{dsid}/versions. Kept for compatibility
+     * with fcrepo <3.5 API.
+     *
+     * @deprecated
+     *
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return 200
+     * @throws RepositoryException
+     * @throws IOException
+     * @throws TemplateException
+     */
 	@GET
 	@Path("/{dsid}/history")
 	@Produces("text/xml")
@@ -279,6 +350,14 @@ public class FedoraDatastreams extends AbstractResource {
 		return getDatastreamHistory(pid, dsid);
 	}
 
+    /**
+     * Purge the datastream
+     *
+     * @param pid persistent identifier of the digital object
+     * @param dsid datastream identifier
+     * @return 204
+     * @throws RepositoryException
+     */
 	@DELETE
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
