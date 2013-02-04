@@ -28,22 +28,49 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
+/**
+ * Abstract superclass for Fedora JAX-RS Resources, providing convenience fields
+ * and methods.
+ * 
+ * @author ajs6f
+ * 
+ */
 public abstract class AbstractResource extends Constants {
-	
+
 	final private Logger logger = LoggerFactory
 			.getLogger(AbstractResource.class);
 
-
+	/**
+	 * Jackson JSON mapper. Should eventually be replaced by the use of proper
+	 * JAX-RS Providers.
+	 */
 	@Inject
 	protected ObjectMapper mapper;
+
+	/**
+	 * The JCR repository at the heart of Fedora.
+	 */
 	@Inject
 	protected Repository repo;
+
+	/**
+	 * A resource that can mint new Fedora PIDs.
+	 */
 	@Inject
 	protected PidMinter pidMinter;
 
 	static protected Workspace ws;
 
+	/**
+	 * A Freemarker Configuration for use in generating XML responses. Should
+	 * eventually be replaced by the use of proper JAX-RS Providers.
+	 */
 	final static protected Configuration freemarker = new Configuration();
+
+	/**
+	 * A convenience object provided by ModeShape for acting against the JCR
+	 * repository.
+	 */
 	final static protected JcrTools jcrTools = new JcrTools(true);
 
 	@PostConstruct
@@ -67,7 +94,8 @@ public abstract class AbstractResource extends Constants {
 		if (session.nodeExists(path)) {
 
 			if (session.hasPermission(path, "remove")) {
-				//ws.getLockManager().lock(path, true, true, Long.MAX_VALUE, "");
+				// ws.getLockManager().lock(path, true, true, Long.MAX_VALUE,
+				// "");
 				session.getNode(path).remove();
 				session.save();
 				session.logout();
