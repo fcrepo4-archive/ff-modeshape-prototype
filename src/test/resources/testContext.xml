@@ -15,6 +15,13 @@
     <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/>
     <import resource="classpath:/spring/repo.xml"/>
     
+    <!-- Supports JSON output for API methods. Should be replaced with a properly-
+    configured JAX-RS Provider-->
+    <bean class="org.codehaus.jackson.map.ObjectMapper"/>
+    
+    <!-- Mints PIDs-->
+    <bean class="org.fcrepo.modeshape.identifiers.UUIDPidMinter"/>
+    
     <jaxrs:server address="http://localhost:9999">
         <jaxrs:serviceBeans>
             <bean class="org.fcrepo.modeshape.FedoraRepository"/>
