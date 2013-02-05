@@ -21,8 +21,6 @@ import org.fcrepo.modeshape.jaxb.responses.ObjectProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import freemarker.template.TemplateException;
-
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
 
@@ -81,7 +79,7 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	@Produces("text/xml")
 	public Response getObjectInXML(@PathParam("pid") final String pid)
-			throws RepositoryException, IOException, TemplateException {
+			throws RepositoryException, IOException {
 
 		final Session session = repo.login();
 

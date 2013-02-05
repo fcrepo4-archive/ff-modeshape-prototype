@@ -18,8 +18,6 @@ import org.fcrepo.modeshape.jaxb.responses.NextPid;
 
 import com.google.common.base.Function;
 
-import freemarker.template.TemplateException;
-
 /**
  * JAX-RS Resource offering PID creation.
  * 
@@ -40,7 +38,7 @@ public class FedoraIdentifiers extends AbstractResource {
 	@Produces("text/xml")
 	public NextPid getNextPid(
 			@QueryParam("numPids") @DefaultValue("1") Integer numPids)
-			throws RepositoryException, IOException, TemplateException {
+			throws RepositoryException, IOException {
 
 		return new NextPid(copyOf(transform(closed(1, numPids)
 				.asSet(integers()), makePid)));

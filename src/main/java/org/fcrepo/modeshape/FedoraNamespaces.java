@@ -25,7 +25,6 @@ import org.fcrepo.modeshape.jaxb.responses.NamespaceListing.Namespace;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSet.Builder;
-import freemarker.template.TemplateException;
 
 /**
  * The purpose of this class is to allow clients to manipulate the JCR
@@ -118,7 +117,7 @@ public class FedoraNamespaces extends AbstractResource {
 	@Path("")
 	@Produces("text/xml")
 	public Response getObjectNamespacesInXML() throws RepositoryException,
-			IOException, TemplateException {
+			IOException {
 
 		final Session session = repo.login();
 		final NamespaceRegistry r = session.getWorkspace()

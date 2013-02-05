@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Calendar;
+import java.util.Collections;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -30,6 +31,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.fcrepo.modeshape.jaxb.responses.DatastreamHistory;
 import org.fcrepo.modeshape.jaxb.responses.DatastreamProfile;
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams;
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams.Datastream;
@@ -38,10 +40,7 @@ import org.modeshape.jcr.api.JcrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet.Builder;
-
-import freemarker.template.TemplateException;
 
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
@@ -64,7 +63,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/")
 	@Produces({ TEXT_XML, APPLICATION_JSON })
 	public Response getDatastreams(@PathParam("pid") final String pid)
-			throws RepositoryException, IOException, TemplateException {
+			throws RepositoryException, IOException {
 
 		final Session session = repo.login();
 
@@ -253,7 +252,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Produces("text/xml")
 	public Response getDatastream(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
-			IOException, TemplateException {
+			IOException {
 
 		Session session = repo.login();
 
@@ -329,19 +328,21 @@ public class FedoraDatastreams extends AbstractResource {
 	@GET
 	@Path("/{dsid}/versions")
 	@Produces("text/xml")
+	// TODO implement this after deciding on a versioning model
 	public Response getDatastreamHistory(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
-			IOException, TemplateException {
+			IOException {
 
 		final Session session = repo.login();
-		final String dsPath = pid + "/" + dsid;
+		final String dsPath = "/" + pid + "/" + dsid;
 
 		if (session.nodeExists(dsPath)) {
 			final Node ds = session.getNode(dsPath);
-			final InputStream content = renderTemplate("datastreamHistory.ftl",
-					ImmutableMap.of("ds", ds, "obj", ds.getParent()));
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response
+					.ok()
+					.entity(new DatastreamHistory(Collections
+							.singletonList(new DatastreamProfile()))).build();
 		} else {
 			session.logout();
 			return four04;
@@ -369,7 +370,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Deprecated
 	public Response getDatastreamHistoryOld(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
-			IOException, TemplateException {
+			IOException {
 		return getDatastreamHistory(pid, dsid);
 	}
 

@@ -1,12 +1,5 @@
 package org.fcrepo.modeshape;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.util.Map;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.jcr.LoginException;
@@ -25,11 +18,6 @@ import org.modeshape.jcr.api.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import freemarker.ext.beans.BeansWrapper;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-
 /**
  * Abstract superclass for Fedora JAX-RS Resources, providing convenience fields
  * and methods.
@@ -41,7 +29,7 @@ public abstract class AbstractResource extends Constants {
 
 	final private Logger logger = LoggerFactory
 			.getLogger(AbstractResource.class);
-		
+
 	/**
 	 * Useful for constructing URLs
 	 */
@@ -70,12 +58,6 @@ public abstract class AbstractResource extends Constants {
 	static protected Workspace ws;
 
 	/**
-	 * A Freemarker Configuration for use in generating XML responses. Should
-	 * eventually be replaced by the use of proper JAX-RS Providers.
-	 */
-	final static protected Configuration freemarker = new Configuration();
-
-	/**
 	 * A convenience object provided by ModeShape for acting against the JCR
 	 * repository.
 	 */
@@ -87,10 +69,6 @@ public abstract class AbstractResource extends Constants {
 
 		ws = repo.login("fedora").getWorkspace();
 		ws.getNamespaceRegistry().registerNamespace("test", "info:fedora/test");
-
-		freemarker.setObjectWrapper(new BeansWrapper());
-		// Specify the data source where the template files come from.
-		freemarker.setClassForTemplateLoading(this.getClass(), "/freemarker");
 	}
 
 	protected synchronized Response deleteResource(final String path)
@@ -115,18 +93,6 @@ public abstract class AbstractResource extends Constants {
 		} else {
 			return four04;
 		}
-	}
-
-	protected InputStream renderTemplate(final String templatename,
-			final Map<String, ?> map) throws RepositoryException, IOException,
-			TemplateException {
-
-		final Template template = freemarker.getTemplate(templatename);
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		template.process(map, new OutputStreamWriter(out));
-		InputStream in = new ByteArrayInputStream(out.toByteArray());
-		out.close();
-		return in;
 	}
 
 }
