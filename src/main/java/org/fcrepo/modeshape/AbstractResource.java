@@ -1,5 +1,7 @@
 package org.fcrepo.modeshape;
 
+import static javax.ws.rs.core.Response.noContent;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.jcr.LoginException;
@@ -86,9 +88,9 @@ public abstract class AbstractResource extends Constants {
 				session.save();
 				session.logout();
 				logger.debug("Finished deleting resource at path: " + path);
-				return Response.status(204).build();
+				return noContent().build();
 			} else {
-				return four01;
+				return four03;
 			}
 		} else {
 			return four04;

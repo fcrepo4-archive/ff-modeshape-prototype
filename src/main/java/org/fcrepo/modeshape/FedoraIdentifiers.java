@@ -4,6 +4,7 @@ import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.DiscreteDomains.integers;
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Ranges.closed;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
 
 import java.io.IOException;
 
@@ -35,7 +36,7 @@ public class FedoraIdentifiers extends AbstractResource {
 	 * @throws TemplateException
 	 */
 	@POST
-	@Produces("text/xml")
+	@Produces(TEXT_XML)
 	public NextPid getNextPid(
 			@QueryParam("numPids") @DefaultValue("1") Integer numPids)
 			throws RepositoryException, IOException {

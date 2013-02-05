@@ -1,5 +1,8 @@
 package org.fcrepo.modeshape;
 
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.ok;
+
 import java.io.IOException;
 import java.util.Map;
 
@@ -10,6 +13,7 @@ import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -66,14 +70,14 @@ public class FedoraRepository extends AbstractResource {
 		}
 		repoproperties.put("node.types", nodetypes.build());
 
-		return Response
-				.ok()
-				.entity(mapper.writerWithType(Map.class).writeValueAsString(
+		return ok(
+				mapper.writerWithType(Map.class).writeValueAsString(
 						repoproperties.build())).build();
 	}
 
 	@GET
 	@Path("/describe")
+	@Produces(TEXT_XML)
 	public DescribeRepository describe() {
 		return new DescribeRepository();
 	}

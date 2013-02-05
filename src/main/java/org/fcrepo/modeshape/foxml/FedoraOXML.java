@@ -45,7 +45,7 @@ public class FedoraOXML extends AbstractResource {
 			return Response.created(URI.create(foxmlpath)).build();
 		} else {
 			session.logout();
-			return four01;
+			return four03;
 		}
 	}
 

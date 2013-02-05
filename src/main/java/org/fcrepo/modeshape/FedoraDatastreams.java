@@ -4,9 +4,14 @@ import static com.google.common.collect.ImmutableSet.builder;
 import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.created;
+import static javax.ws.rs.core.Response.notAcceptable;
+import static javax.ws.rs.core.Response.ok;
 import static org.fcrepo.modeshape.jaxb.responses.DatastreamProfile.DatastreamStates.A;
 import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
 import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
+import static org.modeshape.jcr.api.JcrConstants.NT_FILE;
+import static org.modeshape.jcr.api.JcrConstants.NT_RESOURCE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +41,6 @@ import org.fcrepo.modeshape.jaxb.responses.DatastreamProfile;
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams;
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams.Datastream;
 import org.modeshape.jcr.api.Binary;
-import org.modeshape.jcr.api.JcrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +83,7 @@ public class FedoraDatastreams extends AbstractResource {
 			}
 			objectDatastreams.datastreams = datastreams.build();
 			session.logout();
-			return Response.ok().entity(objectDatastreams).build();
+			return ok(objectDatastreams).build();
 		} else {
 			session.logout();
 			return four04;
@@ -117,30 +121,30 @@ public class FedoraDatastreams extends AbstractResource {
 		if (!session.nodeExists("/" + pid)) {
 			logger.debug("Tried to create a datastream for an object that doesn't exist, at resource path: "
 					+ dspath);
-			return Response.notAcceptable(null).build();
+			return notAcceptable(null).build();
 		}
 
 		if (session.hasPermission(dspath, "add_node")) {
 			if (!session.nodeExists(dspath)) {
-				return Response.created(
+				return created(
 						addDatastreamNode(dspath, contentType,
 								requestBodyStream, session)).build();
 			} else {
 				if (session.hasPermission(dspath, "remove")) {
 					session.getNode(dspath).remove();
 					session.save();
-					return Response.created(
+					return created(
 							addDatastreamNode(dspath, contentType,
 									requestBodyStream, session)).build();
 
 				} else {
 					session.logout();
-					return four01;
+					return four03;
 				}
 			}
 		} else {
 			session.logout();
-			return four01;
+			return four03;
 		}
 	}
 
@@ -178,7 +182,7 @@ public class FedoraDatastreams extends AbstractResource {
 							session)).build();
 		} else {
 			session.logout();
-			return four01;
+			return four03;
 		}
 	}
 
@@ -192,17 +196,16 @@ public class FedoraDatastreams extends AbstractResource {
 			created = true;
 		}
 
-		final Node ds = jcrTools.findOrCreateNode(session, dsPath,
-				JcrConstants.NT_FILE);
+		final Node ds = jcrTools.findOrCreateNode(session, dsPath, NT_FILE);
 		ds.addMixin("fedora:datastream");
-		final Node contentNode = jcrTools.findOrCreateChild(ds,
-				JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE);
+		final Node contentNode = jcrTools.findOrCreateChild(ds, JCR_CONTENT,
+				NT_RESOURCE);
 		logger.debug("Created content node at path: " + contentNode.getPath());
 		/*
 		 * This next line of code deserves explanation. If we chose for the
 		 * simpler line:
 		 * 
-		 * Property dataProperty = contentNode.setProperty("jcr:data",
+		 * Property dataProperty = contentNode.setProperty(JCR_DATA,
 		 * requestBodyStream);
 		 * 
 		 * then the JCR would not block on the stream's completion, and we would
@@ -217,8 +220,8 @@ public class FedoraDatastreams extends AbstractResource {
 		 * code may still be useful to us for an asychronous method that we
 		 * develop later.
 		 */
-		Property dataProperty = contentNode.setProperty(JcrConstants.JCR_DATA,
-				session.getValueFactory().createBinary(requestBodyStream));
+		Property dataProperty = contentNode.setProperty(JCR_DATA, session
+				.getValueFactory().createBinary(requestBodyStream));
 		logger.debug("Created data property at path: " + dataProperty.getPath());
 
 		ds.setProperty("fedora:contentType", contentType.toString());
@@ -249,7 +252,7 @@ public class FedoraDatastreams extends AbstractResource {
 	 */
 	@GET
 	@Path("/{dsid}")
-	@Produces("text/xml")
+	@Produces(TEXT_XML)
 	public Response getDatastream(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
 			IOException {
@@ -266,7 +269,7 @@ public class FedoraDatastreams extends AbstractResource {
 			final Node ds = obj.getNode(dsid);
 			DatastreamProfile dsProfile = getDSProfile(ds);
 			session.logout();
-			return Response.ok(dsProfile).build();
+			return ok(dsProfile).build();
 		} else {
 			session.logout();
 			return four04;
@@ -296,11 +299,10 @@ public class FedoraDatastreams extends AbstractResource {
 			final String mimeType = ds.hasProperty("fedora:contentType") ? ds
 					.getProperty("fedora:contentType").getString()
 					: "application/octet-stream";
-			final InputStream responseStream = ds
-					.getNode(JcrConstants.JCR_CONTENT)
-					.getProperty(JcrConstants.JCR_DATA).getBinary().getStream();
+			final InputStream responseStream = ds.getNode(JCR_CONTENT)
+					.getProperty(JCR_DATA).getBinary().getStream();
 			session.logout();
-			return Response.ok(responseStream, mimeType).build();
+			return ok(responseStream, mimeType).build();
 		} else {
 			session.logout();
 			return four04;
@@ -321,7 +323,7 @@ public class FedoraDatastreams extends AbstractResource {
 	 */
 	@GET
 	@Path("/{dsid}/versions")
-	@Produces("text/xml")
+	@Produces(TEXT_XML)
 	// TODO implement this after deciding on a versioning model
 	public Response getDatastreamHistory(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
@@ -337,7 +339,7 @@ public class FedoraDatastreams extends AbstractResource {
 			dsHistory.dsID = dsid;
 			dsHistory.pid = pid;
 			session.logout();
-			return Response.ok().entity(dsHistory).build();
+			return ok(dsHistory).build();
 		} else {
 			session.logout();
 			return four04;
@@ -361,7 +363,7 @@ public class FedoraDatastreams extends AbstractResource {
 	 */
 	@GET
 	@Path("/{dsid}/history")
-	@Produces("text/xml")
+	@Produces(TEXT_XML)
 	@Deprecated
 	public Response getDatastreamHistoryOld(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,

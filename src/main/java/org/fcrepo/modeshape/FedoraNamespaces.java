@@ -1,6 +1,10 @@
 package org.fcrepo.modeshape;
 
 import static com.google.common.collect.ImmutableSet.builder;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.ok;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +58,7 @@ public class FedoraNamespaces extends AbstractResource {
 
 	@GET
 	@Path("/{ns}")
-	@Produces("application/json")
+	@Produces(APPLICATION_JSON)
 	public Response retrieveObjectNamespace(@PathParam("ns") final String prefix)
 			throws RepositoryException {
 
@@ -64,10 +68,8 @@ public class FedoraNamespaces extends AbstractResource {
 
 		if (ImmutableSet.copyOf(r.getPrefixes()).contains(prefix)) {
 			session.logout();
-			return Response
-					.ok()
-					.entity("{ \"" + prefix + "\":\"" + r.getURI(prefix)
-							+ "\" }").build();
+			return ok("{ \"" + prefix + "\":\"" + r.getURI(prefix) + "\" }")
+					.build();
 		} else {
 			session.logout();
 			return four04;
@@ -76,7 +78,7 @@ public class FedoraNamespaces extends AbstractResource {
 
 	@POST
 	@Path("")
-	@Consumes("application/json")
+	@Consumes(APPLICATION_JSON)
 	public Response registerObjectNamespaceJSON(final InputStream message)
 			throws RepositoryException, JsonParseException,
 			JsonMappingException, IOException {
@@ -91,12 +93,12 @@ public class FedoraNamespaces extends AbstractResource {
 			r.registerNamespace(entry.getKey(), entry.getValue());
 		}
 		session.logout();
-		return Response.ok().entity(nses).build();
+		return ok(nses).build();
 	}
 
 	@GET
 	@Path("")
-	@Produces("text/plain")
+	@Produces(TEXT_PLAIN)
 	public Response getObjectNamespaces() throws RepositoryException {
 
 		final Session session = repo.login();
@@ -110,12 +112,12 @@ public class FedoraNamespaces extends AbstractResource {
 			out.append(prefixes[i] + " : " + uris[i] + "\n");
 		}
 		session.logout();
-		return Response.ok().entity(out.toString()).build();
+		return ok(out.toString()).build();
 	}
 
 	@GET
 	@Path("")
-	@Produces("text/xml")
+	@Produces(TEXT_XML)
 	public Response getObjectNamespacesInXML() throws RepositoryException,
 			IOException {
 
@@ -127,7 +129,7 @@ public class FedoraNamespaces extends AbstractResource {
 			b.add(new Namespace(prefix, URI.create(r.getURI(prefix))));
 		}
 		session.logout();
-		return Response.ok(new NamespaceListing(b.build())).build();
+		return ok(new NamespaceListing(b.build())).build();
 	}
 
 }

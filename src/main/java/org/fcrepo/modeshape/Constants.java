@@ -1,17 +1,19 @@
 package org.fcrepo.modeshape;
 
+import static javax.ws.rs.core.Response.status;
+import static javax.ws.rs.core.Response.Status.FORBIDDEN;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+
 import javax.ws.rs.core.Response;
 
 /**
  * Convenience class for constructs useful to many JAX-RS methods.
  * 
  * @author ajs6f
- *
+ * 
  */
 public abstract class Constants {
-	
-	protected static final Response four01 = Response.status(404).entity("401")
-			.build();
-	protected static final Response four04 = Response.status(404).entity("404")
-			.build();
+
+	protected static final Response four03 = status(FORBIDDEN).build();
+	protected static final Response four04 = status(NOT_FOUND).build();
 }

@@ -1,5 +1,8 @@
 package org.fcrepo.modeshape;
 
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static javax.ws.rs.core.Response.created;
+import static javax.ws.rs.core.Response.ok;
 import static org.fcrepo.modeshape.jaxb.responses.ObjectProfile.ObjectStates.A;
 
 import java.io.IOException;
@@ -39,7 +42,7 @@ public class FedoraObjects extends AbstractResource {
 					+ "\n");
 		}
 		session.logout();
-		return Response.ok().entity(nodes.toString()).build();
+		return ok(nodes.toString()).build();
 
 	}
 
@@ -68,16 +71,16 @@ public class FedoraObjects extends AbstractResource {
 			session.save();
 			session.logout();
 			logger.debug("Finished ingest with pid: " + pid);
-			return Response.created(uriInfo.getAbsolutePath()).build();
+			return created(uriInfo.getAbsolutePath()).build();
 		} else {
 			session.logout();
-			return four01;
+			return four03;
 		}
 	}
 
 	@GET
 	@Path("/{pid}")
-	@Produces("text/xml")
+	@Produces(TEXT_XML)
 	public Response getObjectInXML(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException {
 
@@ -100,7 +103,7 @@ public class FedoraObjects extends AbstractResource {
 			objectProfile.objState = A;
 
 			session.logout();
-			return Response.ok(objectProfile).build();
+			return ok(objectProfile).build();
 		} else {
 			session.logout();
 			return four04;
