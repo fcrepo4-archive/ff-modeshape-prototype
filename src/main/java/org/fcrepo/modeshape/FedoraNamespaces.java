@@ -1,7 +1,10 @@
 package org.fcrepo.modeshape;
 
+import static com.google.common.collect.ImmutableSet.builder;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Map;
 
 import javax.jcr.NamespaceRegistry;
@@ -17,10 +20,11 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.fcrepo.modeshape.jaxb.responses.NamespaceListing;
+import org.fcrepo.modeshape.jaxb.responses.NamespaceListing.Namespace;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-
+import com.google.common.collect.ImmutableSet.Builder;
 import freemarker.template.TemplateException;
 
 /**
@@ -40,9 +44,10 @@ public class FedoraNamespaces extends AbstractResource {
 	@Path("/{ns}")
 	public Response registerObjectNamespace(@PathParam("ns") final String ns)
 			throws RepositoryException {
-		
+
 		final Session session = repo.login();
-		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
+		final NamespaceRegistry r = session.getWorkspace()
+				.getNamespaceRegistry();
 		r.registerNamespace(ns, "info:fedora/" + ns);
 		session.logout();
 		return Response.ok().entity(ns).build();
@@ -53,9 +58,10 @@ public class FedoraNamespaces extends AbstractResource {
 	@Produces("application/json")
 	public Response retrieveObjectNamespace(@PathParam("ns") final String prefix)
 			throws RepositoryException {
-		
+
 		final Session session = repo.login();
-		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
+		final NamespaceRegistry r = session.getWorkspace()
+				.getNamespaceRegistry();
 
 		if (ImmutableSet.copyOf(r.getPrefixes()).contains(prefix)) {
 			session.logout();
@@ -77,7 +83,8 @@ public class FedoraNamespaces extends AbstractResource {
 			JsonMappingException, IOException {
 
 		final Session session = repo.login();
-		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
+		final NamespaceRegistry r = session.getWorkspace()
+				.getNamespaceRegistry();
 
 		@SuppressWarnings("unchecked")
 		final Map<String, String> nses = mapper.readValue(message, Map.class);
@@ -94,7 +101,8 @@ public class FedoraNamespaces extends AbstractResource {
 	public Response getObjectNamespaces() throws RepositoryException {
 
 		final Session session = repo.login();
-		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
+		final NamespaceRegistry r = session.getWorkspace()
+				.getNamespaceRegistry();
 
 		StringBuffer out = new StringBuffer();
 		String[] uris = r.getURIs();
@@ -111,20 +119,16 @@ public class FedoraNamespaces extends AbstractResource {
 	@Produces("text/xml")
 	public Response getObjectNamespacesInXML() throws RepositoryException,
 			IOException, TemplateException {
-		
-		final Session session = repo.login();
-		final NamespaceRegistry r = session.getWorkspace().getNamespaceRegistry();
 
-		final ImmutableMap.Builder<String, Object> b = ImmutableMap.builder();
+		final Session session = repo.login();
+		final NamespaceRegistry r = session.getWorkspace()
+				.getNamespaceRegistry();
+		final Builder<Namespace> b = builder();
 		for (final String prefix : r.getPrefixes()) {
-			b.put(prefix, r.getURI(prefix));
+			b.add(new Namespace(prefix, URI.create(r.getURI(prefix))));
 		}
 		session.logout();
-		return Response
-				.ok()
-				.entity(renderTemplate("namespaceRegistry.ftl",
-						ImmutableMap.of("namespaces", (Object) b.build())))
-				.build();
+		return Response.ok(new NamespaceListing(b.build())).build();
 	}
 
 }

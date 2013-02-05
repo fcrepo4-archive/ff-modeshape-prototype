@@ -6,8 +6,6 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.fcrepo.modeshape.jaxb.FedoraObjectStates;
-
 @XmlRootElement(name = "objectProfile", namespace = "http://www.fedora.info/definitions/1/0/access/")
 public class ObjectProfile {
 
@@ -33,6 +31,10 @@ public class ObjectProfile {
 	public URI objItemIndexViewURL;
 
 	@XmlElement
-	public FedoraObjectStates objState;
+	public ObjectStates objState;
+
+	public static enum ObjectStates {
+		A, D, I
+	}
 
 }

@@ -1,8 +1,9 @@
 package org.fcrepo.modeshape;
 
-import static com.google.common.collect.ImmutableMap.builder;
+import static com.google.common.collect.ImmutableSet.builder;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static org.fcrepo.modeshape.jaxb.responses.DatastreamProfile.DatastreamStates.A;
 import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
 import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
 
@@ -13,10 +14,11 @@ import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.ValueFormatException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -27,8 +29,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 
+import org.fcrepo.modeshape.jaxb.responses.DatastreamProfile;
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams;
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams.Datastream;
 import org.modeshape.jcr.api.Binary;
@@ -37,8 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSet.Builder;
 
 import freemarker.template.TemplateException;
 
@@ -69,16 +70,13 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (session.nodeExists("/" + pid)) {
 			final ObjectDatastreams objectDatastreams = new ObjectDatastreams();
-			final ImmutableSet.Builder<Datastream> datastreams = ImmutableSet
-					.builder();
+			final Builder<Datastream> datastreams = builder();
 
 			NodeIterator i = session.getNode("/" + pid).getNodes();
 			while (i.hasNext()) {
 				final Node ds = i.nextNode();
-				final Binary content = (Binary) ds.getNode(JCR_CONTENT)
-						.getProperty(JCR_DATA).getBinary();
 				datastreams.add(new Datastream(ds.getName(), ds.getName(),
-						content.getMimeType()));
+						getDSMimeType(ds)));
 			}
 			objectDatastreams.datastreams = datastreams.build();
 			session.logout();
@@ -232,12 +230,10 @@ public class FedoraDatastreams extends AbstractResource {
 			ds.setProperty("fedora:created", Calendar.getInstance());
 		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
-		final String dsId = ds.getName();
 		session.save();
 		session.logout();
 		logger.debug("Finished adding datastream node at path: " + dsPath);
-		final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
-		return ub.path(dsId).build();
+		return uriInfo.getAbsolutePath();
 	}
 
 	/**
@@ -268,20 +264,16 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node obj = session.getNode("/" + pid);
 
 		if (obj.hasNode(dsid)) {
-			Node ds = obj.getNode(dsid);
-			PropertyIterator i = ds.getProperties();
-			Builder<String, String> b = builder();
-			while (i.hasNext()) {
-				Property p = i.nextProperty();
-				b.put(p.getName(), p.toString());
-			}
-
-			final InputStream content = renderTemplate("datastreamProfile.ftl",
-					ImmutableMap.of("ds", ds, "properties", b.build(), "obj",
-							ds.getParent()));
-
+			final Node ds = obj.getNode(dsid);
+			DatastreamProfile dsProfile = new DatastreamProfile();
+			dsProfile.dsID = dsid;
+			dsProfile.pid = pid;
+			dsProfile.dsLabel = dsid;
+			dsProfile.dsState = A;
+			dsProfile.dsMIME = getDSMimeType(ds);
+			dsProfile.dsCreateDate = ds.getProperty("jcr:created").getString();
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response.ok(dsProfile).build();
 		} else {
 			session.logout();
 			return four04;
@@ -396,5 +388,12 @@ public class FedoraDatastreams extends AbstractResource {
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
 		return deleteResource("/" + pid + "/" + dsid);
+	}
+
+	private String getDSMimeType(Node ds) throws ValueFormatException,
+			PathNotFoundException, RepositoryException, IOException {
+		Binary b = (Binary) ds.getNode(JCR_CONTENT).getProperty(JCR_DATA)
+				.getBinary();
+		return b.getMimeType();
 	}
 }

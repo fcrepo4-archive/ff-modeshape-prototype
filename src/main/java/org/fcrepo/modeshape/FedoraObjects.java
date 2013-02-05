@@ -1,5 +1,7 @@
 package org.fcrepo.modeshape;
 
+import static org.fcrepo.modeshape.jaxb.responses.ObjectProfile.ObjectStates.A;
+
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -14,9 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 
-import org.fcrepo.modeshape.jaxb.FedoraObjectStates;
 import org.fcrepo.modeshape.jaxb.responses.ObjectProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,8 +70,7 @@ public class FedoraObjects extends AbstractResource {
 			session.save();
 			session.logout();
 			logger.debug("Finished ingest with pid: " + pid);
-			final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
-			return Response.created(ub.path(pid).build()).build();
+			return Response.created(uriInfo.getAbsolutePath()).build();
 		} else {
 			session.logout();
 			return four01;
@@ -88,8 +87,6 @@ public class FedoraObjects extends AbstractResource {
 
 		if (session.nodeExists("/" + pid)) {
 
-			final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
-
 			final Node obj = session.getNode("/" + pid);
 			final ObjectProfile objectProfile = new ObjectProfile();
 
@@ -100,8 +97,9 @@ public class FedoraObjects extends AbstractResource {
 					.getString();
 			objectProfile.objLastModDate = obj.getProperty("jcr:lastModified")
 					.getString();
-			objectProfile.objItemIndexViewURL = ub.path("datastreams").build();
-			objectProfile.objState = FedoraObjectStates.valueOf("A");
+			objectProfile.objItemIndexViewURL = uriInfo
+					.getAbsolutePathBuilder().path("datastreams").build();
+			objectProfile.objState = A;
 
 			session.logout();
 			return Response.ok(objectProfile).build();
