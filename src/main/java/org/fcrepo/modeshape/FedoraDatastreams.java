@@ -1,6 +1,7 @@
 package org.fcrepo.modeshape;
 
 import static com.google.common.collect.ImmutableSet.builder;
+import static java.util.Collections.singletonList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static org.fcrepo.modeshape.jaxb.responses.DatastreamProfile.DatastreamStates.A;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Calendar;
-import java.util.Collections;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
@@ -264,13 +264,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (obj.hasNode(dsid)) {
 			final Node ds = obj.getNode(dsid);
-			DatastreamProfile dsProfile = new DatastreamProfile();
-			dsProfile.dsID = dsid;
-			dsProfile.pid = pid;
-			dsProfile.dsLabel = dsid;
-			dsProfile.dsState = A;
-			dsProfile.dsMIME = getDSMimeType(ds);
-			dsProfile.dsCreateDate = ds.getProperty("jcr:created").getString();
+			DatastreamProfile dsProfile = getDSProfile(ds);
 			session.logout();
 			return Response.ok(dsProfile).build();
 		} else {
@@ -338,11 +332,12 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (session.nodeExists(dsPath)) {
 			final Node ds = session.getNode(dsPath);
+			final DatastreamHistory dsHistory = new DatastreamHistory(
+					singletonList(getDSProfile(ds)));
+			dsHistory.dsID = dsid;
+			dsHistory.pid = pid;
 			session.logout();
-			return Response
-					.ok()
-					.entity(new DatastreamHistory(Collections
-							.singletonList(new DatastreamProfile()))).build();
+			return Response.ok().entity(dsHistory).build();
 		} else {
 			session.logout();
 			return four04;
@@ -389,6 +384,18 @@ public class FedoraDatastreams extends AbstractResource {
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
 		return deleteResource("/" + pid + "/" + dsid);
+	}
+
+	private DatastreamProfile getDSProfile(Node ds) throws RepositoryException,
+			IOException {
+		DatastreamProfile dsProfile = new DatastreamProfile();
+		dsProfile.dsID = ds.getName();
+		dsProfile.pid = ds.getParent().getName();
+		dsProfile.dsLabel = ds.getName();
+		dsProfile.dsState = A;
+		dsProfile.dsMIME = getDSMimeType(ds);
+		dsProfile.dsCreateDate = ds.getProperty("jcr:created").getString();
+		return dsProfile;
 	}
 
 	private String getDSMimeType(Node ds) throws ValueFormatException,
