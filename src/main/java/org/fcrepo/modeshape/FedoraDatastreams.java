@@ -1,13 +1,18 @@
 package org.fcrepo.modeshape;
 
 import static com.google.common.collect.ImmutableMap.builder;
-import static com.google.common.collect.ImmutableSet.copyOf;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
+import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Calendar;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
@@ -20,9 +25,15 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 
+import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams;
+import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams.Datastream;
+import org.modeshape.jcr.api.Binary;
 import org.modeshape.jcr.api.JcrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,22 +60,31 @@ public class FedoraDatastreams extends AbstractResource {
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
-	@SuppressWarnings("unchecked")
+
 	@GET
 	@Path("/")
-	@Produces("text/xml")
+	@Produces({ TEXT_XML, APPLICATION_JSON })
 	public Response getDatastreams(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException, TemplateException {
 
 		final Session session = repo.login();
 
 		if (session.nodeExists("/" + pid)) {
-			final ImmutableSet<Node> datastreams = copyOf(session.getNode(
-					"/" + pid).getNodes());
-			final InputStream content = renderTemplate("listDatastreams.ftl",
-					ImmutableMap.of("datastreams", datastreams));
+			final ObjectDatastreams objectDatastreams = new ObjectDatastreams();
+			final ImmutableSet.Builder<Datastream> datastreams = ImmutableSet
+					.builder();
+
+			NodeIterator i = session.getNode("/" + pid).getNodes();
+			while (i.hasNext()) {
+				final Node ds = i.nextNode();
+				final Binary content = (Binary) ds.getNode(JCR_CONTENT)
+						.getProperty(JCR_DATA).getBinary();
+				datastreams.add(new Datastream(ds.getName(), ds.getName(),
+						content.getMimeType()));
+			}
+			objectDatastreams.datastreams = datastreams.build();
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response.ok().entity(objectDatastreams).build();
 		} else {
 			session.logout();
 			return four04;
@@ -100,30 +120,31 @@ public class FedoraDatastreams extends AbstractResource {
 		String dspath = "/" + pid + "/" + dsid;
 
 		if (!session.nodeExists("/" + pid)) {
-			logger.debug("This bozo tried to create a datastream for an object that doesn't exist, at resource path: "
+			logger.debug("Tried to create a datastream for an object that doesn't exist, at resource path: "
 					+ dspath);
 			return Response.notAcceptable(null).build();
 		}
 
 		if (session.hasPermission(dspath, "add_node")) {
 			if (!session.nodeExists(dspath)) {
-				return Response
-						.status(Response.Status.CREATED)
-						.entity(addDatastreamNode(dspath, contentType,
-								requestBodyStream, session).toString()).build();
+				final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+				return Response.created(
+						ub.path(addDatastreamNode(dspath, contentType,
+								requestBodyStream, session)).build()).build();
 			} else {
 				if (session.hasPermission(dspath, "remove")) {
 					session.getNode(dspath).remove();
 					session.save();
-					return Response
-							.ok()
-							.entity(addDatastreamNode(dspath, contentType,
-									requestBodyStream, session).toString())
+					final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+					return Response.created(
+							ub.path(addDatastreamNode(dspath, contentType,
+									requestBodyStream, session)).build())
 							.build();
 
-				} else
+				} else {
 					session.logout();
-				return four01;
+					return four01;
+				}
 			}
 		} else {
 			session.logout();
@@ -172,17 +193,17 @@ public class FedoraDatastreams extends AbstractResource {
 		}
 	}
 
-	private Node addDatastreamNode(final String dspath,
+	private String addDatastreamNode(final String dsPath,
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws RepositoryException, IOException {
 
-		logger.debug("Attempting to add datastream node at path: " + dspath);
+		logger.debug("Attempting to add datastream node at path: " + dsPath);
 		Boolean created = false;
-		if (!session.nodeExists(dspath)) {
+		if (!session.nodeExists(dsPath)) {
 			created = true;
 		}
 
-		final Node ds = jcrTools.findOrCreateNode(session, dspath,
+		final Node ds = jcrTools.findOrCreateNode(session, dsPath,
 				JcrConstants.NT_FILE);
 		ds.addMixin("fedora:datastream");
 		final Node contentNode = jcrTools.findOrCreateChild(ds,
@@ -219,12 +240,12 @@ public class FedoraDatastreams extends AbstractResource {
 			ds.setProperty("fedora:created", Calendar.getInstance());
 		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
-
+		final String dsId = ds.getName();
 		session.save();
 		session.logout();
-		logger.debug("Finished adding datastream node at path: " + dspath);
+		logger.debug("Finished adding datastream node at path: " + dsPath);
 
-		return ds;
+		return dsId;
 	}
 
 	/**

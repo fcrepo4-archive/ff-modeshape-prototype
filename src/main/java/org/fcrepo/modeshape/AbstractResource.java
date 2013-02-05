@@ -14,7 +14,9 @@ import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Workspace;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fcrepo.modeshape.identifiers.PidMinter;
@@ -39,6 +41,12 @@ public abstract class AbstractResource extends Constants {
 
 	final private Logger logger = LoggerFactory
 			.getLogger(AbstractResource.class);
+		
+	/**
+	 * Useful for constructing URLs
+	 */
+	@Context
+	UriInfo uriInfo;
 
 	/**
 	 * Jackson JSON mapper. Should eventually be replaced by the use of proper

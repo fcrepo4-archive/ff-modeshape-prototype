@@ -1,13 +1,10 @@
 package org.fcrepo.modeshape;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.DELETE;
@@ -17,11 +14,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
+import org.fcrepo.modeshape.jaxb.FedoraObjectStates;
+import org.fcrepo.modeshape.jaxb.responses.ObjectProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
 
 import freemarker.template.TemplateException;
 
@@ -88,17 +86,24 @@ public class FedoraObjects extends AbstractResource {
 		final Session session = repo.login();
 
 		if (session.nodeExists("/" + pid)) {
+
+			final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+
 			final Node obj = session.getNode("/" + pid);
-			PropertyIterator i = obj.getProperties();
-			ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
-			while (i.hasNext()) {
-				Property p = i.nextProperty();
-				b.put(p.getName(), p.toString());
-			}
-			InputStream content = renderTemplate("objectProfile.ftl",
-					ImmutableMap.of("obj", obj, "properties", b.build()));
+			final ObjectProfile objectProfile = new ObjectProfile();
+
+			objectProfile.objLabel = obj.getName();
+			objectProfile.objOwnerId = obj.getProperty("fedora:ownerId")
+					.getString();
+			objectProfile.objCreateDate = obj.getProperty("jcr:created")
+					.getString();
+			objectProfile.objLastModDate = obj.getProperty("jcr:lastModified")
+					.getString();
+			objectProfile.objItemIndexViewURL = ub.path("datastreams").build();
+			objectProfile.objState = FedoraObjectStates.valueOf("A");
+
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response.ok(objectProfile).build();
 		} else {
 			session.logout();
 			return four04;
