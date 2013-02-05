@@ -1,5 +1,7 @@
 package org.fcrepo.modeshape;
 
+import static com.google.common.collect.Collections2.transform;
+import static com.google.common.collect.ImmutableSet.copyOf;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.created;
@@ -13,6 +15,7 @@ import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.nodetype.NodeType;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -24,6 +27,8 @@ import javax.ws.rs.core.Response;
 import org.fcrepo.modeshape.jaxb.responses.ObjectProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Function;
 
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
@@ -81,7 +86,7 @@ public class FedoraObjects extends AbstractResource {
 
 	@GET
 	@Path("/{pid}")
-	@Produces({TEXT_XML, APPLICATION_JSON})
+	@Produces({ TEXT_XML, APPLICATION_JSON })
 	public Response getObject(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException {
 
@@ -102,6 +107,14 @@ public class FedoraObjects extends AbstractResource {
 			objectProfile.objItemIndexViewURL = uriInfo
 					.getAbsolutePathBuilder().path("datastreams").build();
 			objectProfile.objState = A;
+			objectProfile.objModels = transform(
+					copyOf(obj.getMixinNodeTypes()),
+					new Function<NodeType, String>() {
+						@Override
+						public String apply(NodeType type) {
+							return type.getName();
+						}
+					});
 
 			session.logout();
 			return ok(objectProfile).build();

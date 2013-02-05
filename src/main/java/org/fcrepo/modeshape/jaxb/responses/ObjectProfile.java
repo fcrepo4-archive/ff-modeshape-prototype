@@ -1,9 +1,10 @@
 package org.fcrepo.modeshape.jaxb.responses;
 
 import java.net.URI;
-import java.util.List;
+import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "objectProfile", namespace = "http://www.fedora.info/definitions/1/0/access/")
@@ -15,8 +16,9 @@ public class ObjectProfile {
 	@XmlElement
 	public String objOwnerId;
 
-	@XmlElement
-	public List<String> objModels;
+	@XmlElementWrapper(name = "objModels")
+	@XmlElement(name = "model")
+	public Collection<String> objModels;
 
 	@XmlElement
 	public String objCreateDate;
