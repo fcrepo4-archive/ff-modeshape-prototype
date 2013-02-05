@@ -50,4 +50,21 @@ public class FedoraIdentifiersTest {
 		assertEquals("Didn't find a single dang PID!", true,
 				Pattern.compile("<pid>.*?</pid>").matcher(response).find());
 	}
+
+	@Test
+	public void testGetNextHasTwoPids() throws HttpException, IOException {
+		HttpClient client = new HttpClient();
+		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
+				+ "/nextPID?numPids=2");
+		method.addRequestHeader("Accepts", "text/xml");
+		client.executeMethod(method);
+		logger.debug("Executed testGetNextHasAPid()");
+		String response = method.getResponseBodyAsString(Integer.MAX_VALUE);
+		logger.debug("Only to find:\n" + response);
+		assertEquals(
+				"Didn't find a two dang PIDs!",
+				true,
+				Pattern.compile("<pid>.*?</pid>.*?<pid>.*?</pid>",
+						Pattern.DOTALL).matcher(response).find());
+	}
 }
