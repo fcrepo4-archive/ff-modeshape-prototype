@@ -30,7 +30,6 @@ public class ObjectDatastreams {
 		public String mimeType;
 
 		public Datastream() {
-			super();
 		}
 	}
 }

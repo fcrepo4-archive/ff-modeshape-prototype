@@ -70,7 +70,8 @@ public class FedoraObjects extends AbstractResource {
 			session.save();
 			session.logout();
 			logger.debug("Finished ingest with pid: " + pid);
-			return Response.status(Response.Status.CREATED).entity(pid).build();
+			final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+			return Response.created(ub.path(pid).build()).build();
 		} else {
 			session.logout();
 			return four01;

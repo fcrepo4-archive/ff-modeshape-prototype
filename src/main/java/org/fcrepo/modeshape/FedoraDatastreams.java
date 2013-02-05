@@ -25,11 +25,9 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
 
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams;
 import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams.Datastream;
@@ -127,19 +125,16 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (session.hasPermission(dspath, "add_node")) {
 			if (!session.nodeExists(dspath)) {
-				final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
 				return Response.created(
-						ub.path(addDatastreamNode(dspath, contentType,
-								requestBodyStream, session)).build()).build();
+						addDatastreamNode(dspath, contentType,
+								requestBodyStream, session)).build();
 			} else {
 				if (session.hasPermission(dspath, "remove")) {
 					session.getNode(dspath).remove();
 					session.save();
-					final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
 					return Response.created(
-							ub.path(addDatastreamNode(dspath, contentType,
-									requestBodyStream, session)).build())
-							.build();
+							addDatastreamNode(dspath, contentType,
+									requestBodyStream, session)).build();
 
 				} else {
 					session.logout();
@@ -181,19 +176,16 @@ public class FedoraDatastreams extends AbstractResource {
 		String dspath = "/" + pid + "/" + dsid;
 
 		if (session.hasPermission(dspath, "add_node")) {
-
-			return Response
-					.status(Response.Status.CREATED)
-					.entity(addDatastreamNode(dspath, contentType,
-							requestBodyStream, session).toString()).build();
-
+			return Response.created(
+					addDatastreamNode(dspath, contentType, requestBodyStream,
+							session)).build();
 		} else {
 			session.logout();
 			return four01;
 		}
 	}
 
-	private String addDatastreamNode(final String dsPath,
+	private URI addDatastreamNode(final String dsPath,
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws RepositoryException, IOException {
 
@@ -244,8 +236,8 @@ public class FedoraDatastreams extends AbstractResource {
 		session.save();
 		session.logout();
 		logger.debug("Finished adding datastream node at path: " + dsPath);
-
-		return dsId;
+		final UriBuilder ub = uriInfo.getAbsolutePathBuilder();
+		return ub.path(dsId).build();
 	}
 
 	/**
