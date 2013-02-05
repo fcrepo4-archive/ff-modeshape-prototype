@@ -117,9 +117,9 @@ public class FedoraNamespaces extends AbstractResource {
 
 	@GET
 	@Path("")
-	@Produces(TEXT_XML)
-	public Response getObjectNamespacesInXML() throws RepositoryException,
-			IOException {
+	@Produces({ TEXT_XML, APPLICATION_JSON })
+	public NamespaceListing getObjectNamespacesInXML()
+			throws RepositoryException, IOException {
 
 		final Session session = repo.login();
 		final NamespaceRegistry r = session.getWorkspace()
@@ -129,7 +129,7 @@ public class FedoraNamespaces extends AbstractResource {
 			b.add(new Namespace(prefix, URI.create(r.getURI(prefix))));
 		}
 		session.logout();
-		return ok(new NamespaceListing(b.build())).build();
+		return new NamespaceListing(b.build());
 	}
 
 }

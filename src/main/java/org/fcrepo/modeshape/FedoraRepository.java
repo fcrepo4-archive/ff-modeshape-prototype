@@ -1,5 +1,6 @@
 package org.fcrepo.modeshape;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.ok;
 
@@ -77,7 +78,7 @@ public class FedoraRepository extends AbstractResource {
 
 	@GET
 	@Path("/describe")
-	@Produces(TEXT_XML)
+	@Produces({ TEXT_XML, APPLICATION_JSON })
 	public DescribeRepository describe() {
 		return new DescribeRepository();
 	}

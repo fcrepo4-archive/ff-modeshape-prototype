@@ -150,6 +150,11 @@
 			<artifactId>enunciate-cxf-rt</artifactId>
 			<version>${enunciate.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-extension-providers</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

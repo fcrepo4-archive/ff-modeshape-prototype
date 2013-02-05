@@ -1,5 +1,6 @@
 package org.fcrepo.modeshape;
 
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.ok;
@@ -80,8 +81,8 @@ public class FedoraObjects extends AbstractResource {
 
 	@GET
 	@Path("/{pid}")
-	@Produces(TEXT_XML)
-	public Response getObjectInXML(@PathParam("pid") final String pid)
+	@Produces({TEXT_XML, APPLICATION_JSON})
+	public Response getObject(@PathParam("pid") final String pid)
 			throws RepositoryException, IOException {
 
 		final Session session = repo.login();

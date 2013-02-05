@@ -252,7 +252,7 @@ public class FedoraDatastreams extends AbstractResource {
 	 */
 	@GET
 	@Path("/{dsid}")
-	@Produces(TEXT_XML)
+	@Produces({ TEXT_XML, APPLICATION_JSON })
 	public Response getDatastream(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
 			IOException {
@@ -267,7 +267,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (obj.hasNode(dsid)) {
 			final Node ds = obj.getNode(dsid);
-			DatastreamProfile dsProfile = getDSProfile(ds);
+			final DatastreamProfile dsProfile = getDSProfile(ds);
 			session.logout();
 			return ok(dsProfile).build();
 		} else {
@@ -323,7 +323,7 @@ public class FedoraDatastreams extends AbstractResource {
 	 */
 	@GET
 	@Path("/{dsid}/versions")
-	@Produces(TEXT_XML)
+	@Produces({ TEXT_XML, APPLICATION_JSON })
 	// TODO implement this after deciding on a versioning model
 	public Response getDatastreamHistory(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
@@ -390,7 +390,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 	private DatastreamProfile getDSProfile(Node ds) throws RepositoryException,
 			IOException {
-		DatastreamProfile dsProfile = new DatastreamProfile();
+		final DatastreamProfile dsProfile = new DatastreamProfile();
 		dsProfile.dsID = ds.getName();
 		dsProfile.pid = ds.getParent().getName();
 		dsProfile.dsLabel = ds.getName();
@@ -402,7 +402,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 	private String getDSMimeType(Node ds) throws ValueFormatException,
 			PathNotFoundException, RepositoryException, IOException {
-		Binary b = (Binary) ds.getNode(JCR_CONTENT).getProperty(JCR_DATA)
+		final Binary b = (Binary) ds.getNode(JCR_CONTENT).getProperty(JCR_DATA)
 				.getBinary();
 		return b.getMimeType();
 	}
