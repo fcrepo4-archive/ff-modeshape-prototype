@@ -1,17 +1,25 @@
 package org.fcrepo.modeshape;
 
-import static com.google.common.collect.ImmutableMap.builder;
-import static com.google.common.collect.ImmutableSet.copyOf;
+import static com.google.common.collect.ImmutableSet.builder;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.TEXT_XML;
+import static org.fcrepo.modeshape.jaxb.responses.DatastreamProfile.DatastreamStates.A;
+import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
+import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Calendar;
+import java.util.Collections;
 
 import javax.jcr.Node;
+import javax.jcr.NodeIterator;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.ValueFormatException;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -23,15 +31,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.fcrepo.modeshape.jaxb.responses.DatastreamHistory;
+import org.fcrepo.modeshape.jaxb.responses.DatastreamProfile;
+import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams;
+import org.fcrepo.modeshape.jaxb.responses.ObjectDatastreams.Datastream;
+import org.modeshape.jcr.api.Binary;
 import org.modeshape.jcr.api.JcrConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.ImmutableSet;
-
-import freemarker.template.TemplateException;
+import com.google.common.collect.ImmutableSet.Builder;
 
 @Path("/objects/{pid}/datastreams")
 public class FedoraDatastreams extends AbstractResource {
@@ -49,22 +58,28 @@ public class FedoraDatastreams extends AbstractResource {
 	 * @throws IOException
 	 * @throws TemplateException
 	 */
-	@SuppressWarnings("unchecked")
+
 	@GET
 	@Path("/")
-	@Produces("text/xml")
+	@Produces({ TEXT_XML, APPLICATION_JSON })
 	public Response getDatastreams(@PathParam("pid") final String pid)
-			throws RepositoryException, IOException, TemplateException {
+			throws RepositoryException, IOException {
 
 		final Session session = repo.login();
 
 		if (session.nodeExists("/" + pid)) {
-			final ImmutableSet<Node> datastreams = copyOf(session.getNode(
-					"/" + pid).getNodes());
-			final InputStream content = renderTemplate("listDatastreams.ftl",
-					ImmutableMap.of("datastreams", datastreams));
+			final ObjectDatastreams objectDatastreams = new ObjectDatastreams();
+			final Builder<Datastream> datastreams = builder();
+
+			NodeIterator i = session.getNode("/" + pid).getNodes();
+			while (i.hasNext()) {
+				final Node ds = i.nextNode();
+				datastreams.add(new Datastream(ds.getName(), ds.getName(),
+						getDSMimeType(ds)));
+			}
+			objectDatastreams.datastreams = datastreams.build();
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response.ok().entity(objectDatastreams).build();
 		} else {
 			session.logout();
 			return four04;
@@ -100,30 +115,28 @@ public class FedoraDatastreams extends AbstractResource {
 		String dspath = "/" + pid + "/" + dsid;
 
 		if (!session.nodeExists("/" + pid)) {
-			logger.debug("This bozo tried to create a datastream for an object that doesn't exist, at resource path: "
+			logger.debug("Tried to create a datastream for an object that doesn't exist, at resource path: "
 					+ dspath);
 			return Response.notAcceptable(null).build();
 		}
 
 		if (session.hasPermission(dspath, "add_node")) {
 			if (!session.nodeExists(dspath)) {
-				return Response
-						.status(Response.Status.CREATED)
-						.entity(addDatastreamNode(dspath, contentType,
-								requestBodyStream, session).toString()).build();
+				return Response.created(
+						addDatastreamNode(dspath, contentType,
+								requestBodyStream, session)).build();
 			} else {
 				if (session.hasPermission(dspath, "remove")) {
 					session.getNode(dspath).remove();
 					session.save();
-					return Response
-							.ok()
-							.entity(addDatastreamNode(dspath, contentType,
-									requestBodyStream, session).toString())
-							.build();
+					return Response.created(
+							addDatastreamNode(dspath, contentType,
+									requestBodyStream, session)).build();
 
-				} else
+				} else {
 					session.logout();
-				return four01;
+					return four01;
+				}
 			}
 		} else {
 			session.logout();
@@ -160,29 +173,26 @@ public class FedoraDatastreams extends AbstractResource {
 		String dspath = "/" + pid + "/" + dsid;
 
 		if (session.hasPermission(dspath, "add_node")) {
-
-			return Response
-					.status(Response.Status.CREATED)
-					.entity(addDatastreamNode(dspath, contentType,
-							requestBodyStream, session).toString()).build();
-
+			return Response.created(
+					addDatastreamNode(dspath, contentType, requestBodyStream,
+							session)).build();
 		} else {
 			session.logout();
 			return four01;
 		}
 	}
 
-	private Node addDatastreamNode(final String dspath,
+	private URI addDatastreamNode(final String dsPath,
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws RepositoryException, IOException {
 
-		logger.debug("Attempting to add datastream node at path: " + dspath);
+		logger.debug("Attempting to add datastream node at path: " + dsPath);
 		Boolean created = false;
-		if (!session.nodeExists(dspath)) {
+		if (!session.nodeExists(dsPath)) {
 			created = true;
 		}
 
-		final Node ds = jcrTools.findOrCreateNode(session, dspath,
+		final Node ds = jcrTools.findOrCreateNode(session, dsPath,
 				JcrConstants.NT_FILE);
 		ds.addMixin("fedora:datastream");
 		final Node contentNode = jcrTools.findOrCreateChild(ds,
@@ -219,12 +229,10 @@ public class FedoraDatastreams extends AbstractResource {
 			ds.setProperty("fedora:created", Calendar.getInstance());
 		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
-
 		session.save();
 		session.logout();
-		logger.debug("Finished adding datastream node at path: " + dspath);
-
-		return ds;
+		logger.debug("Finished adding datastream node at path: " + dsPath);
+		return uriInfo.getAbsolutePath();
 	}
 
 	/**
@@ -244,7 +252,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Produces("text/xml")
 	public Response getDatastream(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
-			IOException, TemplateException {
+			IOException {
 
 		Session session = repo.login();
 
@@ -255,20 +263,16 @@ public class FedoraDatastreams extends AbstractResource {
 		final Node obj = session.getNode("/" + pid);
 
 		if (obj.hasNode(dsid)) {
-			Node ds = obj.getNode(dsid);
-			PropertyIterator i = ds.getProperties();
-			Builder<String, String> b = builder();
-			while (i.hasNext()) {
-				Property p = i.nextProperty();
-				b.put(p.getName(), p.toString());
-			}
-
-			final InputStream content = renderTemplate("datastreamProfile.ftl",
-					ImmutableMap.of("ds", ds, "properties", b.build(), "obj",
-							ds.getParent()));
-
+			final Node ds = obj.getNode(dsid);
+			DatastreamProfile dsProfile = new DatastreamProfile();
+			dsProfile.dsID = dsid;
+			dsProfile.pid = pid;
+			dsProfile.dsLabel = dsid;
+			dsProfile.dsState = A;
+			dsProfile.dsMIME = getDSMimeType(ds);
+			dsProfile.dsCreateDate = ds.getProperty("jcr:created").getString();
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response.ok(dsProfile).build();
 		} else {
 			session.logout();
 			return four04;
@@ -324,19 +328,21 @@ public class FedoraDatastreams extends AbstractResource {
 	@GET
 	@Path("/{dsid}/versions")
 	@Produces("text/xml")
+	// TODO implement this after deciding on a versioning model
 	public Response getDatastreamHistory(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
-			IOException, TemplateException {
+			IOException {
 
 		final Session session = repo.login();
-		final String dsPath = pid + "/" + dsid;
+		final String dsPath = "/" + pid + "/" + dsid;
 
 		if (session.nodeExists(dsPath)) {
 			final Node ds = session.getNode(dsPath);
-			final InputStream content = renderTemplate("datastreamHistory.ftl",
-					ImmutableMap.of("ds", ds, "obj", ds.getParent()));
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response
+					.ok()
+					.entity(new DatastreamHistory(Collections
+							.singletonList(new DatastreamProfile()))).build();
 		} else {
 			session.logout();
 			return four04;
@@ -364,7 +370,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Deprecated
 	public Response getDatastreamHistoryOld(@PathParam("pid") final String pid,
 			@PathParam("dsid") final String dsid) throws RepositoryException,
-			IOException, TemplateException {
+			IOException {
 		return getDatastreamHistory(pid, dsid);
 	}
 
@@ -383,5 +389,12 @@ public class FedoraDatastreams extends AbstractResource {
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
 		return deleteResource("/" + pid + "/" + dsid);
+	}
+
+	private String getDSMimeType(Node ds) throws ValueFormatException,
+			PathNotFoundException, RepositoryException, IOException {
+		Binary b = (Binary) ds.getNode(JCR_CONTENT).getProperty(JCR_DATA)
+				.getBinary();
+		return b.getMimeType();
 	}
 }

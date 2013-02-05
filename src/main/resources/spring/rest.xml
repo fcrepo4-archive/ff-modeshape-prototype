@@ -12,14 +12,14 @@
     <import resource="classpath:META-INF/cxf/osgi/cxf-extension-osgi.xml"/>
 
     <!-- Context that houses JAX-RS Resources that compose the API
-        as well as som utility gear. -->    
+        as well as som utility gear. -->
 
     <context:annotation-config/>
-    
+
     <!-- Supports JSON output for API methods. Should be replaced with a properly-
     configured JAX-RS Provider-->
     <bean class="org.codehaus.jackson.map.ObjectMapper"/>
-    
+
     <!-- Mints PIDs-->
     <bean class="org.fcrepo.modeshape.identifiers.UUIDPidMinter"/>
 

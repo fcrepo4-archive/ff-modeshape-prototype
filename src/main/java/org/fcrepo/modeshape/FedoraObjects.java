@@ -1,13 +1,12 @@
 package org.fcrepo.modeshape;
 
+import static org.fcrepo.modeshape.jaxb.responses.ObjectProfile.ObjectStates.A;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Calendar;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
-import javax.jcr.Property;
-import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.ws.rs.DELETE;
@@ -18,12 +17,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import org.fcrepo.modeshape.jaxb.responses.ObjectProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
-
-import freemarker.template.TemplateException;
 
 @Path("/objects")
 public class FedoraObjects extends AbstractResource {
@@ -72,7 +68,7 @@ public class FedoraObjects extends AbstractResource {
 			session.save();
 			session.logout();
 			logger.debug("Finished ingest with pid: " + pid);
-			return Response.status(Response.Status.CREATED).entity(pid).build();
+			return Response.created(uriInfo.getAbsolutePath()).build();
 		} else {
 			session.logout();
 			return four01;
@@ -83,22 +79,28 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	@Produces("text/xml")
 	public Response getObjectInXML(@PathParam("pid") final String pid)
-			throws RepositoryException, IOException, TemplateException {
+			throws RepositoryException, IOException {
 
 		final Session session = repo.login();
 
 		if (session.nodeExists("/" + pid)) {
+
 			final Node obj = session.getNode("/" + pid);
-			PropertyIterator i = obj.getProperties();
-			ImmutableMap.Builder<String, String> b = ImmutableMap.builder();
-			while (i.hasNext()) {
-				Property p = i.nextProperty();
-				b.put(p.getName(), p.toString());
-			}
-			InputStream content = renderTemplate("objectProfile.ftl",
-					ImmutableMap.of("obj", obj, "properties", b.build()));
+			final ObjectProfile objectProfile = new ObjectProfile();
+
+			objectProfile.objLabel = obj.getName();
+			objectProfile.objOwnerId = obj.getProperty("fedora:ownerId")
+					.getString();
+			objectProfile.objCreateDate = obj.getProperty("jcr:created")
+					.getString();
+			objectProfile.objLastModDate = obj.getProperty("jcr:lastModified")
+					.getString();
+			objectProfile.objItemIndexViewURL = uriInfo
+					.getAbsolutePathBuilder().path("datastreams").build();
+			objectProfile.objState = A;
+
 			session.logout();
-			return Response.ok().entity(content).build();
+			return Response.ok(objectProfile).build();
 		} else {
 			session.logout();
 			return four04;

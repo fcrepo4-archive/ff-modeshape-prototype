@@ -17,6 +17,7 @@
 		<modeshape.version>3.1.1.Final</modeshape.version>
 		<cxf.version>2.7.2</cxf.version>
 		<activemq.version>5.7.0</activemq.version>
+		<enunciate.version>1.26.2</enunciate.version>
 	</properties>
 
 
@@ -48,19 +49,19 @@
 			<artifactId>modeshape-jcr</artifactId>
 		</dependency>
 
-        <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-core</artifactId>
-            <version>5.2.0.Final</version>
-        </dependency>
+		<dependency>
+			<groupId>org.infinispan</groupId>
+			<artifactId>infinispan-core</artifactId>
+			<version>5.2.0.Final</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.jgroups</groupId>
-            <artifactId>jgroups</artifactId>
-            <version>3.2.6.Final</version>
-        </dependency>
+		<dependency>
+			<groupId>org.jgroups</groupId>
+			<artifactId>jgroups</artifactId>
+			<version>3.2.6.Final</version>
+		</dependency>
 
-        <dependency>
+		<dependency>
 			<groupId>org.modeshape</groupId>
 			<artifactId>modeshape-jcr-api</artifactId>
 		</dependency>
@@ -82,11 +83,6 @@
 			<artifactId>logback-classic</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-			<version>2.3.19</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.scala-lang</groupId>
@@ -127,78 +123,102 @@
 			<scope>test</scope>
 		</dependency>
 
-        <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-spring</artifactId>
-            <version>${activemq.version}</version>
-        </dependency>
-
 		<dependency>
-		  <groupId>org.apache.xbean</groupId>
-		  <artifactId>xbean-spring</artifactId>
-		  <version>3.9</version>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-spring</artifactId>
+			<version>${activemq.version}</version>
 		</dependency>
 
-        <dependency>
-        	<groupId>com.google.guava</groupId>
-        	<artifactId>guava</artifactId>
-        	<version>13.0.1</version>
-        </dependency>
-        <dependency>
-        	<groupId>org.apache.abdera</groupId>
-        	<artifactId>abdera-parser</artifactId>
-        	<version>1.1.3</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.xbean</groupId>
+			<artifactId>xbean-spring</artifactId>
+			<version>3.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>13.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.abdera</groupId>
+			<artifactId>abdera-parser</artifactId>
+			<version>1.1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.enunciate</groupId>
+			<artifactId>enunciate-cxf-rt</artifactId>
+			<version>${enunciate.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>
-        <pluginManagement>
-            <!--This plugin's configuration is used to store Eclipse m2e settings only. 
-            It has no influence on the Maven build itself. -->
-            <plugins>
-              <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                  <lifecycleMappingMetadata>
-                    <pluginExecutions>
-                      <pluginExecution>
-                        <pluginExecutionFilter>
-                          <groupId>org.apache.maven.plugins</groupId>
-                          <artifactId>maven-dependency-plugin</artifactId>
-                          <versionRange>[2.1,)</versionRange>
-                          <goals>
-                            <goal>copy</goal>
-                          </goals>
-                        </pluginExecutionFilter>
-                        <action>
-                          <ignore />
-                        </action>
-                      </pluginExecution>
-                      <pluginExecution>
-                        <pluginExecutionFilter>
-                          <groupId>org.scala-tools</groupId>
-                          <artifactId>maven-scala-plugin</artifactId>
-                          <versionRange>[2.15.2,)</versionRange>
-                          <goals>
-                            <goal>add-source</goal>
-                            <goal>compile</goal>
-                            <goal>testCompile</goal>
-                          </goals>
-                        </pluginExecutionFilter>
-                        <action>
-                          <ignore />
-                        </action>
-                      </pluginExecution>
-                    </pluginExecutions>
-                  </lifecycleMappingMetadata>
-                </configuration>
-              </plugin>
-            </plugins>
-        </pluginManagement>
-		
-        <plugins>
+		<pluginManagement>
+			<!--This plugin's configuration is used to store Eclipse m2e settings 
+				only. It has no influence on the Maven build itself. -->
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.apache.maven.plugins</groupId>
+										<artifactId>maven-dependency-plugin</artifactId>
+										<versionRange>[2.1,)</versionRange>
+										<goals>
+											<goal>copy</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.scala-tools</groupId>
+										<artifactId>maven-scala-plugin</artifactId>
+										<versionRange>[2.15.2,)</versionRange>
+										<goals>
+											<goal>add-source</goal>
+											<goal>compile</goal>
+											<goal>testCompile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.enunciate
+										</groupId>
+										<artifactId>
+											maven-enunciate-cxf-plugin
+										</artifactId>
+										<versionRange>
+											[1.26.2,)
+										</versionRange>
+										<goals>
+											<goal>docs</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<execute />
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
+		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -300,26 +320,22 @@
 					</webApp>
 				</configuration>
 			</plugin>
-
-            <plugin>
-                <groupId>org.codehaus.enunciate</groupId>
-                <artifactId>maven-enunciate-plugin</artifactId>
-                <!-- check for the latest version -->
-                <version>1.26</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>docs</goal>
-                        </goals>
-                        <configuration>
-
-                            <!-- the directory where to put the docs -->
-                            <docsDir>${project.build.directory}/docs</docsDir>
-
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.codehaus.enunciate</groupId>
+				<artifactId>maven-enunciate-cxf-plugin</artifactId>
+				<version>${enunciate.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>docs</goal>
+						</goals>
+						<configuration>
+							<configFile>${basedir}/src/main/enunciate/enunciate.xml</configFile>
+							<docsDir>${project.build.directory}/docs</docsDir>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

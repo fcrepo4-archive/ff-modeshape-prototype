@@ -13,19 +13,16 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
+
+import org.fcrepo.modeshape.jaxb.responses.NextPid;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-
-import freemarker.template.TemplateException;
 
 /**
  * JAX-RS Resource offering PID creation.
  * 
  * @author ajs6f
- *
+ * 
  */
 @Path("nextPID")
 public class FedoraIdentifiers extends AbstractResource {
@@ -39,17 +36,13 @@ public class FedoraIdentifiers extends AbstractResource {
 	 */
 	@POST
 	@Produces("text/xml")
-	public Response getNextPid(
+	public NextPid getNextPid(
 			@QueryParam("numPids") @DefaultValue("1") Integer numPids)
-			throws RepositoryException, IOException, TemplateException {
+			throws RepositoryException, IOException {
 
-		ImmutableSet<String> pids = copyOf(transform(
-				closed(1, numPids).asSet(integers()), makePid));
+		return new NextPid(copyOf(transform(closed(1, numPids)
+				.asSet(integers()), makePid)));
 
-		return Response
-				.ok()
-				.entity(renderTemplate("nextPid.ftl",
-						ImmutableMap.of("pids", (Object) pids))).build();
 	}
 
 	private Function<Integer, String> makePid = new Function<Integer, String>() {

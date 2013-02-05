@@ -14,14 +14,13 @@ import javax.ws.rs.core.Response;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.slf4j.Logger;
+import org.fcrepo.modeshape.jaxb.responses.DescribeRepository;
 import org.modeshape.jcr.api.nodetype.NodeTypeManager;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-
-import freemarker.template.TemplateException;
 
 /**
  * 
@@ -75,12 +74,8 @@ public class FedoraRepository extends AbstractResource {
 
 	@GET
 	@Path("/describe")
-	public Response describe() throws RepositoryException, IOException,
-			TemplateException {
-		return Response
-				.ok()
-				.entity(renderTemplate("describeRepository.ftl",
-						ImmutableMap.of("asdf", (Object) "asdf"))).build();
+	public DescribeRepository describe() {
+		return new DescribeRepository();
 	}
 
 }
