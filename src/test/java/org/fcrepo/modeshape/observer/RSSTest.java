@@ -22,16 +22,18 @@ public class RSSTest {
 	final private Logger logger = LoggerFactory.getLogger(RSSTest.class);
 	final private HttpClient client = new HttpClient();
 
-	int SERVER_PORT = 9999;
+	private static final int SERVER_PORT = 8080;
+	private static final String HOSTNAME = "localhost";
+	private static final String serverAddress = "http://" + HOSTNAME + ":"
+			+ SERVER_PORT + "/";
 
 	@Test
 	public void testRSS() throws Exception {
-		PostMethod createObjMethod = new PostMethod("http://localhost:"
-				+ SERVER_PORT + "/objects/RSSTESTPID");
+		PostMethod createObjMethod = new PostMethod(serverAddress
+				+ "rest/objects/RSSTESTPID");
 		assertEquals(201, client.executeMethod(createObjMethod));
 
-		GetMethod getRSSMethod = new GetMethod("http://localhost:"
-				+ SERVER_PORT + "/rss");
+		GetMethod getRSSMethod = new GetMethod(serverAddress + "/rss");
 		assertEquals(200, client.executeMethod(getRSSMethod));
 		String response = getRSSMethod.getResponseBodyAsString();
 		logger.debug("Retrieved RSS feed:\n" + response);
