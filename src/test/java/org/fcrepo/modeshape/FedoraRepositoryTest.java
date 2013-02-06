@@ -15,10 +15,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContext.xml")
+@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml" })
 public class FedoraRepositoryTest {
 
-	int SERVER_PORT = 9999;
+	private static final int SERVER_PORT = 8080;
+	private static final String HOSTNAME = "localhost";
+	private static final String serverAddress = "http://" + HOSTNAME + ":"
+			+ SERVER_PORT + "/";
 
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraRepositoryTest.class);
@@ -27,24 +30,22 @@ public class FedoraRepositoryTest {
 
 	@Test
 	public void testDescribeModeshape() throws Exception {
-		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
-				+ "/describe/modeshape");
+		GetMethod method = new GetMethod(serverAddress
+				+ "rest/describe/modeshape");
 		int status = client.executeMethod(method);
 		assertEquals(200, status);
 	}
 
 	@Test
 	public void testGetObjects() throws Exception {
-		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
-				+ "/objects");
+		GetMethod method = new GetMethod(serverAddress + "rest/objects");
 		int status = client.executeMethod(method);
 		assertEquals(200, status);
 	}
 
 	@Test
 	public void testDescribe() throws Exception {
-		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
-				+ "/describe");
+		GetMethod method = new GetMethod(serverAddress + "rest/describe");
 		method.addRequestHeader("Accept", TEXT_XML);
 		int status = client.executeMethod(method);
 		assertEquals(200, status);

@@ -20,20 +20,22 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContext.xml")
+@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml" })
 public class FedoraIdentifiersTest {
 
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraIdentifiersTest.class);
 
-	int SERVER_PORT = 9999;
+	private static final int SERVER_PORT = 8080;
+	private static final String HOSTNAME = "localhost";
+	private static final String serverAddress = "http://" + HOSTNAME + ":"
+			+ SERVER_PORT + "/";
 
 	final private HttpClient client = new HttpClient();
 
 	@Test
 	public void testGetNextPidResponds() throws Exception {
-		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
-				+ "/nextPID");
+		PostMethod method = new PostMethod(serverAddress + "rest/nextPID");
 		method.addRequestHeader("Accepts", "text/xml");
 		int status = client.executeMethod(method);
 		logger.debug("Executed testGetNextPidResponds()");
@@ -42,8 +44,8 @@ public class FedoraIdentifiersTest {
 
 	@Test
 	public void testGetNextHasAPid() throws HttpException, IOException {
-		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
-				+ "/nextPID?numPids=1");
+		PostMethod method = new PostMethod(serverAddress
+				+ "rest/nextPID?numPids=1");
 		method.addRequestHeader("Accepts", "text/xml");
 		client.executeMethod(method);
 		logger.debug("Executed testGetNextHasAPid()");
@@ -55,8 +57,8 @@ public class FedoraIdentifiersTest {
 
 	@Test
 	public void testGetNextHasTwoPids() throws HttpException, IOException {
-		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
-				+ "/nextPID?numPids=2");
+		PostMethod method = new PostMethod(serverAddress
+				+ "rest/nextPID?numPids=2");
 		method.addRequestHeader("Accepts", "text/xml");
 		client.executeMethod(method);
 		logger.debug("Executed testGetNextHasTwoPids()");

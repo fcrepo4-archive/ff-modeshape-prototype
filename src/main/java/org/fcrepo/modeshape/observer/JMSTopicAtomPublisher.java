@@ -38,7 +38,7 @@ import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
-public class JMSTopicPublisher {
+public class JMSTopicAtomPublisher {
 
 	@Inject
 	EventBus eventBus;
@@ -60,7 +60,7 @@ public class JMSTopicPublisher {
 	private OperationsMappings operationsMappings;
 
 	final private Logger logger = LoggerFactory
-			.getLogger(JMSTopicPublisher.class);
+			.getLogger(JMSTopicAtomPublisher.class);
 
 	@Subscribe
 	public void publishJCREvent(Event jcrEvent) throws JMSException,

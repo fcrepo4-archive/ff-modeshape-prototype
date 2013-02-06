@@ -9,7 +9,8 @@
     http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>    
-
+    <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/>
+    
     <!-- Context that suports event management, including the internal
     event bus (fedoraInternalEventBus) and JMS and RSS publication-->
 
@@ -27,7 +28,7 @@
     <!-- Fedora's lightweight internal event bus. Currently memory-resident.-->
     <bean name="fedoraInternalEventBus" class="com.google.common.eventbus.EventBus"/>
 
-    <jaxrs:server address="/">
+    <jaxrs:server address="http://localhost:8080/">
         <jaxrs:serviceBeans>
             <bean class="org.fcrepo.modeshape.observer.RSSPublisher"/>
         </jaxrs:serviceBeans>
