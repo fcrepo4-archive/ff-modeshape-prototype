@@ -232,9 +232,9 @@ public class FedoraDatastreams extends AbstractResource {
 		ds.setProperty("fedora:ownerId", "Fedo Radmin");
 		if (created) {
 			ds.setProperty("fedora:created", Calendar.getInstance());
-			updateRepositorySize(getObjectSize(session.getNode("/objects/"
-					+ pid))
-					- oldObjectSize);
+			updateRepositorySize(
+					getObjectSize(session.getNode("/objects/" + pid))
+							- oldObjectSize, session);
 		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
 		session.save();
@@ -392,7 +392,8 @@ public class FedoraDatastreams extends AbstractResource {
 			@PathParam("dsid") String dsid) throws RepositoryException {
 		final Session session = repo.login();
 		final Node ds = session.getNode("/objects/" + pid + "/" + dsid);
-		updateRepositorySize(0L - getContentSize(ds) - getNodePropertySize(ds));
+		updateRepositorySize(0L - getContentSize(ds) - getNodePropertySize(ds),
+				session);
 		return deleteResource("/objects/" + pid + "/" + dsid, session);
 	}
 

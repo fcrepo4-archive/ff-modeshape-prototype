@@ -26,7 +26,6 @@
 	 * Temporary for us until we better understand the use of jcr:created.
 	 */
 	- fedora:created (STRING) COPY
-	- fedora:size (LONG) COPY
 
 
 /*

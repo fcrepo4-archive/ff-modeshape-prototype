@@ -8,11 +8,13 @@ import javax.inject.Inject;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
 import javax.jcr.Node;
+import javax.jcr.PathNotFoundException;
 import javax.jcr.Property;
 import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
+import javax.jcr.ValueFormatException;
 import javax.jcr.Workspace;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -62,8 +64,6 @@ public abstract class AbstractResource extends Constants {
 	@Inject
 	protected PidMinter pidMinter;
 
-	private static Long repoSize = 0L;
-
 	static protected Workspace ws;
 
 	/**
@@ -76,8 +76,13 @@ public abstract class AbstractResource extends Constants {
 	public void initialize() throws LoginException, NoSuchWorkspaceException,
 			RepositoryException {
 
-		ws = repo.login("fedora").getWorkspace();
-		ws.getNamespaceRegistry().registerNamespace("test", "info:fedora/test");
+		final Session session = repo.login();
+		session.getWorkspace().getNamespaceRegistry()
+				.registerNamespace("test", "info:fedora/test");
+		Node objects = jcrTools.findOrCreateNode(session, "/objects");
+		objects.setProperty("size", 0L);
+		session.save();
+		session.logout();
 	}
 
 	protected synchronized Response deleteResource(final String path,
@@ -120,13 +125,16 @@ public abstract class AbstractResource extends Constants {
 		return size;
 	}
 
-	protected void updateRepositorySize(Long change) {
-		// TODO put this in the repo somewhere
-		repoSize = repoSize + change;
+	protected void updateRepositorySize(Long change, Session session)
+			throws PathNotFoundException, RepositoryException {
+		Property sizeProperty = session.getNode("/objects").getProperty("size");
+		Long previousSize = sizeProperty.getLong();
+		sizeProperty.setValue(previousSize + change);
 	}
 
-	protected Long getRepositorySize() {
-		// TODO put this in the repo somewhere
-		return repoSize;
+	protected Long getRepositorySize(Session session)
+			throws ValueFormatException, PathNotFoundException,
+			RepositoryException {
+		return session.getNode("/objects").getProperty("size").getLong();
 	}
 }

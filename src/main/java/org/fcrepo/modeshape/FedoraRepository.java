@@ -1,18 +1,14 @@
 package org.fcrepo.modeshape;
 
-import static com.google.common.collect.ImmutableSet.copyOf;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.ok;
-import static org.fcrepo.modeshape.FedoraObjects.getObjectSize;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 
 import javax.jcr.LoginException;
 import javax.jcr.NamespaceRegistry;
-import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
@@ -88,16 +84,10 @@ public class FedoraRepository extends AbstractResource {
 	public DescribeRepository describe() throws LoginException,
 			RepositoryException {
 
-		Long totalObjectSize = 0L;
 		Session session = repo.login();
-		@SuppressWarnings("unchecked")
-		final Set<Node> objects = copyOf(session.getNode("/objects").getNodes());
-		for (Node object : objects) {
-			totalObjectSize = totalObjectSize + getObjectSize(object);
-		}
-		session.logout();
 		DescribeRepository description = new DescribeRepository();
-		description.repositorySize = getRepositorySize();
+		description.repositorySize = getRepositorySize(session);
+		session.logout();
 		return description;
 	}
 
