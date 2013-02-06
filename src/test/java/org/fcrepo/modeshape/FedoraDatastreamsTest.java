@@ -176,7 +176,7 @@ public class FedoraDatastreamsTest {
 		final String response = getDSesMethod.getResponseBodyAsString();
 		assertTrue("Didn't find the first datastream!",
 				compile("dsid=\"testfoozle\"", DOTALL).matcher(response).find());
-		assertTrue("Didn't find the first datastream!",
+		assertTrue("Didn't find the second datastream!",
 				compile("dsid=\"testfoozle2\"", DOTALL).matcher(response)
 						.find());
 	}
