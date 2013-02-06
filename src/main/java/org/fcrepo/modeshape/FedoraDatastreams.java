@@ -396,6 +396,9 @@ public class FedoraDatastreams extends AbstractResource {
 		dsProfile.dsLabel = ds.getName();
 		dsProfile.dsState = A;
 		dsProfile.dsMIME = getDSMimeType(ds);
+		dsProfile.dsSize = getNodePropertySize(ds)
+				+ ds.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary()
+						.getSize();
 		dsProfile.dsCreateDate = ds.getProperty("jcr:created").getString();
 		return dsProfile;
 	}

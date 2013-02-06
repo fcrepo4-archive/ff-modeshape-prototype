@@ -16,7 +16,7 @@ public class DatastreamProfile {
 
 	@XmlAttribute
 	public String dsLabel;
-
+	
 	@XmlAttribute
 	public String dsVersionID;
 
@@ -36,7 +36,7 @@ public class DatastreamProfile {
 	public DatastreamControlGroup dsControlGroup;
 	
 	@XmlAttribute
-	public String dsSize;
+	public long dsSize;
 	
 	@XmlAttribute
 	public String dsVersionable;
