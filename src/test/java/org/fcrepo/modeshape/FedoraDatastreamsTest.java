@@ -1,6 +1,8 @@
 package org.fcrepo.modeshape;
 
+import static java.util.regex.Pattern.compile;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.DeleteMethod;
@@ -10,6 +12,8 @@ import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -17,7 +21,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration("/testContext.xml")
 public class FedoraDatastreamsTest {
 
+	private static final String faulkner1 = "The past is never dead. It's not even past.";
 	int SERVER_PORT = 9999;
+
+	final private Logger logger = LoggerFactory
+			.getLogger(FedoraDatastreamsTest.class);
 
 	@Test
 	public void testGetDatastreams() throws Exception {
@@ -53,19 +61,32 @@ public class FedoraDatastreamsTest {
 
 		HttpClient client = new HttpClient();
 
-		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
-				+ "/objects/asdf2");
-		client.executeMethod(pmethod);
+		PostMethod createObjectMethod = new PostMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/asdf2");
+		Integer status = client.executeMethod(createObjectMethod);
+		assertEquals("Couldn't create an object!", (Integer) 201, status);
 
-		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
-				+ "/objects/asdf2/datastreams/vcxz");
-		int status = client.executeMethod(method);
-		assertEquals(201, status);
+		PostMethod createDataStreamMethod = new PostMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/asdf2/datastreams/vcxz");
+		status = client.executeMethod(createDataStreamMethod);
+		assertEquals("Couldn't create a datastream!", (Integer) 201, status);
 
-		PutMethod method_2 = new PutMethod("http://localhost:" + SERVER_PORT
-				+ "/objects/asdf2/datastreams/vcxz");
-		status = client.executeMethod(method_2);
-		assertEquals(201, status);
+		PutMethod mutateDataStreamMethod = new PutMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/asdf2/datastreams/vcxz");
+		mutateDataStreamMethod.setRequestEntity(new StringRequestEntity(
+				faulkner1, "text/plain", "UTF-8"));
+		status = client.executeMethod(mutateDataStreamMethod);
+		assertEquals("Couldn't mutate a datastream!", (Integer) 201, status);
+
+		GetMethod retrieveMutatedDataStreamMethod = new GetMethod(
+				"http://localhost:" + SERVER_PORT
+						+ "/objects/asdf2/datastreams/vcxz/content");
+		client.executeMethod(retrieveMutatedDataStreamMethod);
+		String response = retrieveMutatedDataStreamMethod
+				.getResponseBodyAsString();
+		logger.debug("Retrieved mutated datastream content: " + response);
+		assertTrue("Datastream didn't accept mutation!", compile(faulkner1)
+				.matcher(response).find());
 	}
 
 	@Test
@@ -141,7 +162,7 @@ public class FedoraDatastreamsTest {
 				+ SERVER_PORT
 				+ "/objects/testfoo/datastreams/testfoozle/content");
 		assertEquals(200, client.executeMethod(method_test_get));
-		assertEquals("marbles for everyone",
+		assertEquals("Got the wrong content back!", "marbles for everyone",
 				method_test_get.getResponseBodyAsString());
 
 	}

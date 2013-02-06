@@ -1,12 +1,9 @@
 package org.fcrepo.modeshape;
 
+import static java.util.regex.Pattern.compile;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
-import java.util.regex.Pattern;
-
-import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -55,7 +52,7 @@ public class FedoraRepositoryTest {
 		final String description = method.getResponseBodyAsString();
 		logger.debug("Found a repository description:\n" + description);
 		assertTrue("Failed to find a proper repo versiom",
-				Pattern.compile("<repositoryVersion>.*?</repositoryVersion>")
+				compile("<repositoryVersion>.*?</repositoryVersion>")
 						.matcher(description).find());
 	}
 }
