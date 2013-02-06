@@ -97,6 +97,7 @@ public class FedoraObjects extends AbstractResource {
 			final Node obj = session.getNode("/" + pid);
 			final ObjectProfile objectProfile = new ObjectProfile();
 
+			objectProfile.pid = pid;
 			objectProfile.objLabel = obj.getName();
 			objectProfile.objOwnerId = obj.getProperty("fedora:ownerId")
 					.getString();
