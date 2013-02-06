@@ -16,6 +16,13 @@
  */
 <fedora = 'info:fedora'>
 
+/*
+ * Dublin Core. See:
+ * 
+ * http://dublincore.org/documents/dcmi-namespace/
+ */
+<dc = 'http://purl.org/dc/terms/'>
+
 
 /*
  * Any Fedora resource.
@@ -26,6 +33,11 @@
 	 * Temporary for us until we better understand the use of jcr:created.
 	 */
 	- fedora:created (STRING) COPY
+	
+	/*
+	 * See: http://dublincore.org/documents/dcmi-terms/#elements-identifier
+	 */
+	- dc:identifier (STRING) multiple COPY
 
 
 /*

@@ -32,6 +32,7 @@
             <bean class="org.fcrepo.modeshape.FedoraNamespaces"/>
             <bean class="org.fcrepo.modeshape.FedoraObjects"/>
             <bean class="org.fcrepo.modeshape.foxml.FedoraOXML"/>
+            <bean class="org.fcrepo.modeshape.indexer.DublinCore" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>
