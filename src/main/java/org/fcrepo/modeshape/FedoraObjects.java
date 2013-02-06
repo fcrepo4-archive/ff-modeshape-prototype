@@ -155,7 +155,7 @@ public class FedoraObjects extends AbstractResource {
 	 * @return object size in bytes
 	 * @throws RepositoryException
 	 */
-	private static Long getObjectSize(Node obj) throws RepositoryException {
+	static Long getObjectSize(Node obj) throws RepositoryException {
 		return getNodePropertySize(obj) + getObjectDSSize(obj);
 	}
 
