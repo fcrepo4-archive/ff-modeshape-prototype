@@ -71,11 +71,11 @@ public class FedoraDatastreams extends AbstractResource {
 
 		final Session session = repo.login();
 
-		if (session.nodeExists("/" + pid)) {
+		if (session.nodeExists("/objects/" + pid)) {
 			final ObjectDatastreams objectDatastreams = new ObjectDatastreams();
 			final Builder<Datastream> datastreams = builder();
 
-			NodeIterator i = session.getNode("/" + pid).getNodes();
+			NodeIterator i = session.getNode("/objects/" + pid).getNodes();
 			while (i.hasNext()) {
 				final Node ds = i.nextNode();
 				datastreams.add(new Datastream(ds.getName(), ds.getName(),
@@ -116,9 +116,9 @@ public class FedoraDatastreams extends AbstractResource {
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
-		String dspath = "/" + pid + "/" + dsid;
+		String dspath = "/objects/" + pid + "/" + dsid;
 
-		if (!session.nodeExists("/" + pid)) {
+		if (!session.nodeExists("/objects/" + pid)) {
 			logger.debug("Tried to create a datastream for an object that doesn't exist, at resource path: "
 					+ dspath);
 			return notAcceptable(null).build();
@@ -174,7 +174,7 @@ public class FedoraDatastreams extends AbstractResource {
 
 		contentType = contentType != null ? contentType
 				: MediaType.APPLICATION_OCTET_STREAM_TYPE;
-		String dspath = "/" + pid + "/" + dsid;
+		String dspath = "/objects/" + pid + "/" + dsid;
 
 		if (session.hasPermission(dspath, "add_node")) {
 			return Response.created(
@@ -259,11 +259,11 @@ public class FedoraDatastreams extends AbstractResource {
 
 		Session session = repo.login();
 
-		if (!session.getRootNode().hasNode(pid)) {
+		if (!session.nodeExists("/objects/" + pid)) {
 			return four04;
 		}
 
-		final Node obj = session.getNode("/" + pid);
+		final Node obj = session.getNode("/objects/" + pid);
 
 		if (obj.hasNode(dsid)) {
 			final Node ds = obj.getNode(dsid);
@@ -292,7 +292,7 @@ public class FedoraDatastreams extends AbstractResource {
 			@PathParam("dsid") final String dsid) throws RepositoryException {
 
 		final Session session = repo.login();
-		final String dsPath = "/" + pid + "/" + dsid;
+		final String dsPath = "/objects/" + pid + "/" + dsid;
 
 		if (session.nodeExists(dsPath)) {
 			final Node ds = session.getNode(dsPath);
@@ -330,7 +330,7 @@ public class FedoraDatastreams extends AbstractResource {
 			IOException {
 
 		final Session session = repo.login();
-		final String dsPath = "/" + pid + "/" + dsid;
+		final String dsPath = "/objects/" + pid + "/" + dsid;
 
 		if (session.nodeExists(dsPath)) {
 			final Node ds = session.getNode(dsPath);
@@ -385,7 +385,7 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		return deleteResource("/" + pid + "/" + dsid);
+		return deleteResource("/objects/" + pid + "/" + dsid);
 	}
 
 	private DatastreamProfile getDSProfile(Node ds) throws RepositoryException,

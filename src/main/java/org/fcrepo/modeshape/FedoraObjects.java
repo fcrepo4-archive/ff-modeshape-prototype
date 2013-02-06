@@ -39,10 +39,10 @@ public class FedoraObjects extends AbstractResource {
 	@GET
 	public Response getObjects() throws RepositoryException {
 		final Session session = repo.login();
-		Node root = session.getRootNode();
+		Node objects = session.getNode("/objects");
 		StringBuffer nodes = new StringBuffer();
 
-		for (NodeIterator i = root.getNodes(); i.hasNext();) {
+		for (NodeIterator i = objects.getNodes(); i.hasNext();) {
 			Node n = i.nextNode();
 			nodes.append("Name: " + n.getName() + ", Path:" + n.getPath()
 					+ "\n");
@@ -67,9 +67,9 @@ public class FedoraObjects extends AbstractResource {
 
 		final Session session = repo.login();
 
-		if (session.hasPermission("/" + pid, "add_node")) {
-			final Node obj = jcrTools.findOrCreateNode(session, "/" + pid,
-					"nt:folder");
+		if (session.hasPermission("/objects/" + pid, "add_node")) {
+			final Node obj = jcrTools.findOrCreateNode(session, "/objects/"
+					+ pid, "nt:folder");
 			obj.addMixin("fedora:object");
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
@@ -92,9 +92,9 @@ public class FedoraObjects extends AbstractResource {
 
 		final Session session = repo.login();
 
-		if (session.nodeExists("/" + pid)) {
+		if (session.nodeExists("/objects/" + pid)) {
 
-			final Node obj = session.getNode("/" + pid);
+			final Node obj = session.getNode("/objects/" + pid);
 			final ObjectProfile objectProfile = new ObjectProfile();
 
 			objectProfile.pid = pid;
@@ -129,7 +129,21 @@ public class FedoraObjects extends AbstractResource {
 	@Path("/{pid}")
 	public Response deleteObject(@PathParam("pid") final String pid)
 			throws RepositoryException {
-		return deleteResource("/" + pid);
+		return deleteResource("/objects/" + pid);
 	}
 
+	/**
+	 * Provides the number of objects in the repository
+	 * 
+	 * @return the number of objects found
+	 * @throws RepositoryException
+	 */
+	@GET
+	@Path("/numObjects")
+	public Long getNumObjects() throws RepositoryException {
+		final Session session = repo.login();
+		Long numObjects = session.getNode("/objects").getNodes().getSize();
+		session.logout();
+		return numObjects;
+	}
 }
