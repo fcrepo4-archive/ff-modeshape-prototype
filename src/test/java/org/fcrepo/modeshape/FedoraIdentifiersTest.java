@@ -28,9 +28,10 @@ public class FedoraIdentifiersTest {
 
 	int SERVER_PORT = 9999;
 
+	final private HttpClient client = new HttpClient();
+
 	@Test
 	public void testGetNextPidResponds() throws Exception {
-		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/nextPID");
 		method.addRequestHeader("Accepts", "text/xml");
@@ -41,7 +42,6 @@ public class FedoraIdentifiersTest {
 
 	@Test
 	public void testGetNextHasAPid() throws HttpException, IOException {
-		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/nextPID?numPids=1");
 		method.addRequestHeader("Accepts", "text/xml");
@@ -55,7 +55,6 @@ public class FedoraIdentifiersTest {
 
 	@Test
 	public void testGetNextHasTwoPids() throws HttpException, IOException {
-		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/nextPID?numPids=2");
 		method.addRequestHeader("Accepts", "text/xml");

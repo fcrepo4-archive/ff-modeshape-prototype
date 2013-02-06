@@ -16,10 +16,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class FedoraObjectsTest {
 
 	int SERVER_PORT = 9999;
-	
+
+	final private HttpClient client = new HttpClient();
+
 	@Test
 	public void testIngest() throws Exception {
-		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/objects/asdf");
 		int status = client.executeMethod(method);
@@ -28,7 +29,6 @@ public class FedoraObjectsTest {
 
 	@Test
 	public void testGetObjectInXML() throws Exception {
-		HttpClient client = new HttpClient();
 		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/objects/fdsa");
 		client.executeMethod(pmethod);
@@ -41,7 +41,6 @@ public class FedoraObjectsTest {
 
 	@Test
 	public void testDeleteObject() throws Exception {
-		HttpClient client = new HttpClient();
 		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/objects/asdf");
 		client.executeMethod(pmethod);

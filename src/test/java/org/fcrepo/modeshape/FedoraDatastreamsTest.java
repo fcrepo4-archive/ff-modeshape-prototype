@@ -26,11 +26,10 @@ public class FedoraDatastreamsTest {
 
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraDatastreamsTest.class);
+	final private HttpClient client = new HttpClient();
 
 	@Test
 	public void testGetDatastreams() throws Exception {
-		HttpClient client = new HttpClient();
-
 		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/objects/asdf");
 		client.executeMethod(pmethod);
@@ -43,9 +42,6 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testAddDatastream() throws Exception {
-
-		HttpClient client = new HttpClient();
-
 		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/objects/asdf");
 		client.executeMethod(pmethod);
@@ -58,9 +54,6 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testMutateDatastream() throws Exception {
-
-		HttpClient client = new HttpClient();
-
 		PostMethod createObjectMethod = new PostMethod("http://localhost:"
 				+ SERVER_PORT + "/objects/asdf2");
 		Integer status = client.executeMethod(createObjectMethod);
@@ -91,9 +84,6 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testGetDatastream() throws Exception {
-
-		HttpClient client = new HttpClient();
-
 		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/objects/asdf");
 		client.executeMethod(pmethod);
@@ -116,9 +106,6 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testDeleteDatastream() throws Exception {
-
-		HttpClient client = new HttpClient();
-
 		PostMethod pmethod = new PostMethod("http://localhost:" + SERVER_PORT
 				+ "/objects/asdf");
 		client.executeMethod(pmethod);
@@ -146,8 +133,6 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testGetDatastreamContent() throws Exception {
-		final HttpClient client = new HttpClient();
-
 		final PostMethod pmethod = new PostMethod("http://localhost:"
 				+ SERVER_PORT + "/objects/testfoo");
 		client.executeMethod(pmethod);

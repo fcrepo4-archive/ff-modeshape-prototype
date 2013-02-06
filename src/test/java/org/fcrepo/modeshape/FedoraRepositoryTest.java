@@ -23,9 +23,10 @@ public class FedoraRepositoryTest {
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraRepositoryTest.class);
 
+	final private HttpClient client = new HttpClient();
+
 	@Test
 	public void testDescribeModeshape() throws Exception {
-		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
 				+ "/describe/modeshape");
 		int status = client.executeMethod(method);
@@ -34,7 +35,6 @@ public class FedoraRepositoryTest {
 
 	@Test
 	public void testGetObjects() throws Exception {
-		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
 				+ "/objects");
 		int status = client.executeMethod(method);
@@ -43,7 +43,6 @@ public class FedoraRepositoryTest {
 
 	@Test
 	public void testDescribe() throws Exception {
-		HttpClient client = new HttpClient();
 		GetMethod method = new GetMethod("http://localhost:" + SERVER_PORT
 				+ "/describe");
 		method.addRequestHeader("Accept", TEXT_XML);
@@ -51,8 +50,9 @@ public class FedoraRepositoryTest {
 		assertEquals(200, status);
 		final String description = method.getResponseBodyAsString();
 		logger.debug("Found a repository description:\n" + description);
-		assertTrue("Failed to find a proper repo versiom",
-				compile("<repositoryVersion>.*?</repositoryVersion>")
-						.matcher(description).find());
+		assertTrue(
+				"Failed to find a proper repo versiom",
+				compile("<repositoryVersion>.*?</repositoryVersion>").matcher(
+						description).find());
 	}
 }
