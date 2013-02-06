@@ -7,6 +7,7 @@ import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.notAcceptable;
 import static javax.ws.rs.core.Response.ok;
+import static org.fcrepo.modeshape.FedoraObjects.getObjectSize;
 import static org.fcrepo.modeshape.jaxb.responses.DatastreamProfile.DatastreamStates.A;
 import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
 import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
@@ -127,14 +128,14 @@ public class FedoraDatastreams extends AbstractResource {
 		if (session.hasPermission(dspath, "add_node")) {
 			if (!session.nodeExists(dspath)) {
 				return created(
-						addDatastreamNode(dspath, contentType,
+						addDatastreamNode(pid, dspath, contentType,
 								requestBodyStream, session)).build();
 			} else {
 				if (session.hasPermission(dspath, "remove")) {
 					session.getNode(dspath).remove();
 					session.save();
 					return created(
-							addDatastreamNode(dspath, contentType,
+							addDatastreamNode(pid, dspath, contentType,
 									requestBodyStream, session)).build();
 
 				} else {
@@ -178,18 +179,19 @@ public class FedoraDatastreams extends AbstractResource {
 
 		if (session.hasPermission(dspath, "add_node")) {
 			return Response.created(
-					addDatastreamNode(dspath, contentType, requestBodyStream,
-							session)).build();
+					addDatastreamNode(pid, dspath, contentType,
+							requestBodyStream, session)).build();
 		} else {
 			session.logout();
 			return four03;
 		}
 	}
 
-	private URI addDatastreamNode(final String dsPath,
+	private URI addDatastreamNode(final String pid, final String dsPath,
 			final MediaType contentType, final InputStream requestBodyStream,
 			final Session session) throws RepositoryException, IOException {
 
+		Long oldObjectSize = getObjectSize(session.getNode("/objects/" + pid));
 		logger.debug("Attempting to add datastream node at path: " + dsPath);
 		Boolean created = false;
 		if (!session.nodeExists(dsPath)) {
@@ -230,6 +232,9 @@ public class FedoraDatastreams extends AbstractResource {
 		ds.setProperty("fedora:ownerId", "Fedo Radmin");
 		if (created) {
 			ds.setProperty("fedora:created", Calendar.getInstance());
+			updateRepositorySize(getObjectSize(session.getNode("/objects/"
+					+ pid))
+					- oldObjectSize);
 		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
 		session.save();
@@ -385,7 +390,10 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
-		return deleteResource("/objects/" + pid + "/" + dsid);
+		final Session session = repo.login();
+		final Node ds = session.getNode("/objects/" + pid + "/" + dsid);
+		updateRepositorySize(0L - getContentSize(ds) - getNodePropertySize(ds));
+		return deleteResource("/objects/" + pid + "/" + dsid, session);
 	}
 
 	private DatastreamProfile getDSProfile(Node ds) throws RepositoryException,

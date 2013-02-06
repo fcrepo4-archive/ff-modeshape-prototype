@@ -15,6 +15,7 @@ import javax.jcr.NamespaceRegistry;
 import javax.jcr.Node;
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.nodetype.NodeType;
 import javax.jcr.nodetype.NodeTypeIterator;
 import javax.ws.rs.GET;
@@ -25,14 +26,12 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.fcrepo.modeshape.jaxb.responses.DescribeRepository;
-import javax.jcr.Session;
 import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import com.google.common.collect.ImmutableSet;
 
 /**
  * 
@@ -98,7 +97,7 @@ public class FedoraRepository extends AbstractResource {
 		}
 		session.logout();
 		DescribeRepository description = new DescribeRepository();
-		description.repositorySize = totalObjectSize;
+		description.repositorySize = getRepositorySize();
 		return description;
 	}
 

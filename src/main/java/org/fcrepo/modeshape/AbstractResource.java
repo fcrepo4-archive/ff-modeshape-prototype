@@ -62,6 +62,8 @@ public abstract class AbstractResource extends Constants {
 	@Inject
 	protected PidMinter pidMinter;
 
+	private static Long repoSize = 0L;
+
 	static protected Workspace ws;
 
 	/**
@@ -78,11 +80,10 @@ public abstract class AbstractResource extends Constants {
 		ws.getNamespaceRegistry().registerNamespace("test", "info:fedora/test");
 	}
 
-	protected synchronized Response deleteResource(final String path)
-			throws RepositoryException {
+	protected synchronized Response deleteResource(final String path,
+			Session session) throws RepositoryException {
 
 		logger.debug("Attempting to delete resource at path: " + path);
-		final Session session = repo.login();
 
 		if (session.nodeExists(path)) {
 
@@ -117,5 +118,15 @@ public abstract class AbstractResource extends Constants {
 			}
 		}
 		return size;
+	}
+
+	protected void updateRepositorySize(Long change) {
+		// TODO put this in the repo somewhere
+		repoSize = repoSize + change;
+	}
+
+	protected Long getRepositorySize() {
+		// TODO put this in the repo somewhere
+		return repoSize;
 	}
 }
