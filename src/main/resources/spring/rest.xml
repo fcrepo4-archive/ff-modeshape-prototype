@@ -25,6 +25,12 @@
     <!-- Mints PIDs-->
     <bean class="org.fcrepo.modeshape.identifiers.UUIDPidMinter"/>
 
+    <jaxrs:server address="/">
+        <jaxrs:serviceBeans>
+            <bean class="org.fcrepo.modeshape.observer.RSSPublisher"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
     <jaxrs:server address="/rest">
         <jaxrs:serviceBeans>
             <bean class="org.fcrepo.modeshape.FedoraRepository"/>

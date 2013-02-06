@@ -18,7 +18,7 @@
     <bean name="fedoraEventFilter" class="org.fcrepo.modeshape.observer.DefaultFilter"/>
 
     <!-- publishes events from the internal bus to JMS, in Atom format -->
-    <bean class="org.fcrepo.modeshape.observer.JMSTopicPublisher"/>
+    <bean class="org.fcrepo.modeshape.observer.JMSTopicAtomPublisher"/>
     
     <!-- Fedora's lightweight internal event bus. Currently memory-resident.-->
     <bean name="fedoraInternalEventBus" class="com.google.common.eventbus.EventBus"/>
