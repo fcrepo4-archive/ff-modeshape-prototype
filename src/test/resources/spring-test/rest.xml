@@ -11,6 +11,7 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/>
  
     <!-- Context that houses JAX-RS Resources that compose the API
         as well as som utility gear. -->
@@ -24,7 +25,7 @@
     <!-- Mints PIDs-->
     <bean class="org.fcrepo.modeshape.identifiers.UUIDPidMinter"/>
 
-    <jaxrs:server address="/rest">
+    <jaxrs:server address="http://localhost:8080/rest">
         <jaxrs:serviceBeans>
             <bean class="org.fcrepo.modeshape.FedoraRepository"/>
             <bean class="org.fcrepo.modeshape.FedoraDatastreams"/>
@@ -53,7 +54,7 @@
         </jaxrs:providers>
     </jaxrs:server>
 
-    <jaxrs:server address="/rest/modeshape">
+    <jaxrs:server address="http://localhost:8080/rest/modeshape">
         <jaxrs:serviceBeans>
             <bean class="org.modeshape.web.jcr.rest.ModeShapeRestService"/>
         </jaxrs:serviceBeans>

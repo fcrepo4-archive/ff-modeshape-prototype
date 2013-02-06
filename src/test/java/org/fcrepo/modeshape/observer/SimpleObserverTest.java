@@ -19,7 +19,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/spring/eventing.xml", "/spring/repo.xml" })
+@ContextConfiguration({ "/spring-test/eventing.xml", "/spring-test/repo.xml" })
 public class SimpleObserverTest {
 
 	private Integer eventBusMessageCount;

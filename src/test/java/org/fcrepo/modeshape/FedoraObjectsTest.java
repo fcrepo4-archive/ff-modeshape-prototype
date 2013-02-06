@@ -16,10 +16,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/testContext.xml")
+@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml" })
 public class FedoraObjectsTest {
 
-	int SERVER_PORT = 9999;
+	private static final int SERVER_PORT = 8080;
+	private static final String HOSTNAME = "localhost";
+	private static final String serverAddress = "http://" + HOSTNAME + ":"
+			+ SERVER_PORT + "/";
 
 	final private Logger logger = LoggerFactory
 			.getLogger(FedoraObjectsTest.class);
@@ -28,20 +31,19 @@ public class FedoraObjectsTest {
 
 	@Test
 	public void testIngest() throws Exception {
-		PostMethod method = new PostMethod("http://localhost:" + SERVER_PORT
-				+ "/objects/asdf");
+		PostMethod method = new PostMethod(serverAddress + "rest/objects/asdf");
 		int status = client.executeMethod(method);
 		assertEquals(201, status);
 	}
 
 	@Test
 	public void testGetObjectInXML() throws Exception {
-		PostMethod createObjMethod = new PostMethod("http://localhost:"
-				+ SERVER_PORT + "/objects/fdsa");
+		PostMethod createObjMethod = new PostMethod(serverAddress
+				+ "rest/objects/fdsa");
 		client.executeMethod(createObjMethod);
 
-		GetMethod getObjMethod = new GetMethod("http://localhost:"
-				+ SERVER_PORT + "/objects/fdsa");
+		GetMethod getObjMethod = new GetMethod(serverAddress
+				+ "rest/objects/fdsa");
 		int status = client.executeMethod(getObjMethod);
 		assertEquals(200, status);
 		String response = getObjMethod.getResponseBodyAsString();
@@ -52,17 +54,16 @@ public class FedoraObjectsTest {
 
 	@Test
 	public void testDeleteObject() throws Exception {
-		PostMethod createObjmethod = new PostMethod("http://localhost:"
-				+ SERVER_PORT + "/objects/asdf");
+		PostMethod createObjmethod = new PostMethod(serverAddress
+				+ "rest/objects/asdf");
 		client.executeMethod(createObjmethod);
 
-		DeleteMethod delMethod = new DeleteMethod("http://localhost:"
-				+ SERVER_PORT + "/objects/asdf");
+		DeleteMethod delMethod = new DeleteMethod(serverAddress
+				+ "rest/objects/asdf");
 		int status = client.executeMethod(delMethod);
 		assertEquals(204, status);
 
-		GetMethod getMethod = new GetMethod("http://localhost:" + SERVER_PORT
-				+ "/objects/asdf");
+		GetMethod getMethod = new GetMethod(serverAddress + "rest/objects/asdf");
 		status = client.executeMethod(getMethod);
 		assertEquals("Object wasn't really deleted!", 404, status);
 	}

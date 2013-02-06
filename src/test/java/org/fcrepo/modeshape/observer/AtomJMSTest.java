@@ -35,7 +35,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/spring/eventing.xml", "/spring/repo.xml" })
+@ContextConfiguration({ "/spring-test/eventing.xml", "/spring-test/repo.xml" })
 public class AtomJMSTest implements MessageListener {
 
 	@Inject

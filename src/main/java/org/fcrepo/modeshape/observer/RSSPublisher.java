@@ -2,8 +2,8 @@ package org.fcrepo.modeshape.observer;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Lists.transform;
-import static javax.ws.rs.core.Response.ok;
 
+import java.io.ByteArrayInputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -14,9 +14,10 @@ import javax.jcr.RepositoryException;
 import javax.jcr.observation.Event;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.transform.stream.StreamSource;
 
 import org.joda.time.DateTime;
 import org.modeshape.common.SystemFailureException;
@@ -43,6 +44,10 @@ public class RSSPublisher {
 
 	private static final String FEED_TYPE = "rss_2.0";
 
+	private static final String FEED_TITLE = "What happened in Fedora";
+
+	private static final String FEED_DESCRIPTION = "What happened in Fedora";
+
 	@Inject
 	EventBus eventBus;
 
@@ -54,30 +59,15 @@ public class RSSPublisher {
 
 	private SyndFeed feed = new SyndFeedImpl();
 
-	@PostConstruct
-	public void initialize() {
-		eventBus.register(this);
-		feed.setFeedType(FEED_TYPE);
-		feed.setTitle("What happened in Fedora");
-		feed.setDescription("What happened in Fedora");
-	}
-
-	@Subscribe
-	public void newEvent(Event event) {
-		if (feedQueue.remainingCapacity() > 0) {
-			feedQueue.offer(event);
-		} else {
-			feedQueue.poll();
-			feedQueue.offer(event);
-		}
-	}
-
 	@GET
 	@Path("")
-	public Response getFeed() throws FeedException {
+	@Produces("application/rss+xml")
+	public StreamSource getFeed() throws FeedException {
 		feed.setLink(uriInfo.getBaseUri().toString());
 		feed.setEntries(transform(copyOf(feedQueue), event2entry));
-		return ok(new SyndFeedOutput().outputString(feed)).build();
+		// TODO ought to make this stream, not go through a string
+		return new StreamSource(new ByteArrayInputStream(new SyndFeedOutput()
+				.outputString(feed).getBytes()));
 	}
 
 	private Function<Event, SyndEntry> event2entry = new Function<Event, SyndEntry>() {
@@ -122,6 +112,24 @@ public class RSSPublisher {
 				return PERSIST;
 			}
 			return null;
+		}
+	}
+
+	@PostConstruct
+	public void initialize() {
+		eventBus.register(this);
+		feed.setFeedType(FEED_TYPE);
+		feed.setTitle(FEED_TITLE);
+		feed.setDescription(FEED_DESCRIPTION);
+	}
+
+	@Subscribe
+	public void newEvent(Event event) {
+		if (feedQueue.remainingCapacity() > 0) {
+			feedQueue.offer(event);
+		} else {
+			feedQueue.poll();
+			feedQueue.offer(event);
 		}
 	}
 
