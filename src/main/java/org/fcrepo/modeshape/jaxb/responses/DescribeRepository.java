@@ -5,7 +5,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "fedoraRepository", namespace = "http://www.fedora.info/definitions/1/0/access/")
 public class DescribeRepository {
+
+	public static final String FEDORA_VERSION = "4.0-modeshape-candidate";
+
 	@XmlElement
-	protected String repositoryVersion = "4.0-modeshape-candidate";
+	protected String repositoryVersion = FEDORA_VERSION;
 
 }

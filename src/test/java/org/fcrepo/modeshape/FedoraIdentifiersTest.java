@@ -1,6 +1,7 @@
 package org.fcrepo.modeshape;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -47,7 +48,7 @@ public class FedoraIdentifiersTest {
 		logger.debug("Executed testGetNextHasAPid()");
 		String response = method.getResponseBodyAsString(Integer.MAX_VALUE);
 		logger.debug("Only to find:\n" + response);
-		assertEquals("Didn't find a single dang PID!", true,
+		assertTrue("Didn't find a single dang PID!",
 				Pattern.compile("<pid>.*?</pid>").matcher(response).find());
 	}
 
@@ -58,12 +59,11 @@ public class FedoraIdentifiersTest {
 				+ "/nextPID?numPids=2");
 		method.addRequestHeader("Accepts", "text/xml");
 		client.executeMethod(method);
-		logger.debug("Executed testGetNextHasAPid()");
+		logger.debug("Executed testGetNextHasTwoPids()");
 		String response = method.getResponseBodyAsString(Integer.MAX_VALUE);
 		logger.debug("Only to find:\n" + response);
-		assertEquals(
+		assertTrue(
 				"Didn't find a two dang PIDs!",
-				true,
 				Pattern.compile("<pid>.*?</pid>.*?<pid>.*?</pid>",
 						Pattern.DOTALL).matcher(response).find());
 	}
