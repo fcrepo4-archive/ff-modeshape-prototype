@@ -1,5 +1,6 @@
 package org.fcrepo.modeshape;
 
+import static java.util.regex.Pattern.DOTALL;
 import static java.util.regex.Pattern.compile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -133,22 +134,50 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testGetDatastreamContent() throws Exception {
-		final PostMethod pmethod = new PostMethod("http://localhost:"
+		final PostMethod createObjMethod = new PostMethod("http://localhost:"
 				+ SERVER_PORT + "/objects/testfoo");
-		client.executeMethod(pmethod);
-		assertEquals(201, client.executeMethod(pmethod));
+		client.executeMethod(createObjMethod);
+		assertEquals(201, client.executeMethod(createObjMethod));
 
-		final PostMethod method = new PostMethod("http://localhost:"
+		final PostMethod createDSMethod = new PostMethod("http://localhost:"
 				+ SERVER_PORT + "/objects/testfoo/datastreams/testfoozle");
-		method.setRequestEntity(new StringRequestEntity("marbles for everyone",
-				null, null));
-		assertEquals(201, client.executeMethod(method));
+		createDSMethod.setRequestEntity(new StringRequestEntity(
+				"marbles for everyone", null, null));
+		assertEquals(201, client.executeMethod(createDSMethod));
 		GetMethod method_test_get = new GetMethod("http://localhost:"
 				+ SERVER_PORT
 				+ "/objects/testfoo/datastreams/testfoozle/content");
 		assertEquals(200, client.executeMethod(method_test_get));
 		assertEquals("Got the wrong content back!", "marbles for everyone",
 				method_test_get.getResponseBodyAsString());
+	}
 
+	@Test
+	public void testMultipleDatastreams() throws Exception {
+		final PostMethod createObjMethod = new PostMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/testfoo");
+		client.executeMethod(createObjMethod);
+		assertEquals(201, client.executeMethod(createObjMethod));
+
+		final PostMethod createDS1Method = new PostMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/testfoo/datastreams/testfoozle");
+		createDS1Method.setRequestEntity(new StringRequestEntity(
+				"marbles for everyone", null, null));
+		assertEquals(201, client.executeMethod(createDS1Method));
+		final PostMethod createDS2Method = new PostMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/testfoo/datastreams/testfoozle2");
+		createDS2Method.setRequestEntity(new StringRequestEntity(
+				"marbles for no one", null, null));
+		assertEquals(201, client.executeMethod(createDS2Method));
+
+		final GetMethod getDSesMethod = new GetMethod("http://localhost:"
+				+ SERVER_PORT + "/objects/testfoo/datastreams");
+		assertEquals(200, client.executeMethod(getDSesMethod));
+		final String response = getDSesMethod.getResponseBodyAsString();
+		assertTrue("Didn't find the first datastream!",
+				compile("dsid=\"testfoozle\"", DOTALL).matcher(response).find());
+		assertTrue("Didn't find the first datastream!",
+				compile("dsid=\"testfoozle2\"", DOTALL).matcher(response)
+						.find());
 	}
 }
