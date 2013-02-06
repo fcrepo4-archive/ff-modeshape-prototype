@@ -19,6 +19,9 @@ public class ObjectProfile {
 
 	@XmlElement
 	public String objOwnerId;
+	
+	@XmlElement
+	public Long objSize;
 
 	@XmlElementWrapper(name = "objModels")
 	@XmlElement(name = "model")

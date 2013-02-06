@@ -6,6 +6,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.created;
 import static javax.ws.rs.core.Response.ok;
+import static org.fcrepo.modeshape.FedoraDatastreams.getContentSize;
 import static org.fcrepo.modeshape.jaxb.responses.ObjectProfile.ObjectStates.A;
 
 import java.io.IOException;
@@ -74,6 +75,7 @@ public class FedoraObjects extends AbstractResource {
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			obj.setProperty("jcr:lastModified", Calendar.getInstance());
+			obj.setProperty("fedora:size", getObjectSize(obj));
 			session.save();
 			session.logout();
 			logger.debug("Finished ingest with pid: " + pid);
@@ -105,6 +107,7 @@ public class FedoraObjects extends AbstractResource {
 					.getString();
 			objectProfile.objLastModDate = obj.getProperty("jcr:lastModified")
 					.getString();
+			objectProfile.objSize = getObjectSize(obj);
 			objectProfile.objItemIndexViewURL = uriInfo
 					.getAbsolutePathBuilder().path("datastreams").build();
 			objectProfile.objState = A;
@@ -145,5 +148,30 @@ public class FedoraObjects extends AbstractResource {
 		Long numObjects = session.getNode("/objects").getNodes().getSize();
 		session.logout();
 		return numObjects;
+	}
+
+	/**
+	 * @param obj
+	 * @return object size in bytes
+	 * @throws RepositoryException
+	 */
+	private static Long getObjectSize(Node obj) throws RepositoryException {
+		return getNodePropertySize(obj) + getObjectDSSize(obj);
+	}
+
+	/**
+	 * @param obj
+	 * @return object's datastreams' total size in bytes
+	 * @throws RepositoryException
+	 */
+	private static Long getObjectDSSize(Node obj) throws RepositoryException {
+		Long size = 0L;
+		NodeIterator i = obj.getNodes();
+		while (i.hasNext()) {
+			Node ds = i.nextNode();
+			size = size + getNodePropertySize(ds);
+			size = size + getContentSize(ds);
+		}
+		return size;
 	}
 }

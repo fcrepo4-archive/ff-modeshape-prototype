@@ -406,4 +406,11 @@ public class FedoraDatastreams extends AbstractResource {
 				.getBinary();
 		return b.getMimeType();
 	}
+
+	public static Long getContentSize(Node ds) throws ValueFormatException,
+			PathNotFoundException, RepositoryException {
+		return ds.getNode(JCR_CONTENT).getProperty(JCR_DATA).getBinary()
+				.getSize();
+	}
+
 }

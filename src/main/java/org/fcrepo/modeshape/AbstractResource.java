@@ -1,13 +1,18 @@
 package org.fcrepo.modeshape;
 
+import static com.google.common.collect.ImmutableSet.copyOf;
 import static javax.ws.rs.core.Response.noContent;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.jcr.LoginException;
 import javax.jcr.NoSuchWorkspaceException;
+import javax.jcr.Node;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.Value;
 import javax.jcr.Workspace;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -97,4 +102,20 @@ public abstract class AbstractResource extends Constants {
 		}
 	}
 
+	public static Long getNodePropertySize(Node node)
+			throws RepositoryException {
+		Long size = 0L;
+		PropertyIterator i = node.getProperties();
+		while (i.hasNext()) {
+			Property p = i.nextProperty();
+			if (p.isMultiple()) {
+				for (Value v : copyOf(p.getValues())) {
+					size = size + v.getBinary().getSize();
+				}
+			} else {
+				size = size + p.getBinary().getSize();
+			}
+		}
+		return size;
+	}
 }
