@@ -11,10 +11,7 @@ import static org.fcrepo.modeshape.jaxb.responses.ObjectProfile.ObjectStates.A;
 import java.io.IOException;
 import java.util.Calendar;
 
-import javax.jcr.Node;
-import javax.jcr.NodeIterator;
-import javax.jcr.RepositoryException;
-import javax.jcr.Session;
+import javax.jcr.*;
 import javax.jcr.nodetype.NodeType;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -74,6 +71,7 @@ public class FedoraObjects extends AbstractResource {
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			obj.setProperty("jcr:lastModified", Calendar.getInstance());
+            obj.setProperty("dc:identifier", new String[] { obj.getIdentifier(), pid });
 			session.save();
 			session.logout();
 			logger.debug("Finished ingest with pid: " + pid);
@@ -146,4 +144,5 @@ public class FedoraObjects extends AbstractResource {
 		session.logout();
 		return numObjects;
 	}
+
 }

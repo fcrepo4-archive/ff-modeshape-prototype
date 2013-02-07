@@ -9,5 +9,6 @@
     <import resource="classpath:/spring/repo.xml"/>
     <import resource="classpath:/spring/rest.xml"/>
     <import resource="classpath:/spring/eventing.xml"/>
+    <import resource="classpath:/spring/indexer.xml"/>
 
 </beans>
