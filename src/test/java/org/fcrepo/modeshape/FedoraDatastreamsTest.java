@@ -5,36 +5,20 @@ import static java.util.regex.Pattern.compile;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml" })
-public class FedoraDatastreamsTest {
+public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	private static final String faulkner1 = "The past is never dead. It's not even past.";
-	private static final int SERVER_PORT = 8080;
-	private static final String HOSTNAME = "localhost";
-	private static final String serverAddress = "http://" + HOSTNAME + ":"
-			+ SERVER_PORT + "/";
-
-	final private Logger logger = LoggerFactory
-			.getLogger(FedoraDatastreamsTest.class);
-	final private HttpClient client = new HttpClient();
 
 	@Test
 	public void testGetDatastreams() throws Exception {
-		PostMethod pmethod = new PostMethod(serverAddress + "rest/objects/asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
 		GetMethod method = new GetMethod(serverAddress
@@ -45,29 +29,25 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testAddDatastream() throws Exception {
-		PostMethod pmethod = new PostMethod(serverAddress + "rest/objects/asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
-		PostMethod method = new PostMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/zxc");
+		PostMethod method = postDSMethod("asdf", "zxc");
 		int status = client.executeMethod(method);
 		assertEquals(201, status);
 	}
 
 	@Test
 	public void testMutateDatastream() throws Exception {
-		PostMethod createObjectMethod = new PostMethod(serverAddress
-				+ "rest/objects/asdf2");
+		PostMethod createObjectMethod = postObjMethod("asdf2");
 		Integer status = client.executeMethod(createObjectMethod);
 		assertEquals("Couldn't create an object!", (Integer) 201, status);
 
-		PostMethod createDataStreamMethod = new PostMethod(serverAddress
-				+ "rest/objects/asdf2/datastreams/vcxz");
+		PostMethod createDataStreamMethod = postDSMethod("asdf2", "vcxz");
 		status = client.executeMethod(createDataStreamMethod);
 		assertEquals("Couldn't create a datastream!", (Integer) 201, status);
 
-		PutMethod mutateDataStreamMethod = new PutMethod(serverAddress
-				+ "rest/objects/asdf2/datastreams/vcxz");
+		PutMethod mutateDataStreamMethod = putDSMethod("asdf2", "vcxz");
 		mutateDataStreamMethod.setRequestEntity(new StringRequestEntity(
 				faulkner1, "text/plain", "UTF-8"));
 		status = client.executeMethod(mutateDataStreamMethod);
@@ -85,7 +65,7 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testGetDatastream() throws Exception {
-		PostMethod pmethod = new PostMethod(serverAddress + "rest/objects/asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
 		GetMethod method_test_get = new GetMethod(serverAddress
@@ -93,8 +73,7 @@ public class FedoraDatastreamsTest {
 		int status = client.executeMethod(method_test_get);
 		assertEquals(404, status);
 
-		PostMethod method = new PostMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/poiu");
+		PostMethod method = postDSMethod("asdf", "poiu");
 		status = client.executeMethod(method);
 		assertEquals(201, status);
 
@@ -106,11 +85,10 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testDeleteDatastream() throws Exception {
-		PostMethod pmethod = new PostMethod(serverAddress + "rest/objects/asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
-		PostMethod method = new PostMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/lkjh");
+		PostMethod method = postDSMethod("asdf", "lkjh");
 		int status = client.executeMethod(method);
 		assertEquals(201, status);
 
@@ -132,13 +110,11 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testGetDatastreamContent() throws Exception {
-		final PostMethod createObjMethod = new PostMethod(serverAddress
-				+ "rest/objects/testfoo");
+		final PostMethod createObjMethod = postObjMethod("testfoo");
 		client.executeMethod(createObjMethod);
 		assertEquals(201, client.executeMethod(createObjMethod));
 
-		final PostMethod createDSMethod = new PostMethod(serverAddress
-				+ "rest/objects/testfoo/datastreams/testfoozle");
+		final PostMethod createDSMethod = postDSMethod("testfoo", "testfoozle");
 		createDSMethod.setRequestEntity(new StringRequestEntity(
 				"marbles for everyone", null, null));
 		assertEquals(201, client.executeMethod(createDSMethod));
@@ -151,18 +127,16 @@ public class FedoraDatastreamsTest {
 
 	@Test
 	public void testMultipleDatastreams() throws Exception {
-		final PostMethod createObjMethod = new PostMethod(serverAddress
-				+ "rest/objects/testfoo");
+		final PostMethod createObjMethod = postObjMethod("testfoo");
 		client.executeMethod(createObjMethod);
 		assertEquals(201, client.executeMethod(createObjMethod));
 
-		final PostMethod createDS1Method = new PostMethod(serverAddress
-				+ "rest/objects/testfoo/datastreams/testfoozle");
+		final PostMethod createDS1Method = postDSMethod("testfoo", "testfoozle");
 		createDS1Method.setRequestEntity(new StringRequestEntity(
 				"marbles for everyone", null, null));
 		assertEquals(201, client.executeMethod(createDS1Method));
-		final PostMethod createDS2Method = new PostMethod(serverAddress
-				+ "rest/objects/testfoo/datastreams/testfoozle2");
+		final PostMethod createDS2Method = postDSMethod("testfoo",
+				"testfoozle2");
 		createDS2Method.setRequestEntity(new StringRequestEntity(
 				"marbles for no one", null, null));
 		assertEquals(201, client.executeMethod(createDS2Method));

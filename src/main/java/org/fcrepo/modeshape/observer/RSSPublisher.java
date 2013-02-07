@@ -2,6 +2,7 @@ package org.fcrepo.modeshape.observer;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.Lists.transform;
+import static org.fcrepo.modeshape.utils.EventType.getEventType;
 
 import java.io.ByteArrayInputStream;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -80,8 +81,7 @@ public class RSSPublisher {
 				entry.setPublishedDate(new DateTime(event.getDate()).toDate());
 				SyndContent description = new SyndContentImpl();
 				description.setType("text/plain");
-				description.setValue(EventType.getEventType(event.getType())
-						.toString());
+				description.setValue(getEventType(event.getType()).toString());
 				entry.setDescription(description);
 			} catch (RepositoryException e) {
 				throw new SystemFailureException(e);
@@ -90,30 +90,6 @@ public class RSSPublisher {
 		}
 
 	};
-
-	public enum EventType {
-		NODE_ADDED, NODE_REMOVED, PROPERTY_ADDED, PROPERTY_REMOVED, PROPERTY_CHANGED, NODE_MOVED, PERSIST;
-
-		public static EventType getEventType(Integer i) {
-			switch (i) {
-			case 0x1:
-				return NODE_ADDED;
-			case 0x2:
-				return NODE_REMOVED;
-			case 0x4:
-				return PROPERTY_ADDED;
-			case 0x8:
-				return PROPERTY_REMOVED;
-			case 0x10:
-				return PROPERTY_CHANGED;
-			case 0x20:
-				return NODE_MOVED;
-			case 0x40:
-				return PERSIST;
-			}
-			return null;
-		}
-	}
 
 	@PostConstruct
 	public void initialize() {

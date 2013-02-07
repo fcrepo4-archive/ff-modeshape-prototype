@@ -234,6 +234,10 @@ public class FedoraDatastreams extends AbstractResource {
 			ds.setProperty("fedora:created", Calendar.getInstance());
 		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
+
+        // TODO: I guess we should also have the PID + DSID..
+        ds.setProperty("dc:identifier", new String[] { ds.getIdentifier() });
+
 		session.save();
 		if (created) {
 			/*

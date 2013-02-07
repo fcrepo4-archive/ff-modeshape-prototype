@@ -1,4 +1,4 @@
-package org.fcrepo.modeshape;
+package org.fcrepo.modeshape.utils;
 
 import static javax.ws.rs.core.Response.status;
 import static javax.ws.rs.core.Response.Status.FORBIDDEN;
