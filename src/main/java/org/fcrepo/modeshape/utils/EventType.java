@@ -1,11 +1,9 @@
 package org.fcrepo.modeshape.utils;
 
-import javax.jcr.observation.Event;
-
 public enum EventType {
 	NODE_ADDED, NODE_REMOVED, PROPERTY_ADDED, PROPERTY_REMOVED, PROPERTY_CHANGED, NODE_MOVED, PERSIST;
 
-	public static EventType getEventType(Integer i) {
+	public static EventType getEventType(final Integer i) {
 		switch (i) {
 		case 0x1:
 			return NODE_ADDED;
@@ -27,7 +25,7 @@ public enum EventType {
 		}
 	}
 
-	public static String getEventName(int jcrEvent) {
+	public static String getEventName(final Integer jcrEvent) {
 
 		switch (getEventType(jcrEvent)) {
 		case NODE_ADDED:
