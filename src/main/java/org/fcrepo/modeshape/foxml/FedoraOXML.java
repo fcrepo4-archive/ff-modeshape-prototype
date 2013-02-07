@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableMap;
 @Path("/foxml")
 public class FedoraOXML extends AbstractResource {
 
-	private final Logger logger = Logger.getLogger(FedoraOXML.class);
+	//private final Logger logger = Logger.getLogger(FedoraOXML.class);
 
 	@PUT
 	@Path("/{filename}")
@@ -37,8 +37,6 @@ public class FedoraOXML extends AbstractResource {
 		final Session session = repo.login();
 		if (session.hasPermission("/foxml", "add_node")) {
 			final String foxmlpath = "/foxml/" + filename;
-			logger.debug("Adding or updating FOXML file at " + ws.getName()
-					+ ":" + foxmlpath);
 			jcrTools.uploadFile(session, foxmlpath, foxml);
 			session.save();
 			session.logout();

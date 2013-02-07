@@ -75,7 +75,14 @@ public class FedoraObjects extends AbstractResource {
 			obj.addMixin("fedora:owned");
 			obj.setProperty("fedora:ownerId", "Fedo Radmin");
 			obj.setProperty("jcr:lastModified", Calendar.getInstance());
+			session.save();
+			/*
+			 * we save before updating the repo size because the act of
+			 * persisting session state creates new system-curated nodes and
+			 * properties which contribute to the footprint of this resource
+			 */
 			updateRepositorySize(getObjectSize(obj), session);
+			// now we save again to persist the repo size
 			session.save();
 			session.logout();
 			logger.debug("Finished ingest with pid: " + pid);
@@ -133,24 +140,9 @@ public class FedoraObjects extends AbstractResource {
 	public Response deleteObject(@PathParam("pid") final String pid)
 			throws RepositoryException {
 		final Session session = repo.login();
-		updateRepositorySize(
-				0L - getObjectSize(session.getNode("/objects/" + pid)), session);
-		return deleteResource("/objects/" + pid, session);
-	}
-
-	/**
-	 * Provides the number of objects in the repository
-	 * 
-	 * @return the number of objects found
-	 * @throws RepositoryException
-	 */
-	@GET
-	@Path("/numObjects")
-	public Long getNumObjects() throws RepositoryException {
-		final Session session = repo.login();
-		Long numObjects = session.getNode("/objects").getNodes().getSize();
-		session.logout();
-		return numObjects;
+		final Node obj = session.getNode("/objects/" + pid);
+		updateRepositorySize(0L - getObjectSize(obj), session);
+		return deleteResource(obj);
 	}
 
 	/**

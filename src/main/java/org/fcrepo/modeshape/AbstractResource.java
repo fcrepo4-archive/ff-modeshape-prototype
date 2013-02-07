@@ -15,7 +15,6 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Session;
 import javax.jcr.Value;
 import javax.jcr.ValueFormatException;
-import javax.jcr.Workspace;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -64,8 +63,6 @@ public abstract class AbstractResource extends Constants {
 	@Inject
 	protected PidMinter pidMinter;
 
-	static protected Workspace ws;
-
 	/**
 	 * A convenience object provided by ModeShape for acting against the JCR
 	 * repository.
@@ -85,26 +82,19 @@ public abstract class AbstractResource extends Constants {
 		session.logout();
 	}
 
-	protected synchronized Response deleteResource(final String path,
-			Session session) throws RepositoryException {
+	protected synchronized Response deleteResource(final Node resource)
+			throws RepositoryException {
 
-		logger.debug("Attempting to delete resource at path: " + path);
-
-		if (session.nodeExists(path)) {
-
-			if (session.hasPermission(path, "remove")) {
-				// ws.getLockManager().lock(path, true, true, Long.MAX_VALUE,
-				// "");
-				session.getNode(path).remove();
-				session.save();
-				session.logout();
-				logger.debug("Finished deleting resource at path: " + path);
-				return noContent().build();
-			} else {
-				return four03;
-			}
+		logger.debug("Attempting to delete resource at path: "
+				+ resource.getPath());
+		final Session session = resource.getSession();
+		if (session.hasPermission(resource.getPath(), "remove")) {
+			resource.remove();
+			session.save();
+			session.logout();
+			return noContent().build();
 		} else {
-			return four04;
+			return four03;
 		}
 	}
 
@@ -125,11 +115,30 @@ public abstract class AbstractResource extends Constants {
 		return size;
 	}
 
+	/**
+	 * Alter the total repository size.
+	 * 
+	 * @param change
+	 *            the amount by which to [de|in]crement the total repository
+	 *            size
+	 * @param session
+	 *            the javax.jcr.Session in which the originating mutation is
+	 *            occurring
+	 * @throws PathNotFoundException
+	 * @throws RepositoryException
+	 */
 	protected void updateRepositorySize(Long change, Session session)
 			throws PathNotFoundException, RepositoryException {
+		logger.debug("updateRepositorySize called with change quantity: "
+				+ change);
 		Property sizeProperty = session.getNode("/objects").getProperty("size");
 		Long previousSize = sizeProperty.getLong();
-		sizeProperty.setValue(previousSize + change);
+		logger.debug("Previous repository size: " + previousSize);
+		synchronized (sizeProperty) {
+			sizeProperty.setValue(previousSize + change);
+			session.save();
+		}
+		logger.debug("Current repository size: " + sizeProperty.getLong());
 	}
 
 	protected Long getRepositorySize(Session session)

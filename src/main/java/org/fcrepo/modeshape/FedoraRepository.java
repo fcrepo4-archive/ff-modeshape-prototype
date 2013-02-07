@@ -1,5 +1,6 @@
 package org.fcrepo.modeshape;
 
+import static com.google.common.collect.ImmutableMap.builder;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.TEXT_XML;
 import static javax.ws.rs.core.Response.ok;
@@ -26,7 +27,6 @@ import org.modeshape.jcr.api.nodetype.NodeTypeManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 
 /**
@@ -45,37 +45,38 @@ public class FedoraRepository extends AbstractResource {
 	@Path("/describe/modeshape")
 	public Response describeModeshape() throws JsonGenerationException,
 			JsonMappingException, IOException, RepositoryException {
-
+		final Session session = repo.login();
 		logger.debug("Repository name: "
 				+ repo.getDescriptor(Repository.REP_NAME_DESC));
-		final Builder<String, Object> repoproperties = ImmutableMap.builder();
+		final Builder<String, Object> repoproperties = builder();
 		for (final String key : repo.getDescriptorKeys()) {
 			if (repo.getDescriptor(key) != null)
 				repoproperties.put(key, repo.getDescriptor(key));
 		}
 
 		// add in node namespaces
-		final NamespaceRegistry reg = ws.getNamespaceRegistry();
-		final Builder<String, String> namespaces = ImmutableMap.builder();
+		final NamespaceRegistry reg = session.getWorkspace()
+				.getNamespaceRegistry();
+		final Builder<String, String> namespaces = builder();
 		for (final String prefix : reg.getPrefixes()) {
 			namespaces.put(prefix, reg.getURI(prefix));
 		}
 		repoproperties.put("node.namespaces", namespaces.build());
 
 		// add in node types
-		final NodeTypeManager ntmanager = (NodeTypeManager) ws
-				.getNodeTypeManager();
-		final Builder<String, String> nodetypes = ImmutableMap.builder();
+		final NodeTypeManager ntmanager = (NodeTypeManager) session
+				.getWorkspace().getNodeTypeManager();
+		final Builder<String, String> nodetypes = builder();
 		NodeTypeIterator i = ntmanager.getAllNodeTypes();
 		while (i.hasNext()) {
 			NodeType nt = i.nextNodeType();
 			nodetypes.put(nt.getName(), nt.toString());
 		}
 		repoproperties.put("node.types", nodetypes.build());
-
-		return ok(
-				mapper.writerWithType(Map.class).writeValueAsString(
-						repoproperties.build())).build();
+		Map<String, Object> props = repoproperties.build();
+		session.logout();
+		return ok(mapper.writerWithType(Map.class).writeValueAsString(props))
+				.build();
 	}
 
 	@GET
@@ -87,6 +88,8 @@ public class FedoraRepository extends AbstractResource {
 		Session session = repo.login();
 		DescribeRepository description = new DescribeRepository();
 		description.repositorySize = getRepositorySize(session);
+		description.numberOfObjects = session.getNode("/objects").getNodes()
+				.getSize();
 		session.logout();
 		return description;
 	}

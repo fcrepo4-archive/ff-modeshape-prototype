@@ -232,12 +232,21 @@ public class FedoraDatastreams extends AbstractResource {
 		ds.setProperty("fedora:ownerId", "Fedo Radmin");
 		if (created) {
 			ds.setProperty("fedora:created", Calendar.getInstance());
-			updateRepositorySize(
-					getObjectSize(session.getNode("/objects/" + pid))
-							- oldObjectSize, session);
 		}
 		ds.setProperty("jcr:lastModified", Calendar.getInstance());
 		session.save();
+		if (created) {
+			/*
+			 * we save before updating the repo size because the act of
+			 * persisting session state creates new system-curated nodes and
+			 * properties which contribute to the footprint of this resource
+			 */
+			updateRepositorySize(
+					getObjectSize(session.getNode("/objects/" + pid))
+							- oldObjectSize, session);
+			// now we save again to persist the repo size
+			session.save();
+		}
 		session.logout();
 		logger.debug("Finished adding datastream node at path: " + dsPath);
 		return uriInfo.getAbsolutePath();
@@ -390,11 +399,16 @@ public class FedoraDatastreams extends AbstractResource {
 	@Path("/{dsid}")
 	public Response deleteDatastream(@PathParam("pid") String pid,
 			@PathParam("dsid") String dsid) throws RepositoryException {
+		final String dsPath = "/objects/" + pid + "/" + dsid;
 		final Session session = repo.login();
-		final Node ds = session.getNode("/objects/" + pid + "/" + dsid);
-		updateRepositorySize(0L - getContentSize(ds) - getNodePropertySize(ds),
-				session);
-		return deleteResource("/objects/" + pid + "/" + dsid, session);
+		final Node ds;
+		if (session.nodeExists(dsPath)) {
+			ds = session.getNode(dsPath);
+		} else {
+			return four04;
+		}
+		updateRepositorySize(0L - getDatastreamSize(ds), session);
+		return deleteResource(ds);
 	}
 
 	private DatastreamProfile getDSProfile(Node ds) throws RepositoryException,
@@ -417,6 +431,11 @@ public class FedoraDatastreams extends AbstractResource {
 		final Binary b = (Binary) ds.getNode(JCR_CONTENT).getProperty(JCR_DATA)
 				.getBinary();
 		return b.getMimeType();
+	}
+
+	public static Long getDatastreamSize(Node ds) throws ValueFormatException,
+			PathNotFoundException, RepositoryException {
+		return getNodePropertySize(ds) + getContentSize(ds);
 	}
 
 	public static Long getContentSize(Node ds) throws ValueFormatException,
