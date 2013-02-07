@@ -29,16 +29,16 @@ public abstract class AbstractResourceTest {
 		logger = LoggerFactory.getLogger(this.getClass());
 	}
 
-	protected PostMethod postObjectMethod(final String pid) {
+	protected static PostMethod postObjMethod(final String pid) {
 		return new PostMethod(serverAddress + "rest/objects/" + pid);
 	}
 
-	protected PostMethod postDSMethod(final String pid, final String ds) {
+	protected static PostMethod postDSMethod(final String pid, final String ds) {
 		return new PostMethod(serverAddress + "rest/objects/" + pid
 				+ "/datastreams/" + ds);
 	}
 
-	protected PutMethod putDSMethod(final String pid, final String ds) {
+	protected static PutMethod putDSMethod(final String pid, final String ds) {
 		return new PutMethod(serverAddress + "rest/objects/" + pid
 				+ "/datastreams/" + ds);
 	}

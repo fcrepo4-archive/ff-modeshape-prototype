@@ -18,7 +18,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	@Test
 	public void testGetDatastreams() throws Exception {
-		PostMethod pmethod = postObjectMethod("asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
 		GetMethod method = new GetMethod(serverAddress
@@ -29,7 +29,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	@Test
 	public void testAddDatastream() throws Exception {
-		PostMethod pmethod = postObjectMethod("asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
 		PostMethod method = postDSMethod("asdf", "zxc");
@@ -39,7 +39,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	@Test
 	public void testMutateDatastream() throws Exception {
-		PostMethod createObjectMethod = postObjectMethod("asdf2");
+		PostMethod createObjectMethod = postObjMethod("asdf2");
 		Integer status = client.executeMethod(createObjectMethod);
 		assertEquals("Couldn't create an object!", (Integer) 201, status);
 
@@ -65,7 +65,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	@Test
 	public void testGetDatastream() throws Exception {
-		PostMethod pmethod = postObjectMethod("asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
 		GetMethod method_test_get = new GetMethod(serverAddress
@@ -85,7 +85,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	@Test
 	public void testDeleteDatastream() throws Exception {
-		PostMethod pmethod = postObjectMethod("asdf");
+		PostMethod pmethod = postObjMethod("asdf");
 		client.executeMethod(pmethod);
 
 		PostMethod method = postDSMethod("asdf", "lkjh");
@@ -110,7 +110,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	@Test
 	public void testGetDatastreamContent() throws Exception {
-		final PostMethod createObjMethod = postObjectMethod("testfoo");
+		final PostMethod createObjMethod = postObjMethod("testfoo");
 		client.executeMethod(createObjMethod);
 		assertEquals(201, client.executeMethod(createObjMethod));
 
@@ -127,7 +127,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	@Test
 	public void testMultipleDatastreams() throws Exception {
-		final PostMethod createObjMethod = postObjectMethod("testfoo");
+		final PostMethod createObjMethod = postObjMethod("testfoo");
 		client.executeMethod(createObjMethod);
 		assertEquals(201, client.executeMethod(createObjMethod));
 

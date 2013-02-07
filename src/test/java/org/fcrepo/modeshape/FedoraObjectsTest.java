@@ -13,21 +13,18 @@ public class FedoraObjectsTest extends AbstractResourceTest {
 
 	@Test
 	public void testIngest() throws Exception {
-		PostMethod method = new PostMethod(serverAddress + "rest/objects/asdf");
-		int status = client.executeMethod(method);
-		assertEquals(201, status);
+		PostMethod method = postObjMethod("asdf");
+		assertEquals(201, client.executeMethod(method));
 	}
 
 	@Test
 	public void testGetObjectInXML() throws Exception {
-		PostMethod createObjMethod = new PostMethod(serverAddress
-				+ "rest/objects/fdsa");
+		PostMethod createObjMethod = postObjMethod("fdsa");
 		client.executeMethod(createObjMethod);
 
 		GetMethod getObjMethod = new GetMethod(serverAddress
 				+ "rest/objects/fdsa");
-		int status = client.executeMethod(getObjMethod);
-		assertEquals(200, status);
+		assertEquals(200, client.executeMethod(getObjMethod));
 		String response = getObjMethod.getResponseBodyAsString();
 		logger.debug("Retrieved object profile:\n" + response);
 		assertTrue("Object had wrong PID!",
@@ -36,18 +33,16 @@ public class FedoraObjectsTest extends AbstractResourceTest {
 
 	@Test
 	public void testDeleteObject() throws Exception {
-		PostMethod createObjmethod = new PostMethod(serverAddress
-				+ "rest/objects/asdf");
-		client.executeMethod(createObjmethod);
+		PostMethod createObjmethod = postObjMethod("asdf");
+		assertEquals(201, client.executeMethod(createObjmethod));
 
 		DeleteMethod delMethod = new DeleteMethod(serverAddress
 				+ "rest/objects/asdf");
-		int status = client.executeMethod(delMethod);
-		assertEquals(204, status);
+		assertEquals(204, client.executeMethod(delMethod));
 
 		GetMethod getMethod = new GetMethod(serverAddress + "rest/objects/asdf");
-		status = client.executeMethod(getMethod);
-		assertEquals("Object wasn't really deleted!", 404, status);
+		assertEquals("Object wasn't really deleted!", 404,
+				client.executeMethod(getMethod));
 	}
 
 }
