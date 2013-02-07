@@ -52,7 +52,7 @@ public class LogbackAuditorTest {
         root.addAppender(mockAppender);
 
         EventBus eventBus = new EventBus("Test EventBus");
-        Auditor auditor = new LogbackAuditor();
+        Auditor auditor = new LogbackAuditor(mockAppender);
         eventBus.register(auditor);
         eventBus.post(mockEvent);
 
