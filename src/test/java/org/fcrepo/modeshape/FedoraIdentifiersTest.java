@@ -12,12 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
+@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml" })
 public class FedoraIdentifiersTest extends AbstractResourceTest {
 
 	@Test
 	public void testGetNextPidResponds() throws Exception {
-		PostMethod method = new PostMethod(serverAddress + "rest/nextPID");
+		PostMethod method = new PostMethod(serverAddress + "nextPID");
 		method.addRequestHeader("Accepts", "text/xml");
 		int status = client.executeMethod(method);
 		logger.debug("Executed testGetNextPidResponds()");
@@ -27,7 +29,7 @@ public class FedoraIdentifiersTest extends AbstractResourceTest {
 	@Test
 	public void testGetNextHasAPid() throws HttpException, IOException {
 		PostMethod method = new PostMethod(serverAddress
-				+ "rest/nextPID?numPids=1");
+				+ "nextPID?numPids=1");
 		method.addRequestHeader("Accepts", "text/xml");
 		client.executeMethod(method);
 		logger.debug("Executed testGetNextHasAPid()");
@@ -40,7 +42,7 @@ public class FedoraIdentifiersTest extends AbstractResourceTest {
 	@Test
 	public void testGetNextHasTwoPids() throws HttpException, IOException {
 		PostMethod method = new PostMethod(serverAddress
-				+ "rest/nextPID?numPids=2");
+				+ "nextPID?numPids=2");
 		method.addRequestHeader("Accepts", "text/xml");
 		client.executeMethod(method);
 		logger.debug("Executed testGetNextHasTwoPids()");

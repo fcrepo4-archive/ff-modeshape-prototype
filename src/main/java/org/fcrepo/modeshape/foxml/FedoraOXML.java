@@ -19,7 +19,6 @@ import javax.ws.rs.core.Response;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.fcrepo.modeshape.AbstractResource;
-import org.modeshape.common.logging.Logger;
 
 import com.google.common.collect.ImmutableMap;
 

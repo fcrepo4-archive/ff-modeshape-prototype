@@ -5,6 +5,7 @@ import static com.google.common.collect.Collections2.filter;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.jcr.RepositoryException;
+import javax.jcr.Session;
 import javax.jcr.observation.Event;
 import javax.jcr.observation.EventIterator;
 import javax.jcr.observation.EventListener;
@@ -35,12 +36,13 @@ public class SimpleObserver implements EventListener {
 
 	@PostConstruct
 	public void buildListener() throws RepositoryException {
-		repository
-				.login("fedora")
-				.getWorkspace()
+		Session session = repository.login();
+		session.getWorkspace()
 				.getObservationManager()
 				.addEventListener(this, eventTypes, "/", true, null, null,
 						false);
+		session.save();
+		session.logout();
 	}
 
 	// it's okay to suppress type-safety warning here,

@@ -8,7 +8,9 @@ import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
+@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml" })
 public class FedoraObjectsTest extends AbstractResourceTest {
 
 	@Test
@@ -23,7 +25,7 @@ public class FedoraObjectsTest extends AbstractResourceTest {
 		client.executeMethod(createObjMethod);
 
 		GetMethod getObjMethod = new GetMethod(serverAddress
-				+ "rest/objects/fdsa");
+				+ "objects/fdsa");
 		assertEquals(200, client.executeMethod(getObjMethod));
 		String response = getObjMethod.getResponseBodyAsString();
 		logger.debug("Retrieved object profile:\n" + response);
@@ -37,10 +39,10 @@ public class FedoraObjectsTest extends AbstractResourceTest {
 		assertEquals(201, client.executeMethod(createObjmethod));
 
 		DeleteMethod delMethod = new DeleteMethod(serverAddress
-				+ "rest/objects/asdf");
+				+ "objects/asdf");
 		assertEquals(204, client.executeMethod(delMethod));
 
-		GetMethod getMethod = new GetMethod(serverAddress + "rest/objects/asdf");
+		GetMethod getMethod = new GetMethod(serverAddress + "objects/asdf");
 		assertEquals("Object wasn't really deleted!", 404,
 				client.executeMethod(getMethod));
 	}

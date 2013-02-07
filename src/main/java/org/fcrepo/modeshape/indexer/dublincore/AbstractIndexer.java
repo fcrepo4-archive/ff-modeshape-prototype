@@ -1,10 +1,9 @@
 package org.fcrepo.modeshape.indexer.dublincore;
 
 
-import javax.jcr.Node;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+
+import javax.jcr.Node;
 
 public abstract class AbstractIndexer {
 

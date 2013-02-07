@@ -11,7 +11,9 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.junit.Test;
+import org.springframework.test.context.ContextConfiguration;
 
+@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml" })
 public class FedoraDatastreamsTest extends AbstractResourceTest {
 
 	private static final String faulkner1 = "The past is never dead. It's not even past.";
@@ -22,7 +24,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 		client.executeMethod(pmethod);
 
 		GetMethod method = new GetMethod(serverAddress
-				+ "rest/objects/asdf/datastreams");
+				+ "objects/asdf/datastreams");
 		int status = client.executeMethod(method);
 		assertEquals(200, status);
 	}
@@ -54,7 +56,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 		assertEquals("Couldn't mutate a datastream!", (Integer) 201, status);
 
 		GetMethod retrieveMutatedDataStreamMethod = new GetMethod(serverAddress
-				+ "rest/objects/asdf2/datastreams/vcxz/content");
+				+ "objects/asdf2/datastreams/vcxz/content");
 		client.executeMethod(retrieveMutatedDataStreamMethod);
 		String response = retrieveMutatedDataStreamMethod
 				.getResponseBodyAsString();
@@ -69,7 +71,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 		client.executeMethod(pmethod);
 
 		GetMethod method_test_get = new GetMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/poiu");
+				+ "objects/asdf/datastreams/poiu");
 		int status = client.executeMethod(method_test_get);
 		assertEquals(404, status);
 
@@ -78,7 +80,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 		assertEquals(201, status);
 
 		GetMethod method_2 = new GetMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/poiu");
+				+ "objects/asdf/datastreams/poiu");
 		status = client.executeMethod(method_2);
 		assertEquals(200, status);
 	}
@@ -93,17 +95,17 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 		assertEquals(201, status);
 
 		GetMethod method_2 = new GetMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/lkjh");
+				+ "objects/asdf/datastreams/lkjh");
 		status = client.executeMethod(method_2);
 		assertEquals(200, status);
 
 		DeleteMethod dmethod = new DeleteMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/lkjh");
+				+ "objects/asdf/datastreams/lkjh");
 		status = client.executeMethod(dmethod);
 		assertEquals(204, status);
 
 		GetMethod method_test_get = new GetMethod(serverAddress
-				+ "rest/objects/asdf/datastreams/lkjh");
+				+ "objects/asdf/datastreams/lkjh");
 		status = client.executeMethod(method_test_get);
 		assertEquals(404, status);
 	}
@@ -119,7 +121,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 				"marbles for everyone", null, null));
 		assertEquals(201, client.executeMethod(createDSMethod));
 		GetMethod method_test_get = new GetMethod(serverAddress
-				+ "rest/objects/testfoo/datastreams/testfoozle/content");
+				+ "objects/testfoo/datastreams/testfoozle/content");
 		assertEquals(200, client.executeMethod(method_test_get));
 		assertEquals("Got the wrong content back!", "marbles for everyone",
 				method_test_get.getResponseBodyAsString());
@@ -142,7 +144,7 @@ public class FedoraDatastreamsTest extends AbstractResourceTest {
 		assertEquals(201, client.executeMethod(createDS2Method));
 
 		final GetMethod getDSesMethod = new GetMethod(serverAddress
-				+ "rest/objects/testfoo/datastreams");
+				+ "objects/testfoo/datastreams");
 		assertEquals(200, client.executeMethod(getDSesMethod));
 		final String response = getDSesMethod.getResponseBodyAsString();
 		assertTrue("Didn't find the first datastream!",

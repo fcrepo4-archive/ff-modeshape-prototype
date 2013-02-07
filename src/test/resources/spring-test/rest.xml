@@ -11,21 +11,13 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
-    <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/>
- 
+
     <!-- Context that houses JAX-RS Resources that compose the API
         as well as som utility gear. -->
 
     <context:annotation-config/>
 
-    <!-- Supports JSON output for API methods. Should be replaced with a properly-
-    configured JAX-RS Provider-->
-    <bean class="org.codehaus.jackson.map.ObjectMapper"/>
-
-    <!-- Mints PIDs-->
-    <bean class="org.fcrepo.modeshape.identifiers.UUIDPidMinter"/>
-
-    <jaxrs:server address="http://localhost:8080/rest">
+    <jaxrs:server address="http://localhost:8080/" bus="cxf">
         <jaxrs:serviceBeans>
             <bean class="org.fcrepo.modeshape.FedoraRepository"/>
             <bean class="org.fcrepo.modeshape.FedoraDatastreams"/>
@@ -33,7 +25,6 @@
             <bean class="org.fcrepo.modeshape.FedoraNamespaces"/>
             <bean class="org.fcrepo.modeshape.FedoraObjects"/>
             <bean class="org.fcrepo.modeshape.foxml.FedoraOXML"/>
-            <bean class="org.fcrepo.modeshape.indexer.DublinCore" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json"/>
@@ -55,15 +46,12 @@
         </jaxrs:providers>
     </jaxrs:server>
 
-    <jaxrs:server address="http://localhost:8080/rest/modeshape">
-        <jaxrs:serviceBeans>
-            <bean class="org.modeshape.web.jcr.rest.ModeShapeRestService"/>
-        </jaxrs:serviceBeans>
-        <jaxrs:providers>
-            <bean class="org.modeshape.web.jcr.rest.output.HtmlBodyWriter"/>
-            <bean class="org.modeshape.web.jcr.rest.output.JSONBodyWriter"/>
-            <bean class="org.modeshape.web.jcr.rest.output.TextBodyWriter"/>
-        </jaxrs:providers>
-    </jaxrs:server>
+    <!-- Supports JSON output for API methods. Should be replaced with a properly-
+    configured JAX-RS Provider-->
+    <bean class="org.codehaus.jackson.map.ObjectMapper"/>
+
+    <!-- Mints PIDs-->
+    <bean class="org.fcrepo.modeshape.identifiers.UUIDPidMinter"/>
+
 
 </beans>

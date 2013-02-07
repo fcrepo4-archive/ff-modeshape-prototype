@@ -3,17 +3,11 @@ package org.fcrepo.modeshape;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "/spring-test/rest.xml", "/spring-test/repo.xml",
-		"/spring-test/indexer.xml" })
-public abstract class AbstractResourceTest {
+@ContextConfiguration("/spring-test/jetty.xml")
+public abstract class AbstractResourceTest extends AbstractTest {
 
 	protected Logger logger;
 
@@ -24,22 +18,17 @@ public abstract class AbstractResourceTest {
 
 	protected final HttpClient client = new HttpClient();
 
-	@Before
-	public void setLogger() {
-		logger = LoggerFactory.getLogger(this.getClass());
-	}
-
 	protected static PostMethod postObjMethod(final String pid) {
-		return new PostMethod(serverAddress + "rest/objects/" + pid);
+		return new PostMethod(serverAddress + "objects/" + pid);
 	}
 
 	protected static PostMethod postDSMethod(final String pid, final String ds) {
-		return new PostMethod(serverAddress + "rest/objects/" + pid
+		return new PostMethod(serverAddress + "objects/" + pid
 				+ "/datastreams/" + ds);
 	}
 
 	protected static PutMethod putDSMethod(final String pid, final String ds) {
-		return new PutMethod(serverAddress + "rest/objects/" + pid
-				+ "/datastreams/" + ds);
+		return new PutMethod(serverAddress + "objects/" + pid + "/datastreams/"
+				+ ds);
 	}
 }

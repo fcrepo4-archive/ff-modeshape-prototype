@@ -1,14 +1,13 @@
 package org.fcrepo.modeshape.indexer.dublincore;
 
-import javax.inject.Inject;
-import javax.jcr.Binary;
-import javax.jcr.Node;
-import javax.jcr.RepositoryException;
+import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
+import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
 
 import java.io.InputStream;
 
-import static org.modeshape.jcr.api.JcrConstants.JCR_CONTENT;
-import static org.modeshape.jcr.api.JcrConstants.JCR_DATA;
+import javax.jcr.Binary;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 
 public class IndexFromWellKnownPath extends AbstractIndexer {
 
